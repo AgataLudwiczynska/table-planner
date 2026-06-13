@@ -1,0 +1,37 @@
+.claude/**/10x-*
+.claude/**/.10x-*
+.github/**/10x-*
+.agents/**/10x-*
+.claude/prompts
+.claude/settings.local.json
+context/**/README.md
+
+# from 10x-astro-starter
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# cloudflare
+.dev.vars
+.wrangler/
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
