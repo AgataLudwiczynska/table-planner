@@ -58,6 +58,3 @@ Full server-side rendering (`output: "server"` in `astro.config.mjs`). All pages
 - `wrangler.jsonc` sets `compatibility_flags: ["nodejs_compat"]` — most Node APIs work on Workers, but not all. If a build/deploy fails on a missing global (`process`, `Buffer`, etc.), check this flag before reaching for a polyfill.
 - Deploy: `npx wrangler deploy` (requires Cloudflare account + `wrangler` auth).
 
-## CI
-
-`.github/workflows/ci.yml` runs lint + build on every push and PR to `master`. Requires `SUPABASE_URL` and `SUPABASE_KEY` repository secrets for the build step.
