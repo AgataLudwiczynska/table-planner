@@ -16,7 +16,7 @@ export function createClient(requestHeaders: Headers, cookies: AstroCookies) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          cookies.set(name, value, options);
+          cookies.set(name, value, { ...options, httpOnly: true });
         });
       },
     },
