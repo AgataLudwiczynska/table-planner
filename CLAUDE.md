@@ -42,7 +42,7 @@ Full server-side rendering (`output: "server"` in `astro.config.mjs`). All pages
 - **Tailwind class merging**: always use `cn()` from `@/lib/utils` (clsx + tailwind-merge) for conditional/merged class names. Do not concatenate class strings manually.
 - **shadcn/ui**: components live in `src/components/ui/`, "new-york" style variant. Install new ones with `npx shadcn@latest add [name]`.
 - **API routes**: export uppercase `GET`, `POST`, etc. Validate input with zod.
-- **Supabase migrations**: `supabase/migrations/` using naming format `YYYYMMDDHHmmss_short_description.sql`. **Always enable RLS on new tables with granular per-operation, per-role policies.**
+- **Supabase migrations**: `supabase/migrations/` using naming format `YYYYMMDDHHmmss_short_description.sql`. **Always enable RLS on new tables with granular per-operation, per-role policies.** **Migrations are one-way** — `npx wrangler rollback` reverts worker code but NOT `npx supabase db push`. Push schema-breaking migrations only during low-traffic windows.
 - **React**: no Next.js directives (`"use client"` etc.). Extract hooks to `src/components/hooks/`. **React Compiler is enforced by ESLint** — don't mutate props, don't break Rules of React; lint will fail the build.
 - **Services / helpers** go in `src/lib/` (or `src/lib/services/` for extracted business logic).
 - **Shared types** (entities, DTOs) go in `src/types.ts` (file not yet created — add it on first shared type).
