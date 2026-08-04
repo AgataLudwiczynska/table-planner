@@ -56,5 +56,7 @@ Full server-side rendering (`output: "server"` in `astro.config.mjs`). All pages
 - Local Supabase: `npx supabase start` (requires Docker).
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored).
 - `wrangler.jsonc` sets `compatibility_flags: ["nodejs_compat"]` — most Node APIs work on Workers, but not all. If a build/deploy fails on a missing global (`process`, `Buffer`, etc.), check this flag before reaching for a polyfill.
-- Deploy: `npx wrangler deploy` (requires Cloudflare account + `wrangler` auth).
+- Deploy: **push to `main`** — Cloudflare Workers Builds runs `npm run build` + `npx wrangler deploy` in its own container. **Never run `wrangler deploy` from local** after first setup — creates drift. Exception: emergency rollback via `npx wrangler rollback`.
+- **`prebuild` runs `astro sync` before lint**: `.astro/` type stubs are gitignored and don't exist in Cloudflare's fresh build container. Without `astro sync` first, ts-eslint fails on `import.meta.env.*` and similar Astro-generated types (works locally where old stubs linger).
+- **Two-copy Supabase secrets on Cloudflare**: `SUPABASE_URL` / `SUPABASE_KEY` live in **two places** — runtime secrets (`wrangler secret put`) used by the deployed worker, and build-time env vars (Workers Builds → Settings → Variables) used by the build container. When rotating Supabase keys, update **both**.
 
