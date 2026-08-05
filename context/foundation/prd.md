@@ -10,8 +10,8 @@ target_scale:
   qps: low
   data_volume: small
 timeline_budget:
-  mvp_weeks: 3
-  hard_deadline: 2026-07-05
+  mvp_weeks: 5
+  hard_deadline: 2026-09-10
   after_hours_only: true
 ---
 
@@ -103,6 +103,8 @@ Sekundarna persona w MVP nie istnieje — aplikacja serwuje wyłącznie operator
 - FR-001: Operator can register an account with email and password. Priority: must-have
 - FR-002: Operator can log in with email and password. Priority: must-have
 - FR-003: Operator can log out. Priority: must-have
+- FR-004a: Registration may require email confirmation via a link before the account can log in, depending on auth provider configuration. If enabled, login is blocked until the link is clicked. Priority: should-have
+  > Socratic: Counter-argument considered: „must-have wymusza mail" vs „should-have zostawia furtkę, jeśli darmowy dostawca zawiedzie". Resolution: should-have. Weryfikacja jest wartościowa (odsiewa literówki), ale nie jest core value produktu — jeśli dostarczalność maili na wybranym providerze (np. Supabase free SMTP) okaże się nieakceptowalna, MVP może wystartować bez potwierdzenia. Do przemyślenia razem z resetem hasła w v2.
 
 ### Wedding management
 
@@ -182,9 +184,10 @@ Reguła jest **deterministyczna** — ta sama konfiguracja zawsze daje ten sam w
 Model: **jedna rola, jeden użytkownik per projekt weselny — właściciel.** Pełny dostęp do swojego planu wesela; brak współedycji, brak obserwatorów, brak zaproszeń w MVP.
 
 - **Login:** e-mail + hasło. Prosta rejestracja (e-mail + hasło). Brak logowania społecznościowego (zob. `## Non-Goals`).
+- **Weryfikacja e-mail:** opcjonalna — jeśli dostawca auth jest tak skonfigurowany, konto wymaga potwierdzenia linku mailowego przed pierwszym logowaniem (zob. FR-004a).
 - **Granica danych:** każdy użytkownik widzi tylko swoje wesele. Wesele jest "własnością" konta; nie ma współdzielenia w MVP.
 - **Niezalogowany dostęp do trasy chronionej:** redirect na ekran logowania.
-- **Reset hasła:** decyzja otwarta — zob. `## Open Questions`.
+- **Reset hasła:** brak w MVP (zob. `## Non-Goals`). Utrata hasła = utrata dostępu do konta w v1.
 
 ## Non-Goals
 
@@ -199,6 +202,7 @@ Model: **jedna rola, jeden użytkownik per projekt weselny — właściciel.** P
 - **Eksport PDF.** MVP ma tylko widok podsumowania w przeglądarce. *Rationale:* renderowanie PDF + layout = tygodnie pracy; v2.
 - **Współedycja, obserwator, zaproszenia mailowe.** Solo MVP — jeden właściciel per wesele. *Rationale:* eliminacja warstwy uprawnień i zaproszeń.
 - **Logowanie społecznościowe (Google / Facebook).** Tylko e-mail + hasło. *Rationale:* brak integracji z zewnętrznymi dostawcami tożsamości w v1.
+- **Reset / odzyskiwanie hasła.** MVP nie ma flow „zapomniałam hasła". *Rationale:* hard deadline 2026-09-10 jest wąski; pełny flow resetu (mail + strona resetu + walidacja tokenu) to ~0,5 tyg., którego nie stać nas w tym oknie. Świadome ryzyko: utrata hasła = utrata dostępu; użytkownik informowany na ekranie logowania. Do v2.
 - **Import gości z CSV / Excel.** Operator wpisuje gości ręcznie w aplikacji. *Rationale:* parser + obsługa błędnych formatów + mapowanie kolumn = osobny moduł; v2.
 - **Powiadomienia e-mail** (przypomnienia, alerty, raporty). MVP nie wysyła e-maili (poza weryfikacją konta, jeśli okaże się potrzebna). *Rationale:* brak infrastruktury wysyłkowej i szablonów wiadomości; v2.
 
@@ -211,7 +215,5 @@ Model: **jedna rola, jeden użytkownik per projekt weselny — właściciel.** P
 
 ## Open Questions
 
-1. **Reset hasła w MVP — tak czy nie?** Operator: zapomnienie hasła = stracony plan wesela (i 100+ godzin pracy). UX-owo ryzykowne pominąć w MVP, ale dodanie pełnego przepływu odzyskiwania to ~0,5 tygodnia pracy. *Owner:* user. *Do decyzji przed planem implementacji.*
-2. **Czy `target_scale.users: small` wymaga jakiejkolwiek weryfikacji adresu e-mail przy rejestracji?** Można pominąć (natychmiastowa rejestracja) przy tak małej skali; w razie szerszej dystrybucji — wymóg potwierdzenia mailowego. *Owner:* user. *Do decyzji przed planem implementacji.*
-3. **Konkretny target wydajnościowy walidacji** (np. p95 < 200 ms dla 150 gości i N konfliktów). FR-021 ustalił "bezwarunkową natychmiastowość" jako zasadę produktu, ale nie nazwał liczby. *Owner:* downstream (faza implementacji / wybór algorytmu).
-4. **Czy weryfikujemy adres e-mail przed pełną aktywacją konta?** Pokrewne do (2), ale dotyczy aktywacji vs samej rejestracji. *Owner:* user.
+1. **Konkretny target wydajnościowy walidacji** (np. p95 < 200 ms dla 150 gości i N konfliktów). FR-021 ustalił „bezwarunkową natychmiastowość" jako zasadę produktu, ale nie nazwał liczby. *Owner:* downstream (faza implementacji / wybór algorytmu).
+2. **Czy w v1 włączamy weryfikację e-mail?** Zależne od (a) wybranego dostawcy SMTP i jego limitów na darmowym planie oraz (b) czasu na obsługę „mail nie dotarł". Wpływa na FR-004a (should-have). *Owner:* user. *Do decyzji przed zaproszeniem pierwszego realnego użytkownika (poza kontami deweloperskimi).*
