@@ -378,6 +378,8 @@ S-02 i S-03 kopiują wszystkie 5 wzorców. Migracja jest one-way (CLAUDE.md); ro
 
 ### Phase 1: Migracja — schema, RLS, RPC
 
+> Done — commit `41cddc4` on branch `feat/wedding-scope-schema-and-rls` (1.1–1.8).
+
 #### Automated
 
 - [x] 1.1 `npx supabase db reset` kończy się bez błędów
