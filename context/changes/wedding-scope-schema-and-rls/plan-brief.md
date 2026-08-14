@@ -32,7 +32,7 @@ Trzy tabele istnieją lokalnie i na produkcji z RLS enabled. 8 policies (wedding
 **In scope:**
 
 - Jedna migracja: 3 tabele + FK indeksy + 8 RLS policies (weddings ×4, tables ×3, seats ×1) + 1 RPC funkcja + `pgcrypto` extension guard
-- `npm run db:types` script + wygenerowany `src/db/database.types.ts` + hand-written `src/types.ts` z 3 aliasami
+- `npm run db:types` script + wygenerowany `src/db/database.types.ts` + hand-written `src/types.ts` z 3 aliasami + ESLint ignore dla generowanego pliku
 - CLAUDE.md — dopisek o `npm run db:types` po każdej migracji
 - Manualny cross-account test (6 kroków) udokumentowany w `docs/reference/rls-verification-protocol.md` (migracja tylko linkuje)
 - Push migracji na produkcję → odblokowanie deployment-plan §0.3 (`supabase login` + `link`)
@@ -74,7 +74,7 @@ Foundation pattern: RLS chain (owner check propaguje przez FK subquery), RPC dla
 | Phase                              | What it delivers                                     | Key risk                                                                                    |
 | ---------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | 1. Migracja: schema + RLS + RPC    | Jeden plik SQL, aplikacja przez `db reset` lokalnie   | RLS policy miss w chain (`seats` → `tables` → `weddings`) → cross-account leak              |
-| 2. Typy TS integration             | `db:types` script + generated + hand-written types    | Trivial — tylko wire-up i doc                                                                |
+| 2. Typy TS integration             | `db:types` script + generated + hand-written types    | Strict ESLint blokuje generowany plik — wymaga ESLint ignore (`src/db/database.types.ts`)    |
 | 3. RLS verification + prod push    | 6-step manual test + `db push`                       | Migration one-way; bug w RLS na prodzie wymaga forward-fix migracji (nie rollback)          |
 
 **Prerequisites:** local Supabase boots (`npx supabase start`), Docker running, produkcyjne creds Supabase w password managerze (per deployment-plan §0.2)

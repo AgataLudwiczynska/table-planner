@@ -42,7 +42,7 @@ Full server-side rendering (`output: "server"` in `astro.config.mjs`). All pages
 - **Tailwind class merging**: always use `cn()` from `@/lib/utils` (clsx + tailwind-merge) for conditional/merged class names. Do not concatenate class strings manually.
 - **shadcn/ui**: components live in `src/components/ui/`, "new-york" style variant. Install new ones with `npx shadcn@latest add [name]`.
 - **API routes**: export uppercase `GET`, `POST`, etc. Validate input with zod.
-- **Supabase migrations**: `supabase/migrations/` using naming format `YYYYMMDDHHmmss_short_description.sql`. **Always enable RLS on new tables with granular per-operation, per-role policies.** **Migrations are one-way** — `npx wrangler rollback` reverts worker code but NOT `npx supabase db push`. Push schema-breaking migrations only during low-traffic windows.
+- **Supabase migrations**: `supabase/migrations/` using naming format `YYYYMMDDHHmmss_short_description.sql`. **Always enable RLS on new tables with granular per-operation, per-role policies.** **Migrations are one-way** — `npx wrangler rollback` reverts worker code but NOT `npx supabase db push`. Push schema-breaking migrations only during low-traffic windows. After each migration, run `npm run db:types` and commit `src/db/database.types.ts` alongside the migration — the file is generated, don't hand-edit.
 - **React**: no Next.js directives (`"use client"` etc.). Extract hooks to `src/components/hooks/`. **React Compiler is enforced by ESLint** — don't mutate props, don't break Rules of React; lint will fail the build.
 - **Services / helpers** go in `src/lib/` (or `src/lib/services/` for extracted business logic).
 - **Shared types** (entities, DTOs) go in `src/types.ts` (file not yet created — add it on first shared type).
@@ -59,4 +59,3 @@ Full server-side rendering (`output: "server"` in `astro.config.mjs`). All pages
 - Deploy: **push to `main`** — Cloudflare Workers Builds runs `npm run build` + `npx wrangler deploy` in its own container. **Never run `wrangler deploy` from local** after first setup — creates drift. Exception: emergency rollback via `npx wrangler rollback`.
 - **`prebuild` runs `astro sync` before lint**: `.astro/` type stubs are gitignored and don't exist in Cloudflare's fresh build container. Without `astro sync` first, ts-eslint fails on `import.meta.env.*` and similar Astro-generated types (works locally where old stubs linger).
 - **Two-copy Supabase secrets on Cloudflare**: `SUPABASE_URL` / `SUPABASE_KEY` live in **two places** — runtime secrets (`wrangler secret put`) used by the deployed worker, and build-time env vars (Workers Builds → Settings → Variables) used by the build container. When rotating Supabase keys, update **both**.
-

@@ -182,7 +182,7 @@ grant execute on function public.create_table_with_seats(uuid, text, int) to aut
 
 ### Overview
 
-Wpiąć `supabase gen types typescript` jako źródło prawdy row-types; wyeksponować domain aliasy w `src/types.ts` do reszty appki. Udokumentować workflow "regeneracja po migracji" w CLAUDE.md.
+Wpiąć `supabase gen types typescript` jako źródło prawdy row-types; wyeksponować domain aliasy w `src/types.ts` do reszty appki. Wyłączyć generowany plik typów spod strict ESLint (bez tego `prebuild` lint kończy się błędem na 134 naruszeniach reguł). Udokumentować workflow "regeneracja po migracji" w CLAUDE.md.
 
 ### Changes Required:
 
@@ -202,7 +202,21 @@ Wpiąć `supabase gen types typescript` jako źródło prawdy row-types; wyekspo
 
 **Contract**: Wynik `supabase gen types typescript --local` — zawiera `Database.public.Tables.weddings/tables/seats` z wariantami `Row`, `Insert`, `Update` oraz sygnaturę `Database.public.Functions.create_table_with_seats` z parametrami i return type.
 
-#### 3. Domain type aliases
+#### 3. ESLint ignore dla generowanego pliku typów
+
+**File**: `eslint.config.js`
+
+**Intent**: Wyłączyć `src/db/database.types.ts` spod strict ESLint. Repo lintuje przez `includeIgnoreFile(.gitignore)` + `strictTypeChecked`/`stylisticTypeChecked`, a generowany plik Supabase narusza 134 reguły (prettier + `@typescript-eslint/no-redundant-type-constituents`, ta ostatnia nie jest `--fix`-owalna). Bez ignore `prebuild` (`astro sync && npm run lint`) kończy się błędem, a Cloudflare Workers Builds odtwarza ten sam błąd na CI. Ignore to standardowe podejście dla kodu generowanego — plik pozostaje 1:1 z outputem `db:types`, przeżywa regenerację i jest pomijany także przez `eslint --fix` w pre-commit hooku (lint-staged), więc commit nie zgłasza błędu na tym pliku.
+
+**Contract**: Dodać standalone global-ignores object do `tseslint.config(...)` w `eslint.config.js`, tuż po `includeIgnoreFile(gitignorePath)`:
+
+```js
+{ ignores: ["src/db/database.types.ts"] },
+```
+
+Precyzyjnie jeden plik (nie cały katalog `src/db/`) — ręcznie pisane helpery dodane później do `src/db/` mają pozostać linterowane. Przyszłe slice'y (S-02/S-03) regenerujące ten sam plik korzystają z tego samego wpisu bez zmian (ścieżka stała — zawsze `database.types.ts`).
+
+#### 4. Domain type aliases
 
 **File**: `src/types.ts` (nowy — pierwszy raz zakładany, per CLAUDE.md convention)
 
@@ -220,7 +234,7 @@ export type Seat = Database["public"]["Tables"]["seats"]["Row"];
 // Future slices: dopisuj tutaj DTO (CreateTableInput, WeddingWithTables composite, itp.)
 ```
 
-#### 4. CLAUDE.md — regeneration workflow
+#### 5. CLAUDE.md — regeneration workflow
 
 **File**: `CLAUDE.md`
 
@@ -234,6 +248,7 @@ export type Seat = Database["public"]["Tables"]["seats"]["Row"];
 
 - `npm run db:types` kończy się bez błędów
 - `src/db/database.types.ts` istnieje i zawiera 3 tabele + `create_table_with_seats` w `Functions`
+- `eslint.config.js` zawiera ignore dla `src/db/database.types.ts`; `npm run lint` przechodzi bez błędów z tego pliku (bez ignore — 134 naruszenia strict-lint)
 - `npm run build` przechodzi (odpala `astro sync` + `npm run lint` + `astro build`; weryfikuje że typy się kompilują z resztą kodu)
 
 #### Manual Verification:
@@ -398,15 +413,16 @@ S-02 i S-03 kopiują wszystkie 5 wzorców. Migracja jest one-way (CLAUDE.md); ro
 
 #### Automated
 
-- [ ] 2.1 `npm run db:types` kończy się bez błędów
-- [ ] 2.2 `src/db/database.types.ts` istnieje z 3 tabelami + RPC signature
-- [ ] 2.3 `npm run build` przechodzi
+- [x] 2.1 `npm run db:types` kończy się bez błędów
+- [x] 2.2 `src/db/database.types.ts` istnieje z 3 tabelami + RPC signature
+- [x] 2.3 `eslint.config.js` ma ignore dla `src/db/database.types.ts`; `npm run lint` przechodzi bez błędów z tego pliku
+- [x] 2.4 `npm run build` przechodzi
 
 #### Manual
 
-- [ ] 2.4 Autocomplete na `Wedding` z `@/types` pokazuje wszystkie 4 pola
-- [ ] 2.5 `src/db/database.types.ts` w gicie (commit razem z migracją)
-- [ ] 2.6 Importy w `src/types.ts` z `@/db/database.types` działają — brak błędów TypeScript
+- [x] 2.5 Autocomplete na `Wedding` z `@/types` pokazuje wszystkie 4 pola
+- [x] 2.6 `src/db/database.types.ts` w gicie (commit razem z migracją)
+- [x] 2.7 Importy w `src/types.ts` z `@/db/database.types` działają — brak błędów TypeScript
 
 ### Phase 3: RLS verification + production push
 
