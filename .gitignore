@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# supabase — local Studio SQL Editor snippet cache
+supabase/snippets/
