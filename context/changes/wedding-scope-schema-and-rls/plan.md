@@ -426,13 +426,13 @@ S-02 i S-03 kopiują wszystkie 5 wzorców. Migracja jest one-way (CLAUDE.md); ro
 
 #### Automated
 
-- [x] 3.1 `npx supabase db push` kończy się bez błędów
-- [x] 3.2 `npx supabase db diff --linked` zwraca "no differences"
+- [x] 3.1 `npx supabase db push` kończy się bez błędów — 6ad26d3
+- [x] 3.2 `npx supabase db diff --linked` zwraca "no differences" — 6ad26d3
 
 #### Manual
 
-- [x] 3.3 `docs/reference/rls-verification-protocol.md` utworzony; 6 kroków protokołu przechodzi lokalnie (Phase 3.1)
-- [x] 3.4 Produkcyjny dashboard → Table Editor: `weddings`/`tables`/`seats` z badge "RLS Enabled"
-- [x] 3.5 Produkcyjny dashboard → Database → Functions listuje `create_table_with_seats`
-- [x] 3.6 Produkcyjny dashboard → Authentication → Policies: 8 policies (weddings ×4, tables ×3, seats ×1)
-- [x] 3.7 `context/changes/deployment/deployment-plan.md` — wszystkie §0.3-related `[~]` → `[x]` (2 w §0.3 body + 1 w §0.4 ~linia 174)
+- [x] 3.3 `docs/reference/rls-verification-protocol.md` utworzony; 6 kroków protokołu przechodzi lokalnie (Phase 3.1) — 6ad26d3
+- [x] 3.4 Produkcyjny dashboard → Table Editor: `weddings`/`tables`/`seats` z badge "RLS Enabled" — 6ad26d3
+- [x] 3.5 Produkcyjny dashboard → Database → Functions listuje `create_table_with_seats` — 6ad26d3
+- [x] 3.6 Produkcyjny dashboard → Authentication → Policies: 8 policies (weddings ×4, tables ×3, seats ×1) — 6ad26d3
+- [x] 3.7 `context/changes/deployment/deployment-plan.md` — wszystkie §0.3-related `[~]` → `[x]` (2 w §0.3 body + 1 w §0.4 ~linia 174) — 6ad26d3
