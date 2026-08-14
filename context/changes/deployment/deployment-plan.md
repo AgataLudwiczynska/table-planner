@@ -139,19 +139,19 @@ If you've worked on TablePlanner before, most of this is done — skim and verif
 
 - [x] **Email delivery readiness check.** Supabase default SMTP has a **4 emails/hour rate limit** on free tier. For first auth smoke test, one signup is fine. If you plan to test more, either add custom SMTP (Authentication → SMTP Settings) or accept the cap.
 
-### 0.3 Link Supabase CLI to production project (~3 min) — **DEFERRED**
+### 0.3 Link Supabase CLI to production project (~3 min)
 
-> **Status:** Deferred until first migration is created. Not required for initial deploy (no migrations exist yet). Come back here before running `npx supabase db push` for the first time.
+> **Status:** Done — completed with the first migration (F-01 `wedding-scope-schema-and-rls`).
 
 Now that the production project exists, link the local CLI so future migrations can be pushed.
 
-- [~] **Authenticate Supabase CLI** — *deferred until first migration*:
+- [x] **Authenticate Supabase CLI**:
   ```bash
   npx supabase login   # opens browser → personal access token, stored at ~/.supabase/access-token
   ```
   - *Edge case:* On a shared machine, `npx supabase logout` after the session.
 
-- [~] **Link to production project** — *deferred until first migration*:
+- [x] **Link to production project**:
   ```bash
   npx supabase link --project-ref <project-ref>
   ```
@@ -171,7 +171,7 @@ Don't move to Phase 1 until **all of these** pass:
 - [x] Cloudflare account exists; you can reach dash.cloudflare.com logged in
 - [x] `<your-name>.workers.dev` subdomain chosen; Account ID saved to password manager — *subdomena i prod URL zapisane w password managerze*
 - [x] Supabase project exists in `eu-central-1`; `Project URL` + `anon` key saved
-- [~] `npx supabase link --project-ref <ref>` succeeded (no error) — *deferred with Phase 0.3 until first migration*
+- [x] `npx supabase link --project-ref <ref>` succeeded (no error)
 - [x] You understand `anon` vs `service_role` distinction (*Appendix B*) — won't paste the wrong key in Phase 3
 
 ---

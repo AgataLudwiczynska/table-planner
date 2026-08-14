@@ -393,48 +393,46 @@ S-02 i S-03 kopiują wszystkie 5 wzorców. Migracja jest one-way (CLAUDE.md); ro
 
 ### Phase 1: Migracja — schema, RLS, RPC
 
-> Done — commit `41cddc4` on branch `feat/wedding-scope-schema-and-rls` (1.1–1.8).
-
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` kończy się bez błędów
-- [x] 1.2 `npx supabase db diff --local` po `db reset` zwraca "no differences"
-- [x] 1.3 `pg_tables` query potwierdza `rowsecurity = true` na wszystkich 3 tabelach
+- [x] 1.1 `npx supabase db reset` kończy się bez błędów — 41cddc4
+- [x] 1.2 `npx supabase db diff --local` po `db reset` zwraca "no differences" — 41cddc4
+- [x] 1.3 `pg_tables` query potwierdza `rowsecurity = true` na wszystkich 3 tabelach — 41cddc4
 
 #### Manual
 
-- [x] 1.4 Studio pokazuje `weddings`, `tables`, `seats` w schema `public`
-- [x] 1.5 Studio → Functions listuje `create_table_with_seats(uuid, text, int)`
-- [x] 1.6 Dwóch test-users utworzonych (A, B) via Inbucket magic link
-- [x] 1.7 Jako user A: manual INSERT weselnego wiersza — sukces
-- [x] 1.8 Jako user A: RPC `create_table_with_seats(...)` zwraca uuid, 10 seats istnieje
+- [x] 1.4 Studio pokazuje `weddings`, `tables`, `seats` w schema `public` — 41cddc4
+- [x] 1.5 Studio → Functions listuje `create_table_with_seats(uuid, text, int)` — 41cddc4
+- [x] 1.6 Dwóch test-users utworzonych (A, B) via Inbucket magic link — 41cddc4
+- [x] 1.7 Jako user A: manual INSERT weselnego wiersza — sukces — 41cddc4
+- [x] 1.8 Jako user A: RPC `create_table_with_seats(...)` zwraca uuid, 10 seats istnieje — 41cddc4
 
 ### Phase 2: TypeScript types integration
 
 #### Automated
 
-- [x] 2.1 `npm run db:types` kończy się bez błędów
-- [x] 2.2 `src/db/database.types.ts` istnieje z 3 tabelami + RPC signature
-- [x] 2.3 `eslint.config.js` ma ignore dla `src/db/database.types.ts`; `npm run lint` przechodzi bez błędów z tego pliku
-- [x] 2.4 `npm run build` przechodzi
+- [x] 2.1 `npm run db:types` kończy się bez błędów — 5deb528
+- [x] 2.2 `src/db/database.types.ts` istnieje z 3 tabelami + RPC signature — 5deb528
+- [x] 2.3 `eslint.config.js` ma ignore dla `src/db/database.types.ts`; `npm run lint` przechodzi bez błędów z tego pliku — 5deb528
+- [x] 2.4 `npm run build` przechodzi — 5deb528
 
 #### Manual
 
-- [x] 2.5 Autocomplete na `Wedding` z `@/types` pokazuje wszystkie 4 pola
-- [x] 2.6 `src/db/database.types.ts` w gicie (commit razem z migracją)
-- [x] 2.7 Importy w `src/types.ts` z `@/db/database.types` działają — brak błędów TypeScript
+- [x] 2.5 Autocomplete na `Wedding` z `@/types` pokazuje wszystkie 4 pola — 5deb528
+- [x] 2.6 `src/db/database.types.ts` w gicie (commit razem z migracją) — 5deb528
+- [x] 2.7 Importy w `src/types.ts` z `@/db/database.types` działają — brak błędów TypeScript — 5deb528
 
 ### Phase 3: RLS verification + production push
 
 #### Automated
 
-- [ ] 3.1 `npx supabase db push` kończy się bez błędów
-- [ ] 3.2 `npx supabase db diff --linked` zwraca "no differences"
+- [x] 3.1 `npx supabase db push` kończy się bez błędów
+- [x] 3.2 `npx supabase db diff --linked` zwraca "no differences"
 
 #### Manual
 
-- [ ] 3.3 `docs/reference/rls-verification-protocol.md` utworzony; 6 kroków protokołu przechodzi lokalnie (Phase 3.1)
-- [ ] 3.4 Produkcyjny dashboard → Table Editor: `weddings`/`tables`/`seats` z badge "RLS Enabled"
-- [ ] 3.5 Produkcyjny dashboard → Database → Functions listuje `create_table_with_seats`
-- [ ] 3.6 Produkcyjny dashboard → Authentication → Policies: 8 policies (weddings ×4, tables ×3, seats ×1)
-- [ ] 3.7 `context/changes/deployment/deployment-plan.md` — wszystkie §0.3-related `[~]` → `[x]` (2 w §0.3 body + 1 w §0.4 ~linia 174)
+- [x] 3.3 `docs/reference/rls-verification-protocol.md` utworzony; 6 kroków protokołu przechodzi lokalnie (Phase 3.1)
+- [x] 3.4 Produkcyjny dashboard → Table Editor: `weddings`/`tables`/`seats` z badge "RLS Enabled"
+- [x] 3.5 Produkcyjny dashboard → Database → Functions listuje `create_table_with_seats`
+- [x] 3.6 Produkcyjny dashboard → Authentication → Policies: 8 policies (weddings ×4, tables ×3, seats ×1)
+- [x] 3.7 `context/changes/deployment/deployment-plan.md` — wszystkie §0.3-related `[~]` → `[x]` (2 w §0.3 body + 1 w §0.4 ~linia 174)
