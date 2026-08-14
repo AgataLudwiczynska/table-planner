@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "deploy": "wrangler deploy",
-    "deploy:dry": "wrangler deploy --dry-run --outdir dist"
+    "deploy:dry": "wrangler deploy --dry-run --outdir dist",
+    "db:types": "supabase gen types typescript --local > src/db/database.types.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",

@@ -3,7 +3,7 @@ project: TablePlanner
 version: 1
 status: draft
 created: 2026-08-09
-updated: 2026-08-09
+updated: 2026-08-14
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -31,7 +31,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 
 | ID    | Change ID                                       | Outcome (operator może …)                                                                    | Prerequisites | PRD refs                                                       | Status   |
 | ----- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------- | -------- |
-| F-01  | `wedding-scope-schema-and-rls`                  | (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only       | —             | NFR Prywatność, NFR Trwałość, Guardrail Invariant              | ready    |
+| F-01  | `wedding-scope-schema-and-rls`                  | (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only       | —             | NFR Prywatność, NFR Trwałość, Guardrail Invariant              | done |
 | S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | proposed |
 | S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01          | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | proposed |
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | proposed |
@@ -73,7 +73,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Unknowns:**
   - Czy `seats` modelujemy jako osobną tabelę z rekordem na każde miejsce (z FK do `tables` i unique constraint na `(table_id, seat_number)`), czy trzymamy tylko `tables.seat_count` i seat_number pochodzi z indeksu w listingu assignments? — Owner: impl. Block: no. (Wskazanie: osobna tabela `seats` upraszcza modelowanie `assignments (guest_id, seat_id)` i egzekwuje invariant na poziomie DB via unique constraint.)
 - **Risk:** Pierwsza migracja z RLS ustala wzorzec dla wszystkich kolejnych — błąd w polityce = potencjalny wyciek danych innego użytkownika, co narusza guardrail „Prywatność danych" z PRD. Foundation sekwencjonowana przed jakąkolwiek pracą user-facing, żeby polityki dostać dedykowany review, zanim pattern powieli się w S-02 i S-03. Backup weryfikacyjny: manual test loguję jako user A, insertuję wesele; loguję jako user B; próbuję SELECT/UPDATE/DELETE po ID wesela A — musi zwrócić 0 lub 403.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -184,3 +184,4 @@ Zebrane z PRD `## Non-Goals` — świadome cięcia MVP z ich uzasadnieniem.
 (Puste na pierwszej generacji. `/10x-archive` doda tu wpis — i przestawi Status pozycji na `done` — gdy change o pasującym Change ID zostanie zarchiwizowany. Format:)
 
 - **&lt;Roadmap ID&gt;: &lt;Outcome&gt;** — Archived YYYY-MM-DD → `context/archive/YYYY-MM-DD-change-id/`. Lesson: &lt;pointer do lessons.md jeśli jest, lub `—`&gt;.
+- **F-01: (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only** — Archived 2026-08-14 → `context/archive/2026-08-09-wedding-scope-schema-and-rls/`. Lesson: `lessons.md` "RLS migrations: revoke anon grants + use `(select auth.uid())` in policies".
