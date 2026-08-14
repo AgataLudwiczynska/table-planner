@@ -1,0 +1,12 @@
+---
+change_id: wedding-scope-schema-and-rls
+title: Foundation — schema wedding-scope + wzorzec RLS
+status: implementing
+created: 2026-08-09
+updated: 2026-08-12
+archived_at: null
+---
+
+## Notes
+
+F-01 z @context/foundation/roadmap.md
