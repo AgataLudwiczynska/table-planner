@@ -3,7 +3,7 @@ project: TablePlanner
 version: 1
 status: draft
 created: 2026-08-09
-updated: 2026-08-14
+updated: 2026-08-15
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -15,7 +15,7 @@ top_blocker: capacity
 >
 > Wyprowadzone z `context/foundation/prd.md` (v1) + auto-zbadany baseline codebase'u.
 > Edit-in-place; archiwizuj przy superseded.
-> Slice'y są uporządkowane po zależnościach. Tabela "W skrócie" to indeks.
+> Slice'y są uporządkowane po zależnościach. Tabela „At a glance" to indeks.
 
 ## Vision recap
 
@@ -32,20 +32,19 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | ID    | Change ID                                       | Outcome (operator może …)                                                                    | Prerequisites | PRD refs                                                       | Status   |
 | ----- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------- | -------- |
 | F-01  | `wedding-scope-schema-and-rls`                  | (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only       | —             | NFR Prywatność, NFR Trwałość, Guardrail Invariant              | done |
-| S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | proposed |
-| S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01          | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | proposed |
+| S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | planning |
+| S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01, S-01    | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | proposed |
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | proposed |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | proposed |
 | S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | proposed |
 
 ## Streams
 
-Pomocnicza nawigacja — grupuje pozycje po łańcuchach Prerequisites. Kanoniczna kolejność żyje w dep graph poniżej; ta tabela to proponowana kolejność czytania przez równoległe tory (istotna pod `top_blocker: capacity`).
+Pomocnicza nawigacja — grupuje pozycje po łańcuchach Prerequisites. Kanoniczna kolejność żyje w tabeli „At a glance" wyżej.
 
-| Stream | Motyw                    | Chain                                              | Notka                                                                         |
-| ------ | ------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| A      | Setup + gwiazda + rozwój | `F-01` → `S-01` → `S-03` → `S-04` / `S-05`         | Główna oś; S-04 i S-05 rozdzielają się w parze po S-03 (agent-fan-out).       |
-| B      | Wpisywanie danych        | `S-02` (dołącza do Stream A w `S-03`)              | Równolegle z S-01 na wspólnym `F-01`; oba muszą być gotowe zanim ruszy S-03.  |
+| Stream | Motyw                           | Chain                                                | Notka                                                                         |
+| ------ | ------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------- |
+| A      | Setup + gwiazda + rozwój danych | `F-01` → `S-01` → `S-02` → `S-03` → `S-04` / `S-05` | Jedyna oś, sekwencyjna. S-02 realnie startuje dopiero po S-01 (nadbudowuje nad weselem + stroną wesela), więc mimo niezależnego schematu leży w tej samej osi, nie jako osobny tor. S-04 i S-05 rozdzielają się w parze po S-03 (agent-fan-out). |
 
 ## Baseline
 
@@ -83,23 +82,23 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Change ID:** `wedding-shell-with-tables`
 - **PRD refs:** FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007
 - **Prerequisites:** F-01
-- **Parallel with:** S-02
+- **Parallel with:** — (wcześniej S-02; przeniesione do sekwencji po S-01)
 - **Blockers:** —
 - **Unknowns:**
   - Czy MVP zakłada jedno wesele per użytkownik (auto-provision + rename) czy jawne „create wedding" z listą wielu wesel? — Owner: user. Block: no. (Wskazanie: auto-provision + rename — `target_scale.users: small` zniechęca do dodatkowego UX; łatwo rozszerzyć w v2 jeśli user zażyczy.)
-- **Risk:** Slice ustala pierwsze pełne API pattern dla domeny (endpoint format, walidacja `zod`, kształt błędu, `PROTECTED_ROUTES`) — każdy kolejny slice powiela wzorzec, więc warto zrobić raz porządnie. Ryzyko: zbytnie ambicje pierwszego API (np. cache, batching) zjadają margines — trzymamy się minimum, iteracja w kolejnych slice'ach. Zależny od tego samego F-01 co S-02, więc oba mogą jechać jako oddzielne agent-fan-outy pod `capacity`.
-- **Status:** proposed
+- **Risk:** Slice ustala pierwsze pełne API pattern dla domeny (endpoint format, walidacja `zod`, kształt błędu, `PROTECTED_ROUTES`) — każdy kolejny slice powiela wzorzec, więc warto zrobić raz porządnie. Ryzyko: zbytnie ambicje pierwszego API (np. cache, batching) zjadają margines — trzymamy się minimum, iteracja w kolejnych slice'ach. S-02 dzieli z S-01 tę samą foundation (F-01), ale realnie rusza dopiero po S-01 (patrz S-02 Prerequisites) — nie jest to równoległy tor.
+- **Status:** planning
 
 ### S-02: Operator dodaje gości i definiuje konflikty
 
 - **Outcome:** Operator może dodać gościa (imię, nazwisko, opcjonalnie strona: panna młoda / pan młody / wspólne / nieokreślone, opcjonalnie grupa: rodzina / przyjaciele / współpracownicy), edytować i usunąć gościa. Może zdefiniować binarny konflikt między parą gości („nie obok siebie"), usunąć konflikt, zobaczyć listę wszystkich zdefiniowanych konfliktów. Bez tier'ów severity.
 - **Change ID:** `guest-and-conflict-management`
 - **PRD refs:** FR-010, FR-011, FR-012, FR-014, FR-015, FR-016
-- **Prerequisites:** F-01
-- **Parallel with:** S-01
+- **Prerequisites:** F-01, S-01. Schemat `guests`/`conflicts` zależy tylko od F-01, ale S-02 nadbudowuje nad S-01 w runtime: dodanie gościa wymaga rekordu `wedding` (auto-provisioning z S-01), a UI gości/konfliktów żyje na stronie wesela z S-01. Implementację i test end-to-end odpala się po merge S-01 — nie planować `plan.md` S-02 przed merge S-01 (wniosek 2026-08-15).
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** CRUD-w-CRUD bez większych niewiadomych — najbezpieczniejszy slice do puszczenia jako drugi tor pod `capacity`. Ryzyko subtelne: modelowanie konfliktu jako `(guest_a_id, guest_b_id)` wymaga canonical order (mniejszy ID first) żeby uniknąć duplikatów par (A,B) i (B,A); niezauważenie tego przy insertach = bug w liczeniu naruszeń w S-03. Dodać unique constraint na uporządkowanej parze w migracji.
+- **Risk:** CRUD-w-CRUD bez większych niewiadomych — najbezpieczniejszy, najniższego ryzyka slice w sekwencji. Ryzyko subtelne: modelowanie konfliktu jako `(guest_a_id, guest_b_id)` wymaga canonical order (mniejszy ID first) żeby uniknąć duplikatów par (A,B) i (B,A); niezauważenie tego przy insertach = bug w liczeniu naruszeń w S-03. Dodać unique constraint na uporządkowanej parze w migracji.
 - **Status:** proposed
 
 ### S-03: Operator widzi konflikt sąsiedztwa w czasie rzeczywistym po przypisaniu
@@ -146,9 +145,9 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 
 | Roadmap ID | Change ID                                        | Suggested issue title                                                            | Ready for `/10x-plan` | Notes                                            |
 | ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------ |
-| F-01       | `wedding-scope-schema-and-rls`                   | Foundation: schema wedding-scope + wzorzec RLS                                    | yes                   | Run `/10x-plan wedding-scope-schema-and-rls`     |
-| S-01       | `wedding-shell-with-tables`                      | Operator zakłada wesele i dodaje pierwszy okrągły stół                            | no                    | czeka na F-01 done                                |
-| S-02       | `guest-and-conflict-management`                  | Operator dodaje gości i definiuje konflikty                                       | no                    | czeka na F-01 done; równolegle z S-01             |
+| F-01       | `wedding-scope-schema-and-rls`                   | Foundation: schema wedding-scope + wzorzec RLS                                    | —                     | Done (archived 2026-08-14) → patrz sekcja Done   |
+| S-01       | `wedding-shell-with-tables`                      | Operator zakłada wesele i dodaje pierwszy okrągły stół                            | yes                   | F-01 done; zaplanowane (osobny branch)            |
+| S-02       | `guest-and-conflict-management`                  | Operator dodaje gości i definiuje konflikty                                       | no                    | czeka na S-01 done (runtime); patrz S-02 Prerequisites |
 | S-03       | `assignment-with-realtime-conflict-validation`   | GWIAZDA: Przypisanie + real-time walidacja konfliktów sąsiedztwa                   | no                    | czeka na S-01 i S-02 done                         |
 | S-04       | `table-edit-with-guest-auto-unassign`            | Edycja stołu — zmniejszanie z auto-unassign i usunięcie                            | no                    | czeka na S-03 done; równolegle z S-05             |
 | S-05       | `assignment-progress-and-persistence`            | Licznik postępu + weryfikacja persystencji stanu po logout                        | no                    | czeka na S-03 done; równolegle z S-04             |
