@@ -1,0 +1,26 @@
+# Deferred Follow-ups
+
+> Central register of review findings intentionally **deferred** rather than fixed when they
+> surfaced. One row per item. The full rationale stays in the source `follow-ups/*.md` of the
+> change where the finding was born — this file only **indexes and tracks status** (like
+> `MEMORY.md` indexes memories).
+>
+> Consult this file when planning or implementing a slice (see `lessons.md` →
+> "Reconcile deferred review follow-ups at plan/implement time"). Pull in any item whose
+> **Target** is the slice at hand; flip it to DONE (with the commit/slice) once it lands.
+
+## Status legend
+
+- **OPEN** — not yet addressed.
+- **PLANNED** — addressed in a written plan, not yet implemented.
+- **DONE** — landed; append the commit/slice, keep briefly, then prune.
+
+## Open / in-flight
+
+| ID | Target | Summary | Status | Source |
+| -- | ------ | ------- | ------ | ------ |
+| F1 | S-01 (API) · S-04 (optional DB) | Bound `seat_count` upper limit — RPC `create_table_with_seats` has no ceiling; add one in the API `zod` schema, and optionally a defense-in-depth guard inside the resize RPC. | PLANNED (S-01 plan: `zod` 1–30) · OPEN (S-04 DB guard, optional) | `context/archive/2026-08-09-wedding-scope-schema-and-rls/follow-ups/review-fixes.md` |
+
+## Done
+
+(none yet)
