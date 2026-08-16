@@ -1,7 +1,8 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
+import { ROUTES } from "@/lib/routes";
 
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = [ROUTES.wedding];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -15,9 +16,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = null;
   }
 
+  // Authenticated users skip the public landing and go straight to the workspace.
+  if (context.locals.user && context.url.pathname === ROUTES.home) {
+    return context.redirect(ROUTES.wedding);
+  }
+
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
     if (!context.locals.user) {
-      return context.redirect("/auth/signin");
+      return context.redirect(ROUTES.signIn);
     }
   }
 

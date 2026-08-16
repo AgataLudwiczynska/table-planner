@@ -341,15 +341,15 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx astro check`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 `grep -rn "/dashboard" src/` returns nothing
+- [x] 3.1 Type checking passes: `npx astro check`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 `grep -rn "/dashboard" src/` returns nothing
 
 #### Manual
 
-- [ ] 3.4 Fresh login lands on `/wedding` with auto-provisioned `Nasze wesele`
-- [ ] 3.5 Logged-in `/` → `/wedding`; logged-out `/` → landing
-- [ ] 3.6 Logged-out `/wedding` → sign-in
+- [x] 3.4 Fresh login lands on `/wedding` with auto-provisioned `Nasze wesele`
+- [x] 3.5 Logged-in `/` → `/wedding`; logged-out `/` → landing
+- [x] 3.6 Logged-out `/wedding` → sign-in
 
 ### Phase 4: Interactive Workspace UI
 
