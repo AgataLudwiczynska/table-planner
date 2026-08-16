@@ -59,6 +59,14 @@ Build inside-out: (1) contracts and the service layer, (2) JSON API endpoints ov
 - **RPC error mapping.** Supabase surfaces the RPC `raise` as an error object whose `code`/`message` carry the SQLSTATE / message string. Map `not_owner` → HTTP 403 `{code:"forbidden"}` (**normally unreachable** — `weddingId` is resolved server-side from the user's own wedding, so the caller always owns it; kept as defensive mapping only), `seat_count_must_be_positive` → HTTP 400 `{code:"invalid_seat_count"}` (also normally unreachable because `zod` rejects first), anything else → HTTP 500 `{code:"internal_error"}`.
 - **Manual verification runtime.** Endpoints and Supabase only work under the workerd runtime — verify with `npm run preview`, not `npm run dev`.
 
+## Addendum — Established patterns (as implemented)
+
+> Recorded after Phases 1–2 landed. This is the reusable domain pattern S-02..S-05 copy; it refines the original "services return DTOs directly" wording above.
+
+- **Central error catalog** (`src/lib/errors.ts`): single `API_ERRORS` map of `code → { status, message }` (Polish messages). `ApiErrorCode` is its key type — the one source of truth for every domain error code, status, and user-facing string.
+- **Service-result pattern** (`src/lib/services/result.ts`, types in `src/types.ts`): services never throw for expected failures; they return `ServiceResult<T> = { ok: true; data: T } | ({ ok: false } & ServiceFailure)`, built via `success(data)` / `failure(code)` (which pulls status+message from the catalog).
+- **Thin endpoints unwrap the result**: `src/lib/api.ts` exposes `apiSuccess(data, status?)`, `apiError(code, message, status)`, `apiErrorFrom(code)` (catalog lookup), and `apiFailure(serviceFailure)`. Endpoint flow: validate (zod) → call service → `if (!result.ok) return apiFailure(result)` → `apiSuccess(result.data)`.
+
 ## Phase 1: Scaffolding & Contracts
 
 ### Overview
@@ -81,7 +89,7 @@ Add `zod`, define shared DTOs/commands, the uniform API error contract, and the 
 
 **Intent**: Extend the existing shared types module with the DTOs the API returns and the command shapes it accepts, plus the uniform API result envelope. Keep the current Row aliases (the service maps a snake_case Row like `seat_count` to the camelCase DTO `seatCount`). DTOs are camelCase.
 
-**Contract**: `WeddingDto { id: string; name: string }`; `TableDto { id: string; name: string; seatCount: number }`; `RenameWeddingCommand { name: string }`; `CreateTableCommand { name: string; seatCount: number }`; `ApiError { error: { code: string; message: string } }`; a discriminated `ApiResult<T> = { data: T } | ApiError`.
+**Contract**: `Wedding { id: string; name: string }`; `Table { id: string; name: string; seatCount: number }`; `RenameWeddingInput { name: string }`; `CreateTableInput { name: string; seatCount: number }`; `ApiError { error: { code: string; message: string } }`; a discriminated `ApiResult<T> = { data: T } | ApiError`.
 
 #### 3. API response helpers
 
@@ -89,7 +97,7 @@ Add `zod`, define shared DTOs/commands, the uniform API error contract, and the 
 
 **Intent**: Small helpers to build the uniform JSON success/error responses so every domain endpoint (this slice and S-02..S-05) emits the same shape. Centralizes the `{ error: { code, message } }` contract and status codes.
 
-**Contract**: `json(data, status?)` and `apiError(code, message, status)` returning `Response` with `content-type: application/json`. Polish user-facing `message` strings.
+**Contract**: `apiSuccess(data, status?)` and `apiError(code, message, status)` returning `Response` with `content-type: application/json`. Polish user-facing `message` strings.
 
 #### 4. Wedding service
 
@@ -97,7 +105,7 @@ Add `zod`, define shared DTOs/commands, the uniform API error contract, and the 
 
 **Intent**: Encapsulate wedding reads/writes. Provides get-or-create (auto-provision, page-load only), a read-only lookup (for the mutation endpoints, so a write never provisions), and rename. All access goes through the passed-in Supabase client so RLS applies.
 
-**Contract**: `getOrCreateWedding(supabase, userId): Promise<WeddingDto>` — selects earliest wedding for the user, inserts `{ user_id, name: "Nasze wesele" }` if none, returns the DTO. **Called only by the `/wedding` page load** (the single provisioning site). `getWedding(supabase, userId): Promise<WeddingDto | null>` — **read-only**; selects the earliest wedding for the user (`order by created_at`), returns `null` if none. **Called by the mutation endpoints** so a PATCH/POST never creates a wedding as a side effect. `renameWedding(supabase, weddingId, name): Promise<WeddingDto>` — updates `name`, returns the DTO (RLS enforces ownership; an empty update result means not-owner/not-found → surfaced as error).
+**Contract**: `getOrCreateWedding(supabase, userId): Promise<Wedding>` — selects earliest wedding for the user, inserts `{ user_id, name: "Nasze wesele" }` if none, returns the DTO. **Called only by the `/wedding` page load** (the single provisioning site). `getWedding(supabase, userId): Promise<Wedding | null>` — **read-only**; selects the earliest wedding for the user (`order by created_at`), returns `null` if none. **Called by the mutation endpoints** so a PATCH/POST never creates a wedding as a side effect. `renameWedding(supabase, weddingId, name): Promise<Wedding>` — updates `name`, returns the DTO (RLS enforces ownership; an empty update result means not-owner/not-found → surfaced as error).
 
 #### 5. Table service
 
@@ -105,7 +113,7 @@ Add `zod`, define shared DTOs/commands, the uniform API error contract, and the 
 
 **Intent**: Encapsulate table reads and creation. Creation delegates to the F-01 RPC (never inserts `tables`/`seats` directly). Reads list the wedding's tables for display.
 
-**Contract**: `listTables(supabase, weddingId): Promise<TableDto[]>` ordered by `created_at`. `createTable(supabase, weddingId, name, seatCount): Promise<TableDto>` — calls `rpc("create_table_with_seats", { p_wedding_id, p_name, p_seat_count })`. The RPC `returns uuid` (the new table id only, not a row), so build the `TableDto` from that returned id plus the already-validated `name`/`seatCount` — **no follow-up select needed**. Distinguishes RPC error codes (`not_owner`, `seat_count_must_be_positive`) so the endpoint can map them — see Critical Implementation Details.
+**Contract**: `listTables(supabase, weddingId): Promise<Table[]>` ordered by `created_at`. `createTable(supabase, weddingId, name, seatCount): Promise<Table>` — calls `rpc("create_table_with_seats", { p_wedding_id, p_name, p_seat_count })`. The RPC `returns uuid` (the new table id only, not a row), so build the `Table` from that returned id plus the already-validated `name`/`seatCount` — **no follow-up select needed**. Distinguishes RPC error codes (`not_owner`, `seat_count_must_be_positive`) so the endpoint can map them — see Critical Implementation Details.
 
 ### Success Criteria:
 
@@ -133,17 +141,17 @@ Expose the services as JSON endpoints with `zod` validation and the uniform erro
 
 **File**: `src/pages/api/wedding.ts` (new)
 
-**Intent**: `PATCH` accepts a JSON body to rename the current user's wedding. Validates with `zod`, resolves the user's wedding server-side via the read-only `getWedding`, calls `renameWedding`, returns the updated `WeddingDto`.
+**Intent**: `PATCH` accepts a JSON body to rename the current user's wedding. Validates with `zod`, resolves the user's wedding server-side via the read-only `getWedding`, calls `renameWedding`, returns the updated `Wedding`.
 
-**Contract**: `export const prerender = false;` and `export const PATCH`. Body `{ name }` validated by `zod` (trimmed, non-empty, max 100). Resolves the wedding via `getWedding(userId)` (read-only — never provisions); if it returns `null` → 404 `{code:"wedding_not_found"}` (unreachable through the normal flow, since the `/wedding` page provisions on load). Handles `createClient(...) === null` → 503 `{code:"supabase_unconfigured"}`; missing user → 401 `{code:"unauthorized"}`. Success → `{ data: WeddingDto }`.
+**Contract**: `export const prerender = false;` and `export const PATCH`. Body `{ name }` validated by `zod` (trimmed, non-empty, max 100). Resolves the wedding via `getWedding(userId)` (read-only — never provisions); if it returns `null` → 404 `{code:"wedding_not_found"}` (unreachable through the normal flow, since the `/wedding` page provisions on load). Handles `createClient(...) === null` → 503 `{code:"supabase_unconfigured"}`; missing user → 401 `{code:"unauthorized"}`. Success → `{ data: Wedding }`.
 
 #### 2. Create-table endpoint
 
 **File**: `src/pages/api/tables.ts` (new)
 
-**Intent**: `POST` accepts a JSON body to create a round table under the current user's wedding. Validates with `zod` (including the seat-count ceiling that closes follow-up F1), calls `createTable`, maps RPC errors, returns the new `TableDto`.
+**Intent**: `POST` accepts a JSON body to create a round table under the current user's wedding. Validates with `zod` (including the seat-count ceiling that closes follow-up F1), calls `createTable`, maps RPC errors, returns the new `Table`.
 
-**Contract**: `export const prerender = false;` and `export const POST`. Body `{ name, seatCount }` only — `weddingId` is resolved **server-side** via the read-only `getWedding(userId)` (same as `PATCH /api/wedding`; never provisions, never trusts a client-supplied id, and the MVP has one wedding per user); if it returns `null` → 404 `{code:"wedding_not_found"}` (unreachable through the normal flow). `zod`: `name` trimmed non-empty max 50; `seatCount` integer `min(1).max(30)`. Handles `createClient(...) === null` → 503 `{code:"supabase_unconfigured"}`; missing user → 401 `{code:"unauthorized"}`. RPC error mapping per Critical Implementation Details (with server-side resolution, `not_owner` is normally unreachable — kept only as defensive mapping). Success → 201 `{ data: TableDto }`.
+**Contract**: `export const prerender = false;` and `export const POST`. Body `{ name, seatCount }` only — `weddingId` is resolved **server-side** via the read-only `getWedding(userId)` (same as `PATCH /api/wedding`; never provisions, never trusts a client-supplied id, and the MVP has one wedding per user); if it returns `null` → 404 `{code:"wedding_not_found"}` (unreachable through the normal flow). `zod`: `name` trimmed non-empty max 50; `seatCount` integer `min(1).max(30)`. Handles `createClient(...) === null` → 503 `{code:"supabase_unconfigured"}`; missing user → 401 `{code:"unauthorized"}`. RPC error mapping per Critical Implementation Details (with server-side resolution, `not_owner` is normally unreachable — kept only as defensive mapping). Success → 201 `{ data: Table }`.
 
 ### Success Criteria:
 
@@ -173,7 +181,7 @@ Move the authenticated workspace to `/wedding`, auto-provision the wedding on lo
 
 **Intent**: Server-rendered workspace page. Reads `locals.user`, calls `getOrCreateWedding` and `listTables`, and passes the wedding + tables to the React island as initial props. Replaces the old dashboard stub content.
 
-**Contract**: Renders `Layout` + the workspace island with `initialWedding: WeddingDto` and `initialTables: TableDto[]`. Handles unconfigured Supabase gracefully (middleware already redirects unauthenticated users).
+**Contract**: Renders `Layout` + the workspace island with `initialWedding: Wedding` and `initialTables: Table[]`. Handles unconfigured Supabase gracefully (middleware already redirects unauthenticated users).
 
 #### 2. Delete old dashboard page
 
@@ -321,13 +329,13 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx astro check`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro check` — 198379e
+- [x] 2.2 Linting passes: `npm run lint` — 198379e
 
 #### Manual
 
-- [x] 2.3 `PATCH /api/wedding` valid/empty name behaves per contract (preview)
-- [x] 2.4 `POST /api/tables` creates N seats; rejects seatCount 0/31; 401 when unauthenticated
+- [x] 2.3 `PATCH /api/wedding` valid/empty name behaves per contract (preview) — 198379e
+- [x] 2.4 `POST /api/tables` creates N seats; rejects seatCount 0/31; 401 when unauthenticated — 198379e
 
 ### Phase 3: Route, Auto-Provision & Middleware
 
