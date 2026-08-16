@@ -1,4 +1,4 @@
-import type { ApiError } from "@/types";
+import type { ApiError, ServiceFailure } from "@/types";
 import { API_ERRORS, type ApiErrorCode } from "@/lib/errors";
 
 // Uniform success envelope: { data } with the given status.
@@ -22,4 +22,9 @@ export function apiError(code: string, message: string, status: number): Respons
 export function apiErrorFrom(code: ApiErrorCode): Response {
   const { status, message } = API_ERRORS[code];
   return apiError(code, message, status);
+}
+
+// Map a service-layer failure (already carries code/status/message) to the error envelope.
+export function apiFailure(failure: ServiceFailure): Response {
+  return apiError(failure.code, failure.message, failure.status);
 }

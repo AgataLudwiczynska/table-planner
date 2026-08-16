@@ -4,6 +4,7 @@ export const API_ERRORS = {
   wedding_not_found: { status: 404, message: "Nie znaleziono wesela." },
   forbidden: { status: 403, message: "Brak uprawnień do tego wesela." },
   invalid_seat_count: { status: 400, message: "Nieprawidłowa liczba miejsc." },
+  validation_error: { status: 400, message: "Nieprawidłowe dane." },
   unauthorized: { status: 401, message: "Musisz być zalogowany." },
   supabase_unconfigured: { status: 503, message: "Usługa jest chwilowo niedostępna." },
 } as const;

@@ -309,25 +309,25 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npx astro check`
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 `zod` resolves on import
+- [x] 1.1 Type checking passes: `npx astro check` — 780af9f
+- [x] 1.2 Linting passes: `npm run lint` — 780af9f
+- [x] 1.3 `zod` resolves on import — 780af9f
 
 #### Manual
 
-- [x] 1.4 Service boundary keeps all Supabase access behind services (spot-check)
+- [x] 1.4 Service boundary keeps all Supabase access behind services (spot-check) — 780af9f
 
 ### Phase 2: API Endpoints
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx astro check`
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro check`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 `PATCH /api/wedding` valid/empty name behaves per contract (preview)
-- [ ] 2.4 `POST /api/tables` creates N seats; rejects seatCount 0/31; 401 when unauthenticated
+- [x] 2.3 `PATCH /api/wedding` valid/empty name behaves per contract (preview)
+- [x] 2.4 `POST /api/tables` creates N seats; rejects seatCount 0/31; 401 when unauthenticated
 
 ### Phase 3: Route, Auto-Provision & Middleware
 
