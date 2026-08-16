@@ -358,12 +358,12 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [x] 4.1 Type checking passes: `npx astro check`
-- [x] 4.2 Linting passes: `npm run lint`
+- [x] 4.1 Type checking passes: `npx astro check` — 2042329
+- [x] 4.2 Linting passes: `npm run lint` — 2042329
 
 #### Manual
 
-- [x] 4.3 Inline rename persists across reload (preview)
-- [x] 4.4 Add table appears immediately and persists with correct seat count
-- [x] 4.5 Invalid name/seat count shows inline error, creates nothing
-- [x] 4.6 No regression in auth forms after shared-component extraction
+- [x] 4.3 Inline rename persists across reload (preview) — 2042329
+- [x] 4.4 Add table appears immediately and persists with correct seat count — 2042329
+- [x] 4.5 Invalid name/seat count shows inline error, creates nothing — 2042329
+- [x] 4.6 No regression in auth forms after shared-component extraction — 2042329
