@@ -20,6 +20,7 @@
 | ID | Target | Summary | Status | Source |
 | -- | ------ | ------- | ------ | ------ |
 | F1 | S-01 (API) · S-04 (optional DB) | Bound `seat_count` upper limit — RPC `create_table_with_seats` has no ceiling; add one in the API `zod` schema, and optionally a defense-in-depth guard inside the resize RPC. | PLANNED (S-01 plan: `zod` 1–30) · OPEN (S-04 DB guard, optional) | `context/archive/2026-08-09-wedding-scope-schema-and-rls/follow-ups/review-fixes.md` |
+| F2 | future / observability | When a service collapses an unknown Supabase/DB error to a generic 500, log the underlying `PostgrestError` server-side (e.g. `console.error`) so 500s stay debuggable while users still get only the generic message. | OPEN | S-01 error-handling design discussion (`context/changes/wedding-shell-with-tables/`) |
 
 ## Done
 

@@ -309,13 +309,13 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [ ] 1.1 Type checking passes: `npx astro check`
-- [ ] 1.2 Linting passes: `npm run lint`
-- [ ] 1.3 `zod` resolves on import
+- [x] 1.1 Type checking passes: `npx astro check`
+- [x] 1.2 Linting passes: `npm run lint`
+- [x] 1.3 `zod` resolves on import
 
 #### Manual
 
-- [ ] 1.4 Service boundary keeps all Supabase access behind services (spot-check)
+- [x] 1.4 Service boundary keeps all Supabase access behind services (spot-check)
 
 ### Phase 2: API Endpoints
 
