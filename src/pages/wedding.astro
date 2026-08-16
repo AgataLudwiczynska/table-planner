@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase";
 import { getOrCreateWedding } from "@/lib/services/wedding.service";
 import { listTables } from "@/lib/services/table.service";
 import { ROUTES } from "@/lib/routes";
+import WeddingWorkspace from "@/components/wedding/WeddingWorkspace";
 import type { Table, Wedding } from "@/types";
 
 const { user } = Astro.locals;
@@ -30,16 +31,13 @@ if (supabase && user) {
 ---
 
 <Layout title={wedding?.name ?? "Wesele"}>
-  <div class="bg-cosmic min-h-screen p-4 text-white">
+  <div class="bg-wedding min-h-screen p-4 text-slate-800">
     <div class="mx-auto max-w-2xl">
-      <div class="flex items-center justify-between">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-          {wedding?.name ?? "Wesele"}
-        </h1>
+      <div class="flex items-center justify-end">
         <form method="POST" action={ROUTES.signOut}>
           <button
             type="submit"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50"
           >
             Wyloguj się
           </button>
@@ -48,7 +46,7 @@ if (supabase && user) {
 
       {
         loadError && (
-          <p class="mt-6 rounded-lg border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
+          <p class="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700">
             Nie udało się wczytać wesela. Spróbuj odświeżyć stronę.
           </p>
         )
@@ -56,23 +54,9 @@ if (supabase && user) {
 
       {
         !loadError && wedding && (
-          <section class="mt-8">
-            <h2 class="mb-3 text-lg font-semibold text-blue-100">Stoły</h2>
-            {tables.length === 0 ? (
-              <p class="text-sm text-blue-100/60">Nie dodano jeszcze żadnych stołów.</p>
-            ) : (
-              <ul class="space-y-2">
-                {tables.map((table) => (
-                  <li class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3">
-                    <span class="font-medium">{table.name}</span>
-                    <span class="text-sm text-blue-100/60">
-                      {table.seatCount} {table.seatCount === 1 ? "miejsce" : "miejsc"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          <div class="mt-6">
+            <WeddingWorkspace client:load initialWedding={wedding} initialTables={tables} />
+          </div>
         )
       }
     </div>

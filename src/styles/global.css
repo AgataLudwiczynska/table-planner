@@ -114,6 +114,10 @@
   background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
 }
 
+@utility bg-wedding {
+  background-image: linear-gradient(to bottom, #fff1f2, #ffffff, #fdf2f8);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -6,4 +6,6 @@ export const ROUTES = {
   signIn: "/auth/signin",
   signUp: "/auth/signup",
   signOut: "/api/auth/signout",
+  apiWedding: "/api/wedding",
+  apiTables: "/api/tables",
 } as const;

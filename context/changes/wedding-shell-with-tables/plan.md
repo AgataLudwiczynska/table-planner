@@ -236,33 +236,35 @@ Move the authenticated workspace to `/wedding`, auto-provision the wedding on lo
 
 ### Overview
 
-The React island that renames the wedding and adds/lists tables, wired to the endpoints via `fetch`, with inline errors.
+The React island that renames the wedding and adds/lists tables, wired to the endpoints via `fetch`, with inline errors. The `/wedding` workspace adopts a **light wedding-appropriate theme** (distinct from the auth screens' dark cosmic look), which forces the shared form components to become genuinely palette-agnostic.
+
+> **Re-plan (2026-08-16):** Two changes from the original Phase 4. (1) The original item 1 (add shadcn `input`/`label`) is dropped — the existing `FormField`/`ServerError` pattern covers every workspace input; shadcn primitives are out of this slice. (2) The workspace uses a **light** theme, not the cosmic dark one, so `FormField`/`ServerError` must be made **truly generic** (no palette baked into the base component — each consumer injects its own palette), and the `/wedding` page (`wedding.astro`, from Phase 3) is restyled to a light motif.
 
 ### Changes Required:
 
-#### 1. shadcn inputs
+#### 1. Light wedding theme on the `/wedding` page
 
-**File**: `src/components/ui/` (add `input`, `label` via `npx shadcn@latest add input label`)
+**File**: `src/styles/global.css`, `src/pages/wedding.astro`
 
-**Intent**: Provide the form primitives the workspace needs (text input, number input, labels), consistent with the existing shadcn "new-york" setup.
+**Intent**: Give the wedding workspace a soft, light, wedding-appropriate look instead of the dark cosmic palette used by auth/landing. Add a `bg-wedding` light-gradient `@utility` (parallel to the existing `bg-cosmic`), then restyle `wedding.astro`: page background, heading, the "Wyloguj się" button, the "Stoły" section, and the table list to light tones (slate text, rose/blush accents).
 
-**Contract**: New `input.tsx` / `label.tsx` under `src/components/ui/`.
+**Contract**: New `@utility bg-wedding` in `global.css` (soft blush→white gradient). `wedding.astro` no longer uses `bg-cosmic`/`text-white` glass styling; it reads as a light theme with readable contrast. Auth and landing pages are untouched.
 
-#### 2. Wedding workspace island
+#### 2. Make shared form components generic, then relocate
+
+**File**: `src/components/ui/FormField.tsx`, `src/components/ui/ServerError.tsx` (move + generalize), plus a small per-consumer theme constant
+
+**Intent**: `FormField`/`ServerError` become the shared form pattern for both the dark auth screens and the light workspace, so **no palette may live inside the base component**. Generalize: make `icon` optional (drop the `pl-10` slot when absent) and lift the palette out — the base keeps only structural classes (layout, sizing, focus-ring behavior, error-state switching), while each consumer passes its palette via className props (`labelClassName`, `inputClassName`, `inputErrorClassName`, `errorClassName` for `FormField`; `className` for `ServerError`). Provide a co-located `authFieldTheme` constant reproducing the current glass palette so the auth forms spread it and render **pixel-identical**; the workspace defines its own light theme constant. Relocate both components to `src/components/ui/`.
+
+**Contract**: `icon` optional (no `pl-10` slot when absent); base component palette-free. Auth forms import from `src/components/ui/`, spread `authFieldTheme`, and render unchanged. `ServerError` takes a `className` for its container palette.
+
+#### 3. Wedding workspace island
 
 **File**: `src/components/wedding/WeddingWorkspace.tsx` (new)
 
-**Intent**: Client component receiving `initialWedding` + `initialTables`. Renders an editable wedding-name heading (save on blur/Enter → `PATCH /api/wedding`), an "add table" form (name + seat count 1–30 → `POST /api/tables`), and the table list. On success it updates local state so the new table appears without reload. Shows validation and API errors inline (mirroring the auth `FormField`/`ServerError` convention).
+**Intent**: Client component receiving `initialWedding` + `initialTables`. Renders an editable wedding-name heading (save on blur/Enter → `PATCH /api/wedding`), an "add table" form (name + seat count 1–30 → `POST /api/tables`), and the table list. On success it updates local state so the new table appears without reload. Shows validation and API errors inline (mirroring the `FormField`/`ServerError` convention), styled with the light wedding palette.
 
-**Contract**: Uses `cn()` for classes; no prop mutation (React Compiler enforced). Reuses/generalizes `FormField`/`ServerError` from `src/components/auth/` (extract to a shared location if cleaner). Reads the uniform `{ error: { code, message } }` on non-OK responses and renders the Polish `message`.
-
-#### 3. Generalize + extract shared form components
-
-**File**: `src/components/ui/FormField.tsx`, `src/components/ui/ServerError.tsx` (move + generalize)
-
-**Intent**: Expect this if the workspace isn't styled exactly like the auth screens. The current `src/components/auth/FormField.tsx` is coupled to the auth look: `icon` is a **required** prop, and the classes hard-code the dark glassmorphism palette (`bg-white/10`, `text-white`, `placeholder-white/40`, `focus:ring-purple-400`, `pl-10` icon slot). A drop-in reuse on a differently-styled workspace (e.g. light background, or the seat-count number input with no icon) will look wrong. Generalize before reusing: make `icon` optional (drop the `pl-10` slot when absent) and decouple the auth-specific palette from the base field styling, then relocate to `src/components/ui/`.
-
-**Contract**: `icon` optional; auth-specific palette no longer baked into the base component. Components relocated to `src/components/ui/`; both auth forms + workspace import from the shared path; auth forms render unchanged.
+**Contract**: Uses `cn()` for classes; no prop mutation (React Compiler enforced). Reuses the relocated generic `FormField`/`ServerError` (item 2) with a light theme constant. Reads the uniform `{ error: { code, message } }` on non-OK responses and renders the Polish `message`. Mounted from `wedding.astro` as a client island replacing that page's static tables markup.
 
 ### Success Criteria:
 
@@ -356,12 +358,12 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [ ] 4.1 Type checking passes: `npx astro check`
-- [ ] 4.2 Linting passes: `npm run lint`
+- [x] 4.1 Type checking passes: `npx astro check`
+- [x] 4.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 4.3 Inline rename persists across reload (preview)
-- [ ] 4.4 Add table appears immediately and persists with correct seat count
-- [ ] 4.5 Invalid name/seat count shows inline error, creates nothing
-- [ ] 4.6 No regression in auth forms after shared-component extraction
+- [x] 4.3 Inline rename persists across reload (preview)
+- [x] 4.4 Add table appears immediately and persists with correct seat count
+- [x] 4.5 Invalid name/seat count shows inline error, creates nothing
+- [x] 4.6 No regression in auth forms after shared-component extraction

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Mail, Lock, LogIn } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
+import { FormField } from "@/components/ui/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
-import { ServerError } from "@/components/auth/ServerError";
+import { ServerError } from "@/components/ui/ServerError";
+import { authFieldTheme, authServerErrorClass } from "@/components/auth/field-theme";
 
 interface Props {
   serverError?: string | null;
@@ -42,6 +43,7 @@ export default function SignInForm({ serverError }: Props) {
   return (
     <form method="POST" action="/api/auth/signin" className="space-y-4" onSubmit={handleSubmit} noValidate>
       <FormField
+        {...authFieldTheme}
         id="email"
         type="email"
         label="Email"
@@ -56,6 +58,7 @@ export default function SignInForm({ serverError }: Props) {
       />
 
       <FormField
+        {...authFieldTheme}
         id="password"
         label="Password"
         type={showPassword ? "text" : "password"}
@@ -77,7 +80,7 @@ export default function SignInForm({ serverError }: Props) {
         }
       />
 
-      <ServerError message={serverError} />
+      <ServerError message={serverError} className={authServerErrorClass} />
 
       <SubmitButton pendingText="Signing in..." icon={<LogIn className="size-4" />}>
         Sign in
