@@ -29,3 +29,10 @@
 - **Problem**: verbose multi-line comment blocks bloat files, drift out of sync with the code, and narrate what the code already says, making files harder to scan
 - **Rule**: Keep every code comment short and to the point — max 2 lines. Explain the "why", not a narration of what the code does; if a comment only restates the code, drop it.
 - **Applies to**: implement, impl-review
+
+## Centralize app paths in a route registry — no hardcoded path literals
+
+- **Context**: any code that references an app route — redirects in middleware/endpoints, `href`/`action` in `.astro` or React components, `PROTECTED_ROUTES`.
+- **Problem**: the same path string (e.g. `/wedding`) gets duplicated across files (S-01: middleware ×2, signin, Topbar), so a rename means hunting every literal and typos slip past the type system.
+- **Rule**: keep a single `src/lib/routes.ts` `ROUTES` map and reference paths via `ROUTES.*` instead of string literals. Astro still routes by filename, so the registry centralizes references only — keep each entry in sync with its page filename. New slices add their paths here.
+- **Applies to**: plan, implement, impl-review

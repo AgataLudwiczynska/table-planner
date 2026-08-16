@@ -66,6 +66,7 @@ Build inside-out: (1) contracts and the service layer, (2) JSON API endpoints ov
 - **Central error catalog** (`src/lib/errors.ts`): single `API_ERRORS` map of `code → { status, message }` (Polish messages). `ApiErrorCode` is its key type — the one source of truth for every domain error code, status, and user-facing string.
 - **Service-result pattern** (`src/lib/services/result.ts`, types in `src/types.ts`): services never throw for expected failures; they return `ServiceResult<T> = { ok: true; data: T } | ({ ok: false } & ServiceFailure)`, built via `success(data)` / `failure(code)` (which pulls status+message from the catalog).
 - **Thin endpoints unwrap the result**: `src/lib/api.ts` exposes `apiSuccess(data, status?)`, `apiError(code, message, status)`, `apiErrorFrom(code)` (catalog lookup), and `apiFailure(serviceFailure)`. Endpoint flow: validate (zod) → call service → `if (!result.ok) return apiFailure(result)` → `apiSuccess(result.data)`.
+- **Central route registry** (`src/lib/routes.ts`): single `ROUTES` map of app paths referenced in code (redirects, links). Added in Phase 3 (deviation — the approved plan hardcoded `/wedding` in middleware/signin/Topbar). Middleware, auth redirects, and `.astro` links reference paths via `ROUTES`, not string literals; S-02..S-05 add their new paths here.
 
 ## Phase 1: Scaffolding & Contracts
 
@@ -341,15 +342,15 @@ None — no schema change. F-01's schema, RLS, and RPC cover this slice. The sea
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx astro check`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 `grep -rn "/dashboard" src/` returns nothing
+- [x] 3.1 Type checking passes: `npx astro check` — 5d55c20
+- [x] 3.2 Linting passes: `npm run lint` — 5d55c20
+- [x] 3.3 `grep -rn "/dashboard" src/` returns nothing — 5d55c20
 
 #### Manual
 
-- [x] 3.4 Fresh login lands on `/wedding` with auto-provisioned `Nasze wesele`
-- [x] 3.5 Logged-in `/` → `/wedding`; logged-out `/` → landing
-- [x] 3.6 Logged-out `/wedding` → sign-in
+- [x] 3.4 Fresh login lands on `/wedding` with auto-provisioned `Nasze wesele` — 5d55c20
+- [x] 3.5 Logged-in `/` → `/wedding`; logged-out `/` → landing — 5d55c20
+- [x] 3.6 Logged-out `/wedding` → sign-in — 5d55c20
 
 ### Phase 4: Interactive Workspace UI
 
