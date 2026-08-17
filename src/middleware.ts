@@ -8,10 +8,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
 
   if (supabase) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    context.locals.user = user ?? null;
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      context.locals.user = user ?? null;
+    } catch {
+      // Supabase transport error: degrade to logged-out instead of 500-ing every route.
+      context.locals.user = null;
+    }
   } else {
     context.locals.user = null;
   }

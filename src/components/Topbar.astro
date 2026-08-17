@@ -20,21 +20,21 @@ const today = formatDate();
           </a>
           <form method="POST" action={ROUTES.signOut}>
             <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Sign out
+              Wyloguj się
             </button>
           </form>
         </div>
       </>
     ) : (
       <>
-        <span class="text-blue-100/70">Not signed in</span>
+        <span class="text-blue-100/70">Niezalogowany</span>
         <span class="text-blue-100/70">{today}</span>
         <div class="flex gap-3">
           <a href={ROUTES.signIn} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign in
+            Zaloguj się
           </a>
           <a href={ROUTES.signUp} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign up
+            Zarejestruj się
           </a>
         </div>
       </>

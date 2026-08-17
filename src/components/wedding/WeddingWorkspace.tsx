@@ -42,6 +42,7 @@ export default function WeddingWorkspace({ initialWedding, initialTables }: Prop
   const createTable = useApiMutation<Table>("Nie udało się dodać stołu.");
 
   async function saveName() {
+    if (rename.pending) return;
     const trimmed = nameDraft.trim();
     if (!trimmed) {
       rename.setError("Nazwa wesela nie może być pusta.");
