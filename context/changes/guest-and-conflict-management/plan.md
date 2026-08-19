@@ -328,17 +328,17 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [ ] 1.1 Migration applies cleanly on a fresh local DB (`npx supabase db reset`/`db push`)
-- [ ] 1.2 Types regenerate & include new tables (`npm run db:types`; `grep -c "guests\|guest_conflicts" src/db/database.types.ts` > 0)
-- [ ] 1.3 Type checking passes: `npx astro check`
-- [ ] 1.4 Linting passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly on a fresh local DB (`npx supabase db reset`/`db push`)
+- [x] 1.2 Types regenerate & include new tables (`npm run db:types`; `grep -c "guests\|guest_conflicts" src/db/database.types.ts` > 0)
+- [x] 1.3 Type checking passes: `npx astro check`
+- [x] 1.4 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 1.5 Canonical constraint holds: `(b,a)` rejected after `(a,b)`
-- [ ] 1.6 Cross-account RLS returns 0 rows for another user's guests/conflicts
-- [ ] 1.7 anon denied on both tables
-- [ ] 1.8 Duplicate (wedding_id, first_name, last_name) rejected by unique constraint
+- [x] 1.5 Canonical constraint holds: `(b,a)` rejected after `(a,b)`
+- [x] 1.6 Cross-account RLS returns 0 rows for another user's guests/conflicts
+- [x] 1.7 anon denied on both tables
+- [x] 1.8 Duplicate (wedding_id, first_name, last_name) rejected by unique constraint
 
 ### Phase 2: Contracts & Services
 

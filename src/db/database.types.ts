@@ -34,6 +34,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      guest_conflicts: {
+        Row: {
+          created_at: string
+          guest_a_id: string
+          guest_b_id: string
+          id: string
+          wedding_id: string
+        }
+        Insert: {
+          created_at?: string
+          guest_a_id: string
+          guest_b_id: string
+          id?: string
+          wedding_id: string
+        }
+        Update: {
+          created_at?: string
+          guest_a_id?: string
+          guest_b_id?: string
+          id?: string
+          wedding_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_conflicts_guest_a_id_fkey"
+            columns: ["guest_a_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_conflicts_guest_b_id_fkey"
+            columns: ["guest_b_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_conflicts_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guests: {
+        Row: {
+          created_at: string
+          first_name: string
+          guest_group: string | null
+          id: string
+          last_name: string
+          side: string | null
+          wedding_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          guest_group?: string | null
+          id?: string
+          last_name: string
+          side?: string | null
+          wedding_id: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          guest_group?: string | null
+          id?: string
+          last_name?: string
+          side?: string | null
+          wedding_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seats: {
         Row: {
           created_at: string
