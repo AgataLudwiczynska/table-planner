@@ -1,10 +1,10 @@
 ---
 change_id: wedding-shell-with-tables
 title: Operator logs in, gets a named wedding, and adds a round table with auto-generated seats
-status: impl_reviewed
+status: archived
 created: 2026-08-15
-updated: 2026-08-17
-archived_at: null
+updated: 2026-08-19
+archived_at: 2026-08-19T16:20:29Z
 ---
 
 ## Notes
