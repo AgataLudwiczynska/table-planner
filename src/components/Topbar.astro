@@ -1,5 +1,6 @@
 ---
 import { formatDate } from "@/lib/utils";
+import { ROUTES } from "@/lib/routes";
 
 const { user } = Astro.locals;
 const today = formatDate();
@@ -14,26 +15,26 @@ const today = formatDate();
         <span class="text-blue-100/70">{user.email}</span>
         <span class="text-blue-100/70">{today}</span>
         <div class="flex items-center gap-3">
-          <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Dashboard
+          <a href={ROUTES.wedding} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Wesele
           </a>
-          <form method="POST" action="/api/auth/signout">
+          <form method="POST" action={ROUTES.signOut}>
             <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Sign out
+              Wyloguj się
             </button>
           </form>
         </div>
       </>
     ) : (
       <>
-        <span class="text-blue-100/70">Not signed in</span>
+        <span class="text-blue-100/70">Niezalogowany</span>
         <span class="text-blue-100/70">{today}</span>
         <div class="flex gap-3">
-          <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign in
+          <a href={ROUTES.signIn} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Zaloguj się
           </a>
-          <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign up
+          <a href={ROUTES.signUp} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Zarejestruj się
           </a>
         </div>
       </>

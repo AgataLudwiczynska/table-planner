@@ -1,0 +1,64 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+import { getOrCreateWedding } from "@/lib/services/wedding.service";
+import { listTables } from "@/lib/services/table.service";
+import { ROUTES } from "@/lib/routes";
+import WeddingWorkspace from "@/components/wedding/WeddingWorkspace";
+import type { Table, Wedding } from "@/types";
+
+const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let wedding: Wedding | null = null;
+let tables: Table[] = [];
+let loadError = false;
+
+if (supabase && user) {
+  const weddingResult = await getOrCreateWedding(supabase, user.id);
+  if (weddingResult.ok) {
+    wedding = weddingResult.data;
+    const tablesResult = await listTables(supabase, wedding.id);
+    if (tablesResult.ok) {
+      tables = tablesResult.data;
+    } else {
+      loadError = true;
+    }
+  } else {
+    loadError = true;
+  }
+}
+---
+
+<Layout title={wedding?.name ?? "Wesele"}>
+  <div class="bg-wedding min-h-screen p-4 text-slate-800">
+    <div class="mx-auto max-w-2xl">
+      <div class="flex items-center justify-end">
+        <form method="POST" action={ROUTES.signOut}>
+          <button
+            type="submit"
+            class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            Wyloguj się
+          </button>
+        </form>
+      </div>
+
+      {
+        loadError && (
+          <p class="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+            Nie udało się wczytać wesela. Spróbuj odświeżyć stronę.
+          </p>
+        )
+      }
+
+      {
+        !loadError && wedding && (
+          <div class="mt-6">
+            <WeddingWorkspace client:load initialWedding={wedding} initialTables={tables} />
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

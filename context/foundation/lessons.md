@@ -22,3 +22,17 @@
 - **Problem**: a deferred finding gets buried in that change's `follow-ups/review-fixes.md` under `context/archive/…`, so nobody sees it when the slice it targets comes up — it survives only in human memory (F-01's unbounded `seat_count` had to be recalled by hand during S-01 planning).
 - **Rule**: keep a central register at `context/foundation/follow-ups.md` (index + status only; full rationale stays in the per-change `follow-ups/*.md`). When deferring a finding, add a row there tagged with its **target slice**. When planning/implementing a slice, read `follow-ups.md` and pull in every item targeting it; flip items to DONE (with commit/slice) as they land.
 - **Applies to**: plan, implement, impl-review, plan-review
+
+## Keep code comments short — max 2 lines, explain "why" not "what"
+
+- **Context**: any code comment anywhere in the codebase (services, endpoints, components, Astro pages — all languages)
+- **Problem**: verbose multi-line comment blocks bloat files, drift out of sync with the code, and narrate what the code already says, making files harder to scan
+- **Rule**: Keep every code comment short and to the point — max 2 lines. Explain the "why", not a narration of what the code does; if a comment only restates the code, drop it.
+- **Applies to**: implement, impl-review
+
+## Centralize app paths in a route registry — no hardcoded path literals
+
+- **Context**: any code that references an app route — redirects in middleware/endpoints, `href`/`action` in `.astro` or React components, `PROTECTED_ROUTES`.
+- **Problem**: the same path string (e.g. `/wedding`) gets duplicated across files (S-01: middleware ×2, signin, Topbar), so a rename means hunting every literal and typos slip past the type system.
+- **Rule**: keep a single `src/lib/routes.ts` `ROUTES` map and reference paths via `ROUTES.*` instead of string literals. Astro still routes by filename, so the registry centralizes references only — keep each entry in sync with its page filename. New slices add their paths here.
+- **Applies to**: plan, implement, impl-review

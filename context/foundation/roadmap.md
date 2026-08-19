@@ -3,7 +3,7 @@ project: TablePlanner
 version: 1
 status: draft
 created: 2026-08-09
-updated: 2026-08-15
+updated: 2026-08-16
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -32,7 +32,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | ID    | Change ID                                       | Outcome (operator może …)                                                                    | Prerequisites | PRD refs                                                       | Status   |
 | ----- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------- | -------- |
 | F-01  | `wedding-scope-schema-and-rls`                  | (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only       | —             | NFR Prywatność, NFR Trwałość, Guardrail Invariant              | done |
-| S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | planning |
+| S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | in-progress |
 | S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01, S-01    | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | proposed |
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | proposed |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | proposed |
@@ -85,9 +85,9 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Parallel with:** — (wcześniej S-02; przeniesione do sekwencji po S-01)
 - **Blockers:** —
 - **Unknowns:**
-  - Czy MVP zakłada jedno wesele per użytkownik (auto-provision + rename) czy jawne „create wedding" z listą wielu wesel? — Owner: user. Block: no. (Wskazanie: auto-provision + rename — `target_scale.users: small` zniechęca do dodatkowego UX; łatwo rozszerzyć w v2 jeśli user zażyczy.)
+  - Czy MVP zakłada jedno wesele per użytkownik (auto-provision + rename) czy jawne „create wedding" z listą wielu wesel? — Owner: user. Block: no. (Wskazanie: auto-provision + rename — `target_scale.users: small` zniechęca do dodatkowego UX; łatwo rozszerzyć w v2 jeśli user zażyczy.) **Rozstrzygnięte w planie: auto-provision + rename.**
 - **Risk:** Slice ustala pierwsze pełne API pattern dla domeny (endpoint format, walidacja `zod`, kształt błędu, `PROTECTED_ROUTES`) — każdy kolejny slice powiela wzorzec, więc warto zrobić raz porządnie. Ryzyko: zbytnie ambicje pierwszego API (np. cache, batching) zjadają margines — trzymamy się minimum, iteracja w kolejnych slice'ach. S-02 dzieli z S-01 tę samą foundation (F-01), ale realnie rusza dopiero po S-01 (patrz S-02 Prerequisites) — nie jest to równoległy tor.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-02: Operator dodaje gości i definiuje konflikty
 
