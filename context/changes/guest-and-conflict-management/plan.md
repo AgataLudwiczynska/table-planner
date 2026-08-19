@@ -328,29 +328,29 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly on a fresh local DB (`npx supabase db reset`/`db push`)
-- [x] 1.2 Types regenerate & include new tables (`npm run db:types`; `grep -c "guests\|guest_conflicts" src/db/database.types.ts` > 0)
-- [x] 1.3 Type checking passes: `npx astro check`
-- [x] 1.4 Linting passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly on a fresh local DB (`npx supabase db reset`/`db push`) — 1c15a5e
+- [x] 1.2 Types regenerate & include new tables (`npm run db:types`; `grep -c "guests\|guest_conflicts" src/db/database.types.ts` > 0) — 1c15a5e
+- [x] 1.3 Type checking passes: `npx astro check` — 1c15a5e
+- [x] 1.4 Linting passes: `npm run lint` — 1c15a5e
 
 #### Manual
 
-- [x] 1.5 Canonical constraint holds: `(b,a)` rejected after `(a,b)`
-- [x] 1.6 Cross-account RLS returns 0 rows for another user's guests/conflicts
-- [x] 1.7 anon denied on both tables
-- [x] 1.8 Duplicate (wedding_id, first_name, last_name) rejected by unique constraint
+- [x] 1.5 Canonical constraint holds: `(b,a)` rejected after `(a,b)` — 1c15a5e
+- [x] 1.6 Cross-account RLS returns 0 rows for another user's guests/conflicts — 1c15a5e
+- [x] 1.7 anon denied on both tables — 1c15a5e
+- [x] 1.8 Duplicate (wedding_id, first_name, last_name) rejected by unique constraint — 1c15a5e
 
 ### Phase 2: Contracts & Services
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx astro check`
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro check`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 All Supabase access stays behind the service boundary (spot-check)
-- [ ] 2.4 `createConflict` self-pair / canonical-order / duplicate branches correct (code review)
+- [x] 2.3 All Supabase access stays behind the service boundary (spot-check)
+- [x] 2.4 `createConflict` self-pair / canonical-order / duplicate branches correct (code review)
 
 ### Phase 3: API Endpoints
 

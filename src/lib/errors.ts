@@ -7,6 +7,15 @@ export const API_ERRORS = {
   validation_error: { status: 400, message: "Nieprawidłowe dane." },
   unauthorized: { status: 401, message: "Musisz być zalogowany." },
   supabase_unconfigured: { status: 503, message: "Usługa jest chwilowo niedostępna." },
+  guest_not_found: { status: 404, message: "Nie znaleziono gościa." },
+  guest_name_exists: {
+    status: 409,
+    message: "Gość o tym imieniu i nazwisku już istnieje w tym weselu. Dodaj rozróżnienie, np. „Kowalska (ciocia)”.",
+  },
+  conflict_exists: { status: 409, message: "Ten konflikt jest już zdefiniowany." },
+  conflict_self: { status: 400, message: "Nie można dodać konfliktu gościa z samym sobą." },
+  conflict_not_found: { status: 404, message: "Nie znaleziono konfliktu." },
+  invalid_guest: { status: 400, message: "Nieprawidłowy gość." },
 } as const;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

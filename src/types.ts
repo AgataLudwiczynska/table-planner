@@ -5,6 +5,8 @@ import type { Database } from "@/db/database.types";
 export type WeddingRow = Database["public"]["Tables"]["weddings"]["Row"];
 export type TableRow = Database["public"]["Tables"]["tables"]["Row"];
 export type SeatRow = Database["public"]["Tables"]["seats"]["Row"];
+export type GuestRow = Database["public"]["Tables"]["guests"]["Row"];
+export type GuestConflictRow = Database["public"]["Tables"]["guest_conflicts"]["Row"];
 
 // --- Domain shapes (camelCase; what the API returns and app code passes around) ---
 // The service maps a snake_case Row (e.g. `seat_count`) to these (e.g. `seatCount`).
@@ -22,6 +24,28 @@ export interface Table {
   seatCount: number;
 }
 
+/** Which side of the wedding a guest belongs to (optional). */
+export type GuestSide = "panna_mloda" | "pan_mlody" | "wspolne" | "nieokreslone";
+
+/** A guest's relationship group (optional). */
+export type GuestGroup = "rodzina" | "przyjaciele" | "wspolpracownicy";
+
+/** A guest as exposed by the API. Maps the `guest_group` column to `group`. */
+export interface Guest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  side: GuestSide | null;
+  group: GuestGroup | null;
+}
+
+/** A binary "not next to each other" conflict pair, id-only (names joined in the UI). */
+export interface Conflict {
+  id: string;
+  guestAId: string;
+  guestBId: string;
+}
+
 // --- Command inputs (request bodies the API accepts) ---
 
 /** Body of `PATCH /api/wedding`. */
@@ -33,6 +57,23 @@ export interface RenameWeddingInput {
 export interface CreateTableInput {
   name: string;
   seatCount: number;
+}
+
+/** Body of `POST /api/guests` (wedding is resolved server-side). Empty side/group is `null`, never omitted. */
+export interface CreateGuestInput {
+  firstName: string;
+  lastName: string;
+  side: GuestSide | null;
+  group: GuestGroup | null;
+}
+
+/** Body of `PATCH /api/guests` (same shape as create; target `id` carried separately). */
+export type UpdateGuestInput = CreateGuestInput;
+
+/** Body of `POST /api/conflicts` (wedding is resolved server-side). */
+export interface CreateConflictInput {
+  guestAId: string;
+  guestBId: string;
 }
 
 // --- Uniform API result envelope (every domain endpoint emits this shape) ---
