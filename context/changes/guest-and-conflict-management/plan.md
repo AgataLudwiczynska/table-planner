@@ -356,30 +356,30 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx astro check`
-- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.1 Type checking passes: `npx astro check` — f9e6527
+- [x] 3.2 Linting passes: `npm run lint` — f9e6527
 
 #### Manual
 
-- [x] 3.3 `POST /api/guests` valid → 201; empty name → 400 without a write (preview)
-- [x] 3.4 `PATCH` updates; `DELETE` removes guest + cascades conflicts
-- [x] 3.5 `POST /api/conflicts`: valid → 201; self → 400; duplicate (either order) → 409; foreign guest → 400
-- [x] 3.6 Unauthenticated requests → 401
+- [x] 3.3 `POST /api/guests` valid → 201; empty name → 400 without a write (preview) — f9e6527
+- [x] 3.4 `PATCH` updates; `DELETE` removes guest + cascades conflicts — f9e6527
+- [x] 3.5 `POST /api/conflicts`: valid → 201; self → 400; duplicate (either order) → 409; foreign guest → 400 — f9e6527
+- [x] 3.6 Unauthenticated requests → 401 — f9e6527
 
 ### Phase 4: Tabbed Workspace UI
 
 #### Automated
 
-- [ ] 4.1 Type checking passes: `npx astro check`
-- [ ] 4.2 Linting passes: `npm run lint`
+- [x] 4.1 Type checking passes: `npx astro check`
+- [x] 4.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 4.3 Tabs switch; Stoły tab unchanged (no regression)
-- [ ] 4.4 Add guest (with/without side+group) appears and persists
-- [ ] 4.5 Edit guest via reused form updates and persists
-- [ ] 4.6 Delete guest shows confirm; guest + their conflicts disappear
-- [ ] 4.7 Define conflict via searchable pickers; self-pair/duplicate show inline error, create nothing
-- [ ] 4.8 Remove conflict is instant (no confirm) and persists
-- [ ] 4.9 Empty required guest fields show inline errors and create nothing
-- [ ] 4.10 Adding a guest with a duplicate first+last name shows inline `guest_name_exists`, nothing created
+- [x] 4.3 Tabs switch; Stoły tab unchanged (no regression)
+- [x] 4.4 Add guest (with/without side+group) appears and persists
+- [x] 4.5 Edit guest via reused form updates and persists
+- [x] 4.6 Delete guest shows confirm; guest + their conflicts disappear
+- [x] 4.7 Define conflict via searchable pickers; self-pair/duplicate show inline error, create nothing
+- [x] 4.8 Remove conflict is instant (no confirm) and persists
+- [x] 4.9 Empty required guest fields show inline errors and create nothing
+- [x] 4.10 Adding a guest with a duplicate first+last name shows inline `guest_name_exists`, nothing created
