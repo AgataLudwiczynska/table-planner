@@ -356,15 +356,15 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx astro check`
-- [ ] 3.2 Linting passes: `npm run lint`
+- [x] 3.1 Type checking passes: `npx astro check`
+- [x] 3.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 `POST /api/guests` valid → 201; empty name → 400 without a write (preview)
-- [ ] 3.4 `PATCH` updates; `DELETE` removes guest + cascades conflicts
-- [ ] 3.5 `POST /api/conflicts`: valid → 201; self → 400; duplicate (either order) → 409; foreign guest → 400
-- [ ] 3.6 Unauthenticated requests → 401
+- [x] 3.3 `POST /api/guests` valid → 201; empty name → 400 without a write (preview)
+- [x] 3.4 `PATCH` updates; `DELETE` removes guest + cascades conflicts
+- [x] 3.5 `POST /api/conflicts`: valid → 201; self → 400; duplicate (either order) → 409; foreign guest → 400
+- [x] 3.6 Unauthenticated requests → 401
 
 ### Phase 4: Tabbed Workspace UI
 

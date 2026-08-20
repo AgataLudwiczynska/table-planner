@@ -5,7 +5,7 @@ import { ServerError } from "@/components/ui/ServerError";
 import { useApiMutation } from "@/components/hooks/useApiMutation";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import type { Table, Wedding } from "@/types";
+import type { Conflict, Guest, Table, Wedding } from "@/types";
 
 const MAX_TABLE_NAME = 50;
 const MIN_SEATS = 1;
@@ -23,6 +23,9 @@ const serverErrorClass = "border-red-300 bg-red-50 text-red-700";
 interface Props {
   initialWedding: Wedding;
   initialTables: Table[];
+  // Server-loaded in Phase 3; wired into tabbed state in Phase 4.
+  initialGuests?: Guest[];
+  initialConflicts?: Conflict[];
 }
 
 function seatLabel(count: number) {

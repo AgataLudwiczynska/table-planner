@@ -3,24 +3,34 @@ import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
 import { getOrCreateWedding } from "@/lib/services/wedding.service";
 import { listTables } from "@/lib/services/table.service";
+import { listGuests } from "@/lib/services/guest.service";
+import { listConflicts } from "@/lib/services/conflict.service";
 import { ROUTES } from "@/lib/routes";
 import WeddingWorkspace from "@/components/wedding/WeddingWorkspace";
-import type { Table, Wedding } from "@/types";
+import type { Conflict, Guest, Table, Wedding } from "@/types";
 
 const { user } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let wedding: Wedding | null = null;
 let tables: Table[] = [];
+let guests: Guest[] = [];
+let conflicts: Conflict[] = [];
 let loadError = false;
 
 if (supabase && user) {
   const weddingResult = await getOrCreateWedding(supabase, user.id);
   if (weddingResult.ok) {
     wedding = weddingResult.data;
-    const tablesResult = await listTables(supabase, wedding.id);
-    if (tablesResult.ok) {
+    const [tablesResult, guestsResult, conflictsResult] = await Promise.all([
+      listTables(supabase, wedding.id),
+      listGuests(supabase, wedding.id),
+      listConflicts(supabase, wedding.id),
+    ]);
+    if (tablesResult.ok && guestsResult.ok && conflictsResult.ok) {
       tables = tablesResult.data;
+      guests = guestsResult.data;
+      conflicts = conflictsResult.data;
     } else {
       loadError = true;
     }
@@ -55,7 +65,13 @@ if (supabase && user) {
       {
         !loadError && wedding && (
           <div class="mt-6">
-            <WeddingWorkspace client:load initialWedding={wedding} initialTables={tables} />
+            <WeddingWorkspace
+              client:load
+              initialWedding={wedding}
+              initialTables={tables}
+              initialGuests={guests}
+              initialConflicts={conflicts}
+            />
           </div>
         )
       }
