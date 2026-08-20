@@ -129,7 +129,7 @@ Extend the shared types, add the new error codes, and write the two services tha
 
 **Intent**: Add DB row aliases and camelCase DTOs/commands for guests and conflicts, matching the existing `Wedding`/`Table` style.
 
-**Contract**: `GuestRow`/`GuestConflictRow` aliases over the generated types. `GuestSide = 'panna_mloda' | 'pan_mlody' | 'wspolne' | 'nieokreslone'`; `GuestGroup = 'rodzina' | 'przyjaciele' | 'wspolpracownicy'`. `Guest { id: string; firstName: string; lastName: string; side: GuestSide | null; group: GuestGroup | null }`. `Conflict { id: string; guestAId: string; guestBId: string }` (names for display are joined in the UI from the guest list; keep the DTO id-only to stay minimal). `CreateGuestInput { firstName; lastName; side?; group? }`, `UpdateGuestInput` (same shape), `CreateConflictInput { guestAId: string; guestBId: string }`.
+**Contract**: `GuestRow`/`GuestConflictRow` aliases over the generated types. `GuestSide = 'panna_mloda' | 'pan_mlody' | 'wspolne' | 'nieokreslone'`; `GuestGroup = 'rodzina' | 'przyjaciele' | 'wspolpracownicy'`. `Guest { id: string; firstName: string; lastName: string; side: GuestSide | null; group: GuestGroup | null }`. `Conflict { id: string; guestAId: string; guestBId: string }` (names for display are joined in the UI from the guest list; keep the DTO id-only to stay minimal). `CreateGuestInput { firstName: string; lastName: string; side: GuestSide | null; group: GuestGroup | null }` (keys required, value nullable — callers pass explicit `null` for empty so `create`/`update` never send `undefined` to Supabase, which would silently skip the column on update), `UpdateGuestInput` (same shape), `CreateConflictInput { guestAId: string; guestBId: string }`.
 
 #### 2. New error codes
 
@@ -344,13 +344,13 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx astro check`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro check` — d9aedfc
+- [x] 2.2 Linting passes: `npm run lint` — d9aedfc
 
 #### Manual
 
-- [x] 2.3 All Supabase access stays behind the service boundary (spot-check)
-- [x] 2.4 `createConflict` self-pair / canonical-order / duplicate branches correct (code review)
+- [x] 2.3 All Supabase access stays behind the service boundary (spot-check) — d9aedfc
+- [x] 2.4 `createConflict` self-pair / canonical-order / duplicate branches correct (code review) — d9aedfc
 
 ### Phase 3: API Endpoints
 
