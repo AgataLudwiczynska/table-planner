@@ -370,16 +370,16 @@ One new migration (`guests` + `guest_conflicts` + RLS). Migrations are one-way (
 
 #### Automated
 
-- [x] 4.1 Type checking passes: `npx astro check`
-- [x] 4.2 Linting passes: `npm run lint`
+- [x] 4.1 Type checking passes: `npx astro check` — 3e61886
+- [x] 4.2 Linting passes: `npm run lint` — 3e61886
 
 #### Manual
 
-- [x] 4.3 Tabs switch; Stoły tab unchanged (no regression)
-- [x] 4.4 Add guest (with/without side+group) appears and persists
-- [x] 4.5 Edit guest via reused form updates and persists
-- [x] 4.6 Delete guest shows confirm; guest + their conflicts disappear
-- [x] 4.7 Define conflict via searchable pickers; self-pair/duplicate show inline error, create nothing
-- [x] 4.8 Remove conflict is instant (no confirm) and persists
-- [x] 4.9 Empty required guest fields show inline errors and create nothing
-- [x] 4.10 Adding a guest with a duplicate first+last name shows inline `guest_name_exists`, nothing created
+- [x] 4.3 Tabs switch; Stoły tab unchanged (no regression) — 3e61886
+- [x] 4.4 Add guest (with/without side+group) appears and persists — 3e61886
+- [x] 4.5 Edit guest via reused form updates and persists — 3e61886
+- [x] 4.6 Delete guest shows confirm; guest + their conflicts disappear — 3e61886
+- [x] 4.7 Define conflict via searchable pickers; self-pair/duplicate show inline error, create nothing — 3e61886
+- [x] 4.8 Remove conflict is instant (no confirm) and persists — 3e61886
+- [x] 4.9 Empty required guest fields show inline errors and create nothing — 3e61886
+- [x] 4.10 Adding a guest with a duplicate first+last name shows inline `guest_name_exists`, nothing created — 3e61886

@@ -1,7 +1,7 @@
 ---
 change_id: guest-and-conflict-management
 title: Add, edit, and delete guests; define and remove conflict pairs
-status: implementing
+status: implemented
 created: 2026-08-17
 updated: 2026-08-20
 archived_at: null
