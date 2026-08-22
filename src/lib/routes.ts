@@ -8,4 +8,6 @@ export const ROUTES = {
   signOut: "/api/auth/signout",
   apiWedding: "/api/wedding",
   apiTables: "/api/tables",
+  apiGuests: "/api/guests",
+  apiConflicts: "/api/conflicts",
 } as const;
