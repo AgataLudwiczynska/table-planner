@@ -23,6 +23,7 @@
 | F2 | future / observability | When a service collapses an unknown Supabase/DB error to a generic 500, log the underlying `PostgrestError` server-side (e.g. `console.error`) so 500s stay debuggable while users still get only the generic message. | OPEN | S-01 error-handling design discussion (`context/changes/wedding-shell-with-tables/`) |
 | F3 | future / UI polish | Restyle the sign-in/sign-up screens and the anonymous landing page from the dark cosmic palette to the light wedding theme (`bg-wedding`) introduced in S-01, so the whole app reads as one consistent wedding-appropriate look. | OPEN | S-01 impl review (`context/changes/wedding-shell-with-tables/reviews/impl-review.md`) |
 | F4 | future / DX | Evaluate a form-handling library (e.g. React Hook Form + zod resolver) to replace the hand-rolled per-field `useState`/validation now repeated across the rename, add-table, guest add/edit, and conflict-picker forms; would cut boilerplate and let the client reuse the endpoints' `zod` schemas. | OPEN | `context/changes/guest-and-conflict-management/follow-ups/form-library.md` |
+| F5 | future / refactor | Extract the "Stoły" tab out of `WeddingWorkspace` into its own `TablesTab.tsx` (mirroring `GuestsTab`/`ConflictsTab`) and move the table-form state (`tableName`/`seatCount`/`fieldErrors`/`addTable`) into it; pure refactor for encapsulation, no behaviour change. | OPEN | `context/changes/guest-and-conflict-management/follow-ups/extract-tables-tab.md` |
 
 ## Done
 
