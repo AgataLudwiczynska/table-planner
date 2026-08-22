@@ -34,7 +34,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | F-01  | `wedding-scope-schema-and-rls`                  | (foundation) schema `weddings+tables+seats` + wzorzec RLS per-operation dla owner-only       | —             | NFR Prywatność, NFR Trwałość, Guardrail Invariant              | done |
 | S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | done |
 | S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01, S-01    | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | done |
-| S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | proposed |
+| S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | planning |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | proposed |
 | S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | proposed |
 
@@ -115,7 +115,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
   - Czy walidacja sąsiedztwa liczona jest po stronie klienta (React state, natychmiast po drag release) czy serwera (przy każdym POST /assignments)? — Owner: impl. Block: no. (Wskazanie: klient dla natychmiastowości UX; serwer waliduje idempotentnie przy commicie assignmentu jako guardrail, ale UI reaguje przed round-tripem — obie warstwy muszą się zgadzać.)
   - Konkretny target wydajnościowy dla walidacji (np. p95 < 200 ms dla 150 gości i N konfliktów) — PRD Open Question #1. — Owner: downstream (impl / wybór algorytmu). Block: no. (Wskazanie: inkrementalna re-walidacja tylko zmienionych miejsc + ich sąsiadów; pełne re-check tylko przy zmianie topologii stołu.)
 - **Risk:** Slice o największej powierzchni — real-time UX (drag-and-drop + click), geometria pierścienia (modulo edge case dla stołu z 2 miejscami), graficzny okrąg SVG i inkrementalna walidacja jednocześnie. Przekroczenie budżetu tego slice zjada margines na S-04/S-05. Mitygacja pod `speed`: dostarczyć najpierw walidację + highlight na płaskiej liście miejsc (numery bez okręgu), potem graficzny okrąg jako iterację w tym samym slice — obie części zostają w scope. Guardrail „walidacja nigdy nie milczy" (FR-021, false negatives = 0) traktujemy jako acceptance criterion — jeśli test integracyjny wykryje missed adjacency, slice nie jest done.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-04: Operator edytuje stół — zmniejsza liczbę miejsc lub usuwa
 
