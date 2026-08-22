@@ -7,6 +7,7 @@ export type TableRow = Database["public"]["Tables"]["tables"]["Row"];
 export type SeatRow = Database["public"]["Tables"]["seats"]["Row"];
 export type GuestRow = Database["public"]["Tables"]["guests"]["Row"];
 export type GuestConflictRow = Database["public"]["Tables"]["guest_conflicts"]["Row"];
+export type AssignmentRow = Database["public"]["Tables"]["assignments"]["Row"];
 
 // --- Domain shapes (camelCase; what the API returns and app code passes around) ---
 // The service maps a snake_case Row (e.g. `seat_count`) to these (e.g. `seatCount`).
@@ -17,11 +18,25 @@ export interface Wedding {
   name: string;
 }
 
-/** A round table as exposed by the API. */
+/** One seat of a table; key assignments off `id`, never `seatNumber` (unique only within a table). */
+export interface Seat {
+  id: string;
+  seatNumber: number;
+}
+
+/** A round table as exposed by the API, carrying its ordered seats for the ring. */
 export interface Table {
   id: string;
   name: string;
   seatCount: number;
+  seats: Seat[];
+}
+
+/** A guest→seat assignment as exposed by the API. */
+export interface Assignment {
+  id: string;
+  guestId: string;
+  seatId: string;
 }
 
 /** Which side of the wedding a guest belongs to (optional). */
@@ -74,6 +89,12 @@ export type UpdateGuestInput = CreateGuestInput;
 export interface CreateConflictInput {
   guestAId: string;
   guestBId: string;
+}
+
+/** Body of `POST /api/assignments` (wedding is resolved server-side). Assign or move a guest to a seat. */
+export interface AssignSeatInput {
+  guestId: string;
+  seatId: string;
 }
 
 // --- Uniform API result envelope (every domain endpoint emits this shape) ---

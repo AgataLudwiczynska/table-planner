@@ -3,7 +3,8 @@ import type { ServiceResult, Table, TableRow } from "@/types";
 import { failure, success } from "./result";
 
 function toTable(row: Pick<TableRow, "id" | "name" | "seat_count">): Table {
-  return { id: row.id, name: row.name, seatCount: row.seat_count };
+  // seats filled in Phase 2 (enriched embed); empty stopgap keeps the required field typed.
+  return { id: row.id, name: row.name, seatCount: row.seat_count, seats: [] };
 }
 
 export async function listTables(supabase: SupabaseClient, weddingId: string): Promise<ServiceResult<Table[]>> {
@@ -34,5 +35,6 @@ export async function createTable(
     return failure("internal_error");
   }
   // RPC returns the new table id only; build the DTO from validated inputs.
-  return success({ id: res.data, name, seatCount });
+  // seats filled in Phase 2 (re-read with enriched embed); empty stopgap keeps the required field typed.
+  return success({ id: res.data, name, seatCount, seats: [] });
 }

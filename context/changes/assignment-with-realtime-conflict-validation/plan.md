@@ -380,15 +380,15 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [ ] 1.1 Migration applies cleanly: `npx supabase db push`
-- [ ] 1.2 Types regenerate without drift beyond the new table: `npm run db:types`
-- [ ] 1.3 Type-check passes: `npx astro check`
-- [ ] 1.4 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npx supabase db push`
+- [x] 1.2 Types regenerate without drift beyond the new table: `npm run db:types`
+- [x] 1.3 Type-check passes: `npx astro check`
+- [x] 1.4 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 1.5 RLS cross-account check: user B cannot read/write user A's assignments
-- [ ] 1.6 `anon` cannot see `assignments` in the API schema
+- [x] 1.5 RLS cross-account check: user B cannot read/write user A's assignments
+- [x] 1.6 `anon` cannot see `assignments` in the API schema
 
 ### Phase 2: Backend — seat read, assignment service + endpoint, SSR wiring
 

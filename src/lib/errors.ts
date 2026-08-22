@@ -16,6 +16,9 @@ export const API_ERRORS = {
   conflict_self: { status: 400, message: "Nie można dodać konfliktu gościa z samym sobą." },
   conflict_not_found: { status: 404, message: "Nie znaleziono konfliktu." },
   invalid_guest: { status: 400, message: "Nieprawidłowy gość." },
+  seat_not_found: { status: 404, message: "Nie znaleziono miejsca." },
+  seat_occupied: { status: 409, message: "To miejsce jest już zajęte." },
+  assignment_not_found: { status: 404, message: "Nie znaleziono przypisania." },
 } as const;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;
