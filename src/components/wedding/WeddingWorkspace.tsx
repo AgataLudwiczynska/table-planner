@@ -5,16 +5,18 @@ import { ServerError } from "@/components/ui/ServerError";
 import { useApiMutation } from "@/components/hooks/useApiMutation";
 import { GuestsTab } from "@/components/wedding/GuestsTab";
 import { ConflictsTab } from "@/components/wedding/ConflictsTab";
+import { AssignmentBoard } from "@/components/wedding/AssignmentBoard";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Assignment, Conflict, Guest, Table, Wedding } from "@/types";
 
-type TabKey = "tables" | "guests" | "conflicts";
+type TabKey = "tables" | "guests" | "conflicts" | "seating";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "tables", label: "Stoły" },
   { key: "guests", label: "Goście" },
   { key: "conflicts", label: "Konflikty" },
+  { key: "seating", label: "Rozsadzanie" },
 ];
 
 const MAX_TABLE_NAME = 50;
@@ -35,7 +37,6 @@ interface Props {
   initialTables: Table[];
   initialGuests?: Guest[];
   initialConflicts?: Conflict[];
-  // Accepted here so wedding.astro can pass it; wired to state + board in Phase 3.
   initialAssignments?: Assignment[];
 }
 
@@ -48,12 +49,14 @@ export default function WeddingWorkspace({
   initialTables,
   initialGuests = [],
   initialConflicts = [],
+  initialAssignments = [],
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("tables");
   const [wedding, setWedding] = useState(initialWedding);
   const [tables, setTables] = useState(initialTables);
   const [guests, setGuests] = useState(initialGuests);
   const [conflicts, setConflicts] = useState(initialConflicts);
+  const [assignments, setAssignments] = useState(initialAssignments);
 
   const [nameDraft, setNameDraft] = useState(initialWedding.name);
   const [tableName, setTableName] = useState("");
@@ -119,16 +122,24 @@ export default function WeddingWorkspace({
   function onGuestUpdated(guest: Guest) {
     setGuests((prev) => prev.map((g) => (g.id === guest.id ? guest : g)));
   }
-  // Deleting a guest also drops any conflict referencing them (DB cascades; mirror it in state).
+  // Deleting a guest also drops any conflict AND any assignment referencing them (DB cascades; mirror in state).
   function onGuestDeleted(id: string) {
     setGuests((prev) => prev.filter((g) => g.id !== id));
     setConflicts((prev) => prev.filter((c) => c.guestAId !== id && c.guestBId !== id));
+    setAssignments((prev) => prev.filter((a) => a.guestId !== id));
   }
   function onConflictCreated(conflict: Conflict) {
     setConflicts((prev) => [...prev, conflict]);
   }
   function onConflictDeleted(id: string) {
     setConflicts((prev) => prev.filter((c) => c.id !== id));
+  }
+  // Assign/move: upsert by guestId (a move frees the old seat, so replace the guest's row).
+  function onAssigned(assignment: Assignment) {
+    setAssignments((prev) => [...prev.filter((a) => a.guestId !== assignment.guestId), assignment]);
+  }
+  function onUnassigned(guestId: string) {
+    setAssignments((prev) => prev.filter((a) => a.guestId !== guestId));
   }
 
   return (
@@ -182,7 +193,7 @@ export default function WeddingWorkspace({
       </div>
 
       {activeTab === "tables" && (
-        <div className="mt-6">
+        <div className="mx-auto mt-6 max-w-2xl">
           <section>
             <h2 className="mb-3 text-lg font-semibold text-slate-700">Dodaj stół</h2>
             <form
@@ -254,7 +265,7 @@ export default function WeddingWorkspace({
       )}
 
       {activeTab === "guests" && (
-        <div className="mt-6">
+        <div className="mx-auto mt-6 max-w-2xl">
           <GuestsTab
             fieldTheme={fieldTheme}
             serverErrorClass={serverErrorClass}
@@ -267,13 +278,26 @@ export default function WeddingWorkspace({
       )}
 
       {activeTab === "conflicts" && (
-        <div className="mt-6">
+        <div className="mx-auto mt-6 max-w-2xl">
           <ConflictsTab
             serverErrorClass={serverErrorClass}
             guests={guests}
             conflicts={conflicts}
             onCreated={onConflictCreated}
             onDeleted={onConflictDeleted}
+          />
+        </div>
+      )}
+
+      {activeTab === "seating" && (
+        <div className="mt-6">
+          <AssignmentBoard
+            tables={tables}
+            guests={guests}
+            assignments={assignments}
+            conflicts={conflicts}
+            onAssigned={onAssigned}
+            onUnassigned={onUnassigned}
           />
         </div>
       )}

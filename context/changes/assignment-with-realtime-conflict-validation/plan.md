@@ -222,7 +222,7 @@ Add the "Rozsadzanie" tab: unassigned-guests panel plus each table as a flat num
 
 **Intent**: Add the DnD library.
 
-**Contract**: `npm install @atlaskit/pragmatic-drag-and-drop`. Verify it resolves without `--legacy-peer-deps` (core has no React peer dep — `research.md:43`).
+**Contract**: `npm install @atlaskit/pragmatic-drag-and-drop@3.0.0` — **pin the exact version** (no caret), so any future minor/patch is an explicit, diff-visible bump rather than an unaudited drift-in. Core has no React peer dep, so it resolves without `--legacy-peer-deps` (`research.md:43`). Install **only the core** package — do **not** add the optional React companions (`-react-accessibility`, `-react-drop-indicator`); they transitively pull `@atlaskit/icon` (historically dragged in vulnerable `puppeteer`/`ws`, GitHub issue #185) and are already excluded by "What We're NOT Doing" #5. After install, commit `package-lock.json` and run `npm audit`.
 
 #### 5. Layout width envelope
 
@@ -410,20 +410,20 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [ ] 3.1 Type-check passes: `npx astro check`
-- [ ] 3.2 Lint passes (incl. react-compiler): `npm run lint`
-- [ ] 3.3 Build passes: `npm run build`
-- [ ] 3.4 `npm run preview` boots on workerd without SSR `window`/`document` errors
+- [x] 3.1 Type-check passes: `npx astro check`
+- [x] 3.2 Lint passes (incl. react-compiler): `npm run lint`
+- [x] 3.3 Build passes: `npm run build`
+- [x] 3.4 `npm run preview` boots on workerd without SSR `window`/`document` errors
 
 #### Manual
 
-- [ ] 3.5 Drag assign persists across reload
-- [ ] 3.6 Click assign works; re-click/Esc clears selection
-- [ ] 3.7 Move (drag/click) frees the old seat
-- [ ] 3.8 × and panel-drop both unassign
-- [ ] 3.9 Occupied seats reject drops; invariant holds via UI
-- [ ] 3.10 No hydration/SSR errors in preview
-- [ ] 3.11 Deleting a seated guest clears their seat on the board immediately (no phantom, no reload)
+- [x] 3.5 Drag assign persists across reload
+- [x] 3.6 Click assign works; re-click/Esc clears selection
+- [x] 3.7 Move (drag/click) frees the old seat
+- [x] 3.8 × and panel-drop both unassign
+- [x] 3.9 Occupied seats reject drops; invariant holds via UI
+- [x] 3.10 No hydration/SSR errors in preview
+- [x] 3.11 Deleting a seated guest clears their seat on the board immediately (no phantom, no reload)
 
 ### Phase 4: Real-time adjacency validation
 
