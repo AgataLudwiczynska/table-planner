@@ -445,13 +445,13 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [x] 5.1 Type-check passes: `npx astro check`
-- [x] 5.2 Lint passes: `npm run lint`
-- [x] 5.3 Build passes: `npm run build`
+- [x] 5.1 Type-check passes: `npx astro check` — 664ba2a
+- [x] 5.2 Lint passes: `npm run lint` — 664ba2a
+- [x] 5.3 Build passes: `npm run build` — 664ba2a
 
 #### Manual
 
-- [x] 5.4 Ring shows seats 1..N positioned around the circle; seat 1 distinguishable
-- [x] 5.5 All Phase 3 interactions work on the ring
-- [x] 5.6 All Phase 4 validation/highlight works on the ring (2-seat + wrap-around)
-- [x] 5.7 Responsive; no horizontal overflow on small screens
+- [x] 5.4 Ring shows seats 1..N positioned around the circle; seat 1 distinguishable — 664ba2a
+- [x] 5.5 All Phase 3 interactions work on the ring — 664ba2a
+- [x] 5.6 All Phase 4 validation/highlight works on the ring (2-seat + wrap-around) — 664ba2a
+- [x] 5.7 Responsive; no horizontal overflow on small screens — 664ba2a
