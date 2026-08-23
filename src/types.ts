@@ -61,6 +61,15 @@ export interface Conflict {
   guestBId: string;
 }
 
+/** A currently-violated adjacency conflict: a conflicting guest pair seated on adjacent seats of one table. */
+export interface Violation {
+  tableId: string;
+  guestAId: string;
+  guestBId: string;
+  seatAId: string;
+  seatBId: string;
+}
+
 // --- Command inputs (request bodies the API accepts) ---
 
 /** Body of `PATCH /api/wedding`. */

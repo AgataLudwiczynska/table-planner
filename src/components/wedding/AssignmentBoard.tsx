@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { TriangleAlert, X } from "lucide-react";
 import { ServerError } from "@/components/ui/ServerError";
 import { useApiMutation } from "@/components/hooks/useApiMutation";
 import {
@@ -9,6 +9,7 @@ import {
   useSeatMonitor,
   type DropCommit,
 } from "@/components/hooks/useSeatDnd";
+import { validateAllTables } from "@/lib/adjacency";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Assignment, Conflict, Guest, Table } from "@/types";
@@ -23,7 +24,6 @@ interface Props {
   tables: Table[];
   guests: Guest[];
   assignments: Assignment[];
-  // Carried for Phase 4 (adjacency validation); unused in the flat-board phase.
   conflicts: Conflict[];
   onAssigned: (assignment: Assignment) => void;
   onUnassigned: (guestId: string) => void;
@@ -63,6 +63,7 @@ interface TableSeatProps {
   seatId: string;
   seatNumber: number;
   occupant: Guest | null;
+  violating: boolean;
   selectedGuestId: string | null;
   onSelectGuest: (guestId: string) => void;
   onSeatClick: (seatId: string) => void;
@@ -73,6 +74,7 @@ function TableSeat({
   seatId,
   seatNumber,
   occupant,
+  violating,
   selectedGuestId,
   onSelectGuest,
   onSeatClick,
@@ -93,12 +95,17 @@ function TableSeat({
       ref={ref}
       className={cn(
         "flex min-h-11 items-center gap-2 rounded-lg border px-2 py-1",
-        isOver ? "border-rose-400 bg-rose-50" : "border-slate-200 bg-white",
+        violating ? "border-red-400 bg-red-50" : isOver ? "border-rose-400 bg-rose-50" : "border-slate-200 bg-white",
       )}
     >
-      <span className="w-5 shrink-0 text-center text-xs font-semibold text-slate-400">{seatNumber}</span>
+      <span
+        className={cn("w-5 shrink-0 text-center text-xs font-semibold", violating ? "text-red-600" : "text-slate-400")}
+      >
+        {seatNumber}
+      </span>
       {occupant ? (
         <div className="flex min-w-0 items-center gap-1">
+          {violating && <TriangleAlert className="size-4 shrink-0 text-red-600" aria-label="Konflikt sąsiedztwa" />}
           <GuestChip
             guest={occupant}
             seatId={seatId}
@@ -136,7 +143,7 @@ function TableSeat({
   );
 }
 
-export function AssignmentBoard({ tables, guests, assignments, onAssigned, onUnassigned }: Props) {
+export function AssignmentBoard({ tables, guests, assignments, conflicts, onAssigned, onUnassigned }: Props) {
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
 
   const assign = useApiMutation<Assignment>("Nie udało się przypisać gościa do miejsca.");
@@ -146,6 +153,16 @@ export function AssignmentBoard({ tables, guests, assignments, onAssigned, onUna
   const assignmentByGuestId = new Map(assignments.map((a) => [a.guestId, a]));
   const assignmentBySeatId = new Map(assignments.map((a) => [a.seatId, a]));
   const unassignedGuests = guests.filter((g) => !assignmentByGuestId.has(g.id));
+
+  // Pure re-derivation on every render: assignments/conflicts changes re-run the full adjacency scan.
+  const violations = validateAllTables(tables, assignments, conflicts);
+  const violatingSeatIds = new Set(violations.flatMap((v) => [v.seatAId, v.seatBId]));
+  const tableById = new Map(tables.map((t) => [t.id, t]));
+  const seatNumberById = new Map(tables.flatMap((t) => t.seats.map((s) => [s.id, s.seatNumber] as const)));
+  const guestName = (id: string) => {
+    const guest = guestById.get(id);
+    return guest ? `${guest.firstName} ${guest.lastName}` : "—";
+  };
 
   // The one place both the DnD monitor and the click fallback commit an assign/move.
   async function assignGuestToSeat(guestId: string, seatId: string) {
@@ -220,6 +237,26 @@ export function AssignmentBoard({ tables, guests, assignments, onAssigned, onUna
 
       <div className="min-w-0 flex-1">
         <ServerError message={assign.error} className={cn(serverErrorClass, "mb-4")} />
+        {violations.length > 0 && (
+          <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4">
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-red-700">
+              <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
+              Naruszone konflikty sąsiedztwa ({violations.length})
+            </h3>
+            <ul className="space-y-1 text-sm text-red-700">
+              {violations.map((v) => {
+                const tableName = tableById.get(v.tableId)?.name ?? "—";
+                const seatA = seatNumberById.get(v.seatAId) ?? "?";
+                const seatB = seatNumberById.get(v.seatBId) ?? "?";
+                return (
+                  <li key={`${v.seatAId}|${v.seatBId}`}>
+                    {guestName(v.guestAId)} i {guestName(v.guestBId)} — {tableName}, miejsca {seatA} i {seatB}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
         {tables.length === 0 ? (
           <p className="text-sm text-slate-500">Najpierw dodaj stół w zakładce „Stoły”.</p>
         ) : (
@@ -237,6 +274,7 @@ export function AssignmentBoard({ tables, guests, assignments, onAssigned, onUna
                           seatId={seat.id}
                           seatNumber={seat.seatNumber}
                           occupant={occupant}
+                          violating={violatingSeatIds.has(seat.id)}
                           selectedGuestId={selectedGuestId}
                           onSelectGuest={selectGuest}
                           onSeatClick={handleSeatClick}

@@ -410,36 +410,36 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [x] 3.1 Type-check passes: `npx astro check`
-- [x] 3.2 Lint passes (incl. react-compiler): `npm run lint`
-- [x] 3.3 Build passes: `npm run build`
-- [x] 3.4 `npm run preview` boots on workerd without SSR `window`/`document` errors
+- [x] 3.1 Type-check passes: `npx astro check` — 2009652
+- [x] 3.2 Lint passes (incl. react-compiler): `npm run lint` — 2009652
+- [x] 3.3 Build passes: `npm run build` — 2009652
+- [x] 3.4 `npm run preview` boots on workerd without SSR `window`/`document` errors — 2009652
 
 #### Manual
 
-- [x] 3.5 Drag assign persists across reload
-- [x] 3.6 Click assign works; re-click/Esc clears selection
-- [x] 3.7 Move (drag/click) frees the old seat
-- [x] 3.8 × and panel-drop both unassign
-- [x] 3.9 Occupied seats reject drops; invariant holds via UI
-- [x] 3.10 No hydration/SSR errors in preview
-- [x] 3.11 Deleting a seated guest clears their seat on the board immediately (no phantom, no reload)
+- [x] 3.5 Drag assign persists across reload — 2009652
+- [x] 3.6 Click assign works; re-click/Esc clears selection — 2009652
+- [x] 3.7 Move (drag/click) frees the old seat — 2009652
+- [x] 3.8 × and panel-drop both unassign — 2009652
+- [x] 3.9 Occupied seats reject drops; invariant holds via UI — 2009652
+- [x] 3.10 No hydration/SSR errors in preview — 2009652
+- [x] 3.11 Deleting a seated guest clears their seat on the board immediately (no phantom, no reload) — 2009652
 
 ### Phase 4: Real-time adjacency validation
 
 #### Automated
 
-- [ ] 4.1 Type-check passes: `npx astro check`
-- [ ] 4.2 Lint passes: `npm run lint`
-- [ ] 4.3 Build passes: `npm run build`
+- [x] 4.1 Type-check passes: `npx astro check`
+- [x] 4.2 Lint passes: `npm run lint`
+- [x] 4.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 4.4 Adjacent conflicting pair flags both seats red + list, instantly
-- [ ] 4.5 Non-adjacent pair does not flag
-- [ ] 4.6 2-seat table flags exactly once
-- [ ] 4.7 Move/unassign updates highlights + list immediately
-- [ ] 4.8 Guardrail spot-check: no configuration leaves validation silent (wrap-around)
+- [x] 4.4 Adjacent conflicting pair flags both seats red + list, instantly
+- [x] 4.5 Non-adjacent pair does not flag
+- [x] 4.6 2-seat table flags exactly once
+- [x] 4.7 Move/unassign updates highlights + list immediately
+- [x] 4.8 Guardrail spot-check: no configuration leaves validation silent (wrap-around)
 
 ### Phase 5: Graphical SVG ring rendering
 
