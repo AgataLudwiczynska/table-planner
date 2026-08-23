@@ -394,17 +394,17 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [x] 2.1 Type-check passes: `npx astro check`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Build passes: `npm run build`
+- [x] 2.1 Type-check passes: `npx astro check` — b3d4d32
+- [x] 2.2 Lint passes: `npm run lint` — b3d4d32
+- [x] 2.3 Build passes: `npm run build` — b3d4d32
 
 #### Manual
 
-- [x] 2.4 POST assigns; re-POST moves (old seat freed); occupied seat → `seat_occupied`
-- [x] 2.5 DELETE unassigns; missing → `assignment_not_found`
-- [x] 2.6 Cross-wedding guest/seat id rejected by membership validation
-- [x] 2.7 `wedding.astro` renders with assignments loaded
-- [x] 2.8 A table created in-session returns with `seats`; immediately seatable without reload
+- [x] 2.4 POST assigns; re-POST moves (old seat freed); occupied seat → `seat_occupied` — b3d4d32
+- [x] 2.5 DELETE unassigns; missing → `assignment_not_found` — b3d4d32
+- [x] 2.6 Cross-wedding guest/seat id rejected by membership validation — b3d4d32
+- [x] 2.7 `wedding.astro` renders with assignments loaded — b3d4d32
+- [x] 2.8 A table created in-session returns with `seats`; immediately seatable without reload — b3d4d32
 
 ### Phase 3: Flat seating board + assignment interactions
 
