@@ -380,31 +380,31 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npx supabase db push`
-- [x] 1.2 Types regenerate without drift beyond the new table: `npm run db:types`
-- [x] 1.3 Type-check passes: `npx astro check`
-- [x] 1.4 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npx supabase db push` — d44192c
+- [x] 1.2 Types regenerate without drift beyond the new table: `npm run db:types` — d44192c
+- [x] 1.3 Type-check passes: `npx astro check` — d44192c
+- [x] 1.4 Lint passes: `npm run lint` — d44192c
 
 #### Manual
 
-- [x] 1.5 RLS cross-account check: user B cannot read/write user A's assignments
-- [x] 1.6 `anon` cannot see `assignments` in the API schema
+- [x] 1.5 RLS cross-account check: user B cannot read/write user A's assignments — d44192c
+- [x] 1.6 `anon` cannot see `assignments` in the API schema — d44192c
 
 ### Phase 2: Backend — seat read, assignment service + endpoint, SSR wiring
 
 #### Automated
 
-- [ ] 2.1 Type-check passes: `npx astro check`
-- [ ] 2.2 Lint passes: `npm run lint`
-- [ ] 2.3 Build passes: `npm run build`
+- [x] 2.1 Type-check passes: `npx astro check`
+- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 POST assigns; re-POST moves (old seat freed); occupied seat → `seat_occupied`
-- [ ] 2.5 DELETE unassigns; missing → `assignment_not_found`
-- [ ] 2.6 Cross-wedding guest/seat id rejected by membership validation
-- [ ] 2.7 `wedding.astro` renders with assignments loaded
-- [ ] 2.8 A table created in-session returns with `seats`; immediately seatable without reload
+- [x] 2.4 POST assigns; re-POST moves (old seat freed); occupied seat → `seat_occupied`
+- [x] 2.5 DELETE unassigns; missing → `assignment_not_found`
+- [x] 2.6 Cross-wedding guest/seat id rejected by membership validation
+- [x] 2.7 `wedding.astro` renders with assignments loaded
+- [x] 2.8 A table created in-session returns with `seats`; immediately seatable without reload
 
 ### Phase 3: Flat seating board + assignment interactions
 

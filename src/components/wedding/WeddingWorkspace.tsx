@@ -7,7 +7,7 @@ import { GuestsTab } from "@/components/wedding/GuestsTab";
 import { ConflictsTab } from "@/components/wedding/ConflictsTab";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import type { Conflict, Guest, Table, Wedding } from "@/types";
+import type { Assignment, Conflict, Guest, Table, Wedding } from "@/types";
 
 type TabKey = "tables" | "guests" | "conflicts";
 
@@ -35,6 +35,8 @@ interface Props {
   initialTables: Table[];
   initialGuests?: Guest[];
   initialConflicts?: Conflict[];
+  // Accepted here so wedding.astro can pass it; wired to state + board in Phase 3.
+  initialAssignments?: Assignment[];
 }
 
 function seatLabel(count: number) {
