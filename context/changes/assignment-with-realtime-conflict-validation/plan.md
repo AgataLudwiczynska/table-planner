@@ -429,29 +429,29 @@ Full re-scan (`validateAllTables`) on each change is a few hundred O(1) set look
 
 #### Automated
 
-- [x] 4.1 Type-check passes: `npx astro check`
-- [x] 4.2 Lint passes: `npm run lint`
-- [x] 4.3 Build passes: `npm run build`
+- [x] 4.1 Type-check passes: `npx astro check` — 05a0cb5
+- [x] 4.2 Lint passes: `npm run lint` — 05a0cb5
+- [x] 4.3 Build passes: `npm run build` — 05a0cb5
 
 #### Manual
 
-- [x] 4.4 Adjacent conflicting pair flags both seats red + list, instantly
-- [x] 4.5 Non-adjacent pair does not flag
-- [x] 4.6 2-seat table flags exactly once
-- [x] 4.7 Move/unassign updates highlights + list immediately
-- [x] 4.8 Guardrail spot-check: no configuration leaves validation silent (wrap-around)
+- [x] 4.4 Adjacent conflicting pair flags both seats red + list, instantly — 05a0cb5
+- [x] 4.5 Non-adjacent pair does not flag — 05a0cb5
+- [x] 4.6 2-seat table flags exactly once — 05a0cb5
+- [x] 4.7 Move/unassign updates highlights + list immediately — 05a0cb5
+- [x] 4.8 Guardrail spot-check: no configuration leaves validation silent (wrap-around) — 05a0cb5
 
 ### Phase 5: Graphical SVG ring rendering
 
 #### Automated
 
-- [ ] 5.1 Type-check passes: `npx astro check`
-- [ ] 5.2 Lint passes: `npm run lint`
-- [ ] 5.3 Build passes: `npm run build`
+- [x] 5.1 Type-check passes: `npx astro check`
+- [x] 5.2 Lint passes: `npm run lint`
+- [x] 5.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 5.4 Ring shows seats 1..N positioned around the circle; seat 1 distinguishable
-- [ ] 5.5 All Phase 3 interactions work on the ring
-- [ ] 5.6 All Phase 4 validation/highlight works on the ring (2-seat + wrap-around)
-- [ ] 5.7 Responsive; no horizontal overflow on small screens
+- [x] 5.4 Ring shows seats 1..N positioned around the circle; seat 1 distinguishable
+- [x] 5.5 All Phase 3 interactions work on the ring
+- [x] 5.6 All Phase 4 validation/highlight works on the ring (2-seat + wrap-around)
+- [x] 5.7 Responsive; no horizontal overflow on small screens
