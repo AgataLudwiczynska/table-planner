@@ -1,10 +1,10 @@
 ---
 change_id: assignment-with-realtime-conflict-validation
 title: Assign guests to seats with real-time adjacency conflict validation
-status: impl_reviewed
+status: archived
 created: 2026-08-22
-updated: 2026-08-23
-archived_at: null
+updated: 2026-08-24
+archived_at: 2026-08-24T05:45:09Z
 ---
 
 ## Notes
