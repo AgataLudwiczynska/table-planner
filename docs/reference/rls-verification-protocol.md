@@ -40,3 +40,20 @@ Reuses `uuid_W_A` from above (user A's wedding).
 
 **As anon** (no auth — wrap in a transaction: `begin; set local role anon;` … `rollback;`):
 15. `select * from guests;` and `select * from guest_conflicts;` → MUST raise `permission denied` (grants revoked from anon), not just 0 rows
+
+## S-03: assignments
+
+Reuses `uuid_W_A` (user A's wedding), `uuid_T` (user A's table from step 2), and `uuid_G_A1`/`uuid_G_A2` (user A's guests from steps 7–8).
+
+**As user A** (impersonate A):
+16. `select id from seats where table_id = uuid_T order by seat_number limit 1;` → `uuid_S_A1` (a seat of A's table)
+17. `insert into assignments (wedding_id, guest_id, seat_id) values (uuid_W_A, uuid_G_A1, uuid_S_A1) returning id;` → `uuid_AS_A`
+
+**As user B** (switch impersonation to B):
+18. `select * from assignments where wedding_id = uuid_W_A;` → MUST return 0 rows (RLS blocks SELECT)
+19. `update assignments set seat_id = uuid_S_A1 where id = uuid_AS_A;` → MUST affect 0 rows (RLS blocks UPDATE)
+20. `delete from assignments where id = uuid_AS_A;` → MUST affect 0 rows (RLS blocks DELETE)
+21. `insert into assignments (wedding_id, guest_id, seat_id) values (uuid_W_A, uuid_G_A2, uuid_S_A1);` → MUST raise `42501` (RLS `with check` blocks INSERT into A's wedding)
+
+**As anon** (no auth — wrap in a transaction: `begin; set local role anon;` … `rollback;`):
+22. `select * from assignments;` → MUST raise `permission denied` (grants revoked from anon), not just 0 rows

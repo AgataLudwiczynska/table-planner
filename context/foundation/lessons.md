@@ -36,3 +36,17 @@
 - **Problem**: the same path string (e.g. `/wedding`) gets duplicated across files (S-01: middleware ×2, signin, Topbar), so a rename means hunting every literal and typos slip past the type system.
 - **Rule**: keep a single `src/lib/routes.ts` `ROUTES` map and reference paths via `ROUTES.*` instead of string literals. Astro still routes by filename, so the registry centralizes references only — keep each entry in sync with its page filename. New slices add their paths here.
 - **Applies to**: plan, implement, impl-review
+
+## Update the RLS verification runbook in the same slice that ships new RLS
+
+- **Context**: Any slice/phase that ships a Supabase migration enabling RLS on a new table (S-02 guests+conflicts, S-03 assignments, onward). Shared runbook: `docs/reference/rls-verification-protocol.md`.
+- **Problem**: The runbook's header claims to cover every RLS-shipping slice, but S-03 shipped its `assignments` migration while the doc still had no S-03 section — the manual RLS criteria (cross-account + anon) had no concrete steps. Left "for later", the runbook drifts out of sync with its own promise and cross-account verification gets skipped.
+- **Rule**: When a slice adds a migration that enables RLS on a new table, append its concrete verification steps (cross-account SELECT/INSERT/UPDATE/DELETE as another user → 0 rows / `42501`; anon → `permission denied`) to `docs/reference/rls-verification-protocol.md` as part of that phase — not as a deferred follow-up. Reuse ids from earlier sections and number steps cumulatively.
+- **Applies to**: plan, implement, impl-review
+
+## Plans with a migration must include a prod-apply step
+
+- **Context**: Any slice shipping a Supabase migration. Cloudflare Workers Builds (push-to-`main`) deploys worker code only — it does **not** run migrations.
+- **Problem**: S-02's migration was merged but never applied to prod, because no plan/phase owned the prod apply — prod schema silently drifted behind the deployed code.
+- **Rule**: Every plan carrying a migration must include an explicit prod-apply step; reviews flag its absence. How-to: `docs/reference/deploy-runbook.md`.
+- **Applies to**: plan, plan-review

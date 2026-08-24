@@ -10,4 +10,5 @@ export const ROUTES = {
   apiTables: "/api/tables",
   apiGuests: "/api/guests",
   apiConflicts: "/api/conflicts",
+  apiAssignments: "/api/assignments",
 } as const;

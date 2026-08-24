@@ -5,9 +5,10 @@ import { getOrCreateWedding } from "@/lib/services/wedding.service";
 import { listTables } from "@/lib/services/table.service";
 import { listGuests } from "@/lib/services/guest.service";
 import { listConflicts } from "@/lib/services/conflict.service";
+import { listAssignments } from "@/lib/services/assignment.service";
 import { ROUTES } from "@/lib/routes";
 import WeddingWorkspace from "@/components/wedding/WeddingWorkspace";
-import type { Conflict, Guest, Table, Wedding } from "@/types";
+import type { Assignment, Conflict, Guest, Table, Wedding } from "@/types";
 
 const { user } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -16,21 +17,24 @@ let wedding: Wedding | null = null;
 let tables: Table[] = [];
 let guests: Guest[] = [];
 let conflicts: Conflict[] = [];
+let assignments: Assignment[] = [];
 let loadError = false;
 
 if (supabase && user) {
   const weddingResult = await getOrCreateWedding(supabase, user.id);
   if (weddingResult.ok) {
     wedding = weddingResult.data;
-    const [tablesResult, guestsResult, conflictsResult] = await Promise.all([
+    const [tablesResult, guestsResult, conflictsResult, assignmentsResult] = await Promise.all([
       listTables(supabase, wedding.id),
       listGuests(supabase, wedding.id),
       listConflicts(supabase, wedding.id),
+      listAssignments(supabase, wedding.id),
     ]);
-    if (tablesResult.ok && guestsResult.ok && conflictsResult.ok) {
+    if (tablesResult.ok && guestsResult.ok && conflictsResult.ok && assignmentsResult.ok) {
       tables = tablesResult.data;
       guests = guestsResult.data;
       conflicts = conflictsResult.data;
+      assignments = assignmentsResult.data;
     } else {
       loadError = true;
     }
@@ -42,7 +46,7 @@ if (supabase && user) {
 
 <Layout title={wedding?.name ?? "Wesele"}>
   <div class="bg-wedding min-h-screen p-4 text-slate-800">
-    <div class="mx-auto max-w-2xl">
+    <div class="mx-auto max-w-6xl">
       <div class="flex items-center justify-end">
         <form method="POST" action={ROUTES.signOut}>
           <button
@@ -71,6 +75,7 @@ if (supabase && user) {
               initialTables={tables}
               initialGuests={guests}
               initialConflicts={conflicts}
+              initialAssignments={assignments}
             />
           </div>
         )
