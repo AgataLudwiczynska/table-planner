@@ -137,7 +137,7 @@ export function AssignmentBoard({ tables, guests, assignments, conflicts, onAssi
           </div>
         )}
         {tables.length === 0 ? (
-          <p className="text-sm text-slate-500">Najpierw dodaj stół w zakładce „Stoły”.</p>
+          <p className="text-sm text-slate-500">Brak dodanych stołów – zrób to w zakładce „Stoły”.</p>
         ) : (
           <div className="grid gap-6 lg:grid-cols-2">
             {tables.map((table) => (
