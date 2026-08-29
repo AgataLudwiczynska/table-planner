@@ -386,34 +386,34 @@ modified.
 
 #### Automated
 
-- [x] 1.1 npm install resolves Vitest with no peer conflict against vite ^7.3.2
-- [x] 1.2 npm run test:run executes the smoke test and passes
-- [x] 1.3 The smoke test imports via the @/ alias (proves alias resolution), not a relative path
-- [x] 1.4 npm run lint passes on vitest.config.ts and the smoke test
-- [x] 1.5 npx astro check passes
+- [x] 1.1 npm install resolves Vitest with no peer conflict against vite ^7.3.2 — deb24bc
+- [x] 1.2 npm run test:run executes the smoke test and passes — deb24bc
+- [x] 1.3 The smoke test imports via the @/ alias (proves alias resolution), not a relative path — deb24bc
+- [x] 1.4 npm run lint passes on vitest.config.ts and the smoke test — deb24bc
+- [x] 1.5 npx astro check passes — deb24bc
 
 #### Manual
 
-- [x] 1.6 npm test (watch mode) starts and re-runs on file change
-- [x] 1.7 No spurious Vite/Astro boot errors in the runner output
-- [x] 1.8 npm audit signatures confirms provenance on the installed vitest tree
-- [x] 1.9 npm audit surfaces no advisory against the resolved vitest subtree
+- [x] 1.6 npm test (watch mode) starts and re-runs on file change — deb24bc
+- [x] 1.7 No spurious Vite/Astro boot errors in the runner output — deb24bc
+- [x] 1.8 npm audit signatures confirms provenance on the installed vitest tree — deb24bc
+- [x] 1.9 npm audit surfaces no advisory against the resolved vitest subtree — deb24bc
 
 ### Phase 2: Adjacency Guardrail Unit Suite
 
 #### Automated
 
-- [ ] 2.1 npm run test:run passes the full adjacency suite
-- [ ] 2.2 Suite includes explicit positive cases for the wrap edge, the 2-seat collapse, and order independence (A,B)/(B,A)
-- [ ] 2.3 At least one non-adjacent negative case and one partial-occupancy case assert no violation
-- [ ] 2.4 A cross-table case asserts correct tableId attribution via validateAllTables
-- [ ] 2.5 npm run lint and npx astro check pass on the suite
-- [ ] 2.6 The smoke test file no longer exists
+- [x] 2.1 npm run test:run passes the full adjacency suite
+- [x] 2.2 Suite includes explicit positive cases for the wrap edge, the 2-seat collapse, and order independence (A,B)/(B,A)
+- [x] 2.3 At least one non-adjacent negative case and one partial-occupancy case assert no violation
+- [x] 2.4 A cross-table case asserts correct tableId attribution via validateAllTables
+- [x] 2.5 npm run lint and npx astro check pass on the suite
+- [x] 2.6 The smoke test file no longer exists
 
 #### Manual
 
-- [ ] 2.7 Spot-check one expected-violation literal by hand against the ring-edge table
-- [ ] 2.8 Temporarily breaking edgeCount makes the 2-seat case fail (revert after)
+- [x] 2.7 Spot-check one expected-violation literal by hand against the ring-edge table
+- [x] 2.8 Temporarily breaking edgeCount makes the 2-seat case fail (revert after)
 
 ### Phase 3: Documentation & Bookkeeping
 
