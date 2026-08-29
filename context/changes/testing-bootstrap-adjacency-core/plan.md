@@ -420,12 +420,12 @@ modified.
 
 #### Automated
 
-- [x] 3.1 npm run lint / prettier pass on edited Markdown
-- [x] 3.2 grep for "No test suite is configured yet" in CLAUDE.md returns nothing
-- [x] 3.3 grep for "TBD — see §3 Phase 1" in test-plan.md returns nothing
-- [x] 3.4 F6 line in follow-ups.md reads DONE
+- [x] 3.1 npm run lint / prettier pass on edited Markdown — cd08b46
+- [x] 3.2 grep for "No test suite is configured yet" in CLAUDE.md returns nothing — cd08b46
+- [x] 3.3 grep for "TBD — see §3 Phase 1" in test-plan.md returns nothing — cd08b46
+- [x] 3.4 F6 line in follow-ups.md reads DONE — cd08b46
 
 #### Manual
 
-- [x] 3.5 Cookbook §6.1 reads as actionable for a first unit test
-- [x] 3.6 The Phase 2 integration deferral is discoverable in the test-plan
+- [x] 3.5 Cookbook §6.1 reads as actionable for a first unit test — cd08b46
+- [x] 3.6 The Phase 2 integration deferral is discoverable in the test-plan — cd08b46
