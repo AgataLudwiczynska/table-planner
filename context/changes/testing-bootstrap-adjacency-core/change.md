@@ -1,7 +1,7 @@
 ---
 change_id: testing-bootstrap-adjacency-core
 title: Test rollout Phase 1 — bootstrap the runner and cover adjacency-conflict detection
-status: implemented
+status: impl_reviewed
 created: 2026-08-25
 updated: 2026-08-29
 archived_at: null

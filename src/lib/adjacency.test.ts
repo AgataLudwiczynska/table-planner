@@ -47,6 +47,13 @@ describe("validateAllTables — adjacency-conflict guardrail (Risk #1)", () => {
     expect(violations).toEqual([]);
   });
 
+  it("does not flag adjacent occupied guests who are not a registered conflict pair", () => {
+    const t = ringTable("t1", 4);
+    // gA at s1, gX at s2 are adjacent and both occupied, but the registered conflict is (gA,gB) — not this pair.
+    const violations = validateAllTables([t], [assign("t1-s1", "gA"), assign("t1-s2", "gX")], [conflict("gA", "gB")]);
+    expect(violations).toEqual([]);
+  });
+
   it("flags the wrap edge: seat N adjacent to seat 1 (indices N-1 and 0)", () => {
     const t = ringTable("t1", 4);
     // gA at index 3 (seat N), gB at index 0 (seat 1) — the only adjacent occupied pair is the wrap edge (3,0).
