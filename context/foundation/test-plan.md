@@ -95,6 +95,8 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
+> These rollout phases are tracked as issues in Linear (project `TablePlanner MVP`, milestone `M4: Quality gates green`). See `context/foundation/tasks-linear.md` for the mapping.
+
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|----------------|------------|--------|---------------|
 | 1 | Bootstrap + adjacency core | Stand up the runner; lock the guardrail so ring adjacency (wrap + 2-seat) and conflict-violation computation never miss | #1 | unit + integration | change opened | context/changes/testing-bootstrap-adjacency-core/ |

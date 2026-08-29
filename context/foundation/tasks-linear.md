@@ -3,8 +3,8 @@ project: TablePlanner
 version: 2
 status: approved
 created: 2026-08-09
-updated: 2026-08-09
-source: context/foundation/roadmap.md
+updated: 2026-08-29
+source: context/foundation/roadmap.md, context/foundation/test-plan.md
 target: Linear (workspace Agata / team Agata)
 ---
 
@@ -22,7 +22,7 @@ target: Linear (workspace Agata / team Agata)
 **Linear** — przez `linear-server` MCP.
 
 - Workspace: `Agata` (`https://linear.app/agata-l`)
-- Team: `Agata` (jedyny, prefix issue `AGA-`, `teamId: 896ee330-f0c9-412e-836b-0e6a11d79c67`)
+- Team: `Agata` (jedyny, prefix issue `AGA-`)
 - Zero istniejących projektów; onboardingowe AGA-1..4 usunięte ręcznie przez UI (2026-08-09).
 - Etykiety wyjściowe: `Improvement`, `Bug`, `Feature` — żadna nie reużywalna.
 - Statusy: `Backlog`, `Todo`, `In Progress`, `Done`, `Canceled`, `Duplicate`.
@@ -164,8 +164,105 @@ Source: `context/foundation/roadmap.md` § Open Roadmap Questions #X
 5. Spot-check pierwszej linii `roadmap.md` — cytat `> **Tracked in Linear:** …` z URL-em projektu.
 6. Raport `Roadmap ID → AGA-ID` przedstawiony w chat, żeby user mogła eyeballnąć mapping.
 
+## Rozszerzenie: fazy testowe (`test-plan.md` → Linear)
+
+> Dodane 2026-08-29. Mirroruje 4 fazy rollout z `context/foundation/test-plan.md § 3`
+> do tego samego projektu `TablePlanner MVP`, tą samą mechaniką co migracja roadmapy
+> (natywne relacje, chudy opis, assignee `me`). Źródłem prawdy dla treści faz pozostaje
+> `test-plan.md`; Linear = tracker, nie doc mirror.
+
+### Kontekst
+
+Roadmap dostarczył feature'y (F-01, S-01..S-05). `test-plan.md § 3` dokłada **prostopadłą**
+warstwę jakości: 4 fazy rollout testów, każda z własnym change-folderem
+(`/10x-new → /10x-research → /10x-plan → /10x-implement`). Żeby praca była widoczna w jednym
+trackerze, mirrorujemy fazy jako issues — bez kopiowania Risk Map ani oracle-guidance
+(żyją w `test-plan.md § 2`).
+
+### Decyzje (zatwierdzone 2026-08-29)
+
+| Wymiar | Konwencja roadmapy | Konwencja faz testowych |
+| --- | --- | --- |
+| Prefix tytułu | `[F-01]`, `[S-01]` | **`[T-01]`..`[T-04]`** (T = test), EN engineering-style |
+| Provenance label | `roadmap:slice` itd. | **`roadmap:test`** (nowa, workspace-scoped; źródło = `test-plan.md § 3`) |
+| Stream | `stream:a` / `stream:b` | **brak** — fazy są cross-cutting, nie należą do żadnego streamu |
+| Milestone | M1/M2/M3 (bramki feature) | **`M4: Quality gates green`** (nowa bramka, gate on T-01..T-04) |
+| Zależności | natywne `blockedBy` / `blocks` | to samo — łańcuch T-01→T-02→T-03→T-04 + `blockedBy` do slice'ów tam, gdzie faza testuje niezbudowaną funkcję |
+| Cross-linki | — | **`relates to`** (nie-blokujące) z fazy testowej do slice'a, który waliduje |
+| Opis — pola | `PRD refs` | zastąpione przez **`Test types`** + **`Risks covered`** (z tabeli `test-plan.md § 3`) |
+| Opis — Source | link do `roadmap.md § …` | link do **`test-plan.md § 3 Phase N`** |
+| Priorytety | z roadmapy | T-01/T-02 **High (2)** (guardrail + security), T-03/T-04 **Medium (3)** |
+| Status mapping | ready→Todo, proposed→Backlog | faza „change opened" → **Todo**; fazy „not started" → **Backlog** |
+| Assignee | `me` | `me` |
+
+### Nowe elementy do utworzenia
+
+- **Etykieta** (1, workspace-scoped): `roadmap:test` — opis „Test rollout phase from test-plan.md § 3".
+- **Milestone** (1, na projekcie `TablePlanner MVP`): `M4: Quality gates green` — „Gate on T-01..T-04 done. Guardrail, RLS/IDOR, invariant/atomicity i north-star e2e pokryte; lint + typecheck + testy jako wymagane bramki CI."
+
+### Szablon opisu — issue testowe (chudy)
+
+```markdown
+**Change ID:** `<change-id z test-plan.md § 3, kolumna Change folder>`
+**Test types:** unit | integration | e2e + gates
+**Risks covered:** #<n> (krótki opis ryzyka)
+**Prerequisites:** — | T-01 | T-01, AGA-9
+**Parallel with:** —
+
+## Outcome
+<1–2 zdania parafrazy z test-plan.md § 3 — nie verbatim>
+
+---
+Source: `context/foundation/test-plan.md` § 3 Phase N
+```
+
+**Wycięte** (żyją w `test-plan.md`, Linear nie mirroruje): pełna Risk Response Guidance
+(§ 2), oracle-guidance, „Must challenge", stack/gates (§ 4–5).
+
+### Mapa mocy — 4 issue testowe
+
+| Faza | Tytuł | Change ID | Etykieta | Status | Priority | Milestone | Risks | `blockedBy` | `relates to` |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T-01 | `[T-01] Bootstrap + adjacency core` | `testing-bootstrap-adjacency-core` | `roadmap:test` | Todo | High (2) | M4 | #1 | — | AGA-8 (S-03) |
+| T-02 | `[T-02] API + RLS integration` | `testing-api-rls-integration` | `roadmap:test` | Backlog | High (2) | M4 | #3, #5 | T-01 | AGA-5 (F-01) |
+| T-03 | `[T-03] Assignment invariant + resize atomicity` | `testing-assignment-invariant-resize` | `roadmap:test` | Backlog | Medium (3) | M4 | #2, #4, #6 | T-01, AGA-9 (S-04) | AGA-8 (S-03) |
+| T-04 | `[T-04] Critical-path e2e + quality gates` | `testing-e2e-quality-gates` | `roadmap:test` | Backlog | Medium (3) | M4 | #2 (pointer DnD) | T-01, T-02, T-03 | AGA-8 (S-03) |
+
+Uwagi:
+
+- **T-03 `blockedBy AGA-9 (S-04)`** — faza bundluje Risk #4 (atomowość resize/auto-unassign =
+  funkcja S-04), którego nie da się testować przed zbudowaniem S-04. Trzymamy bundla z
+  `test-plan.md` i blokujemy całą fazę na S-04 (nie rozbijamy #2/#6 osobno).
+- **T-04** — e2e leci na north-star flow (S-03 = `Done`, więc `relates to`, nie `blockedBy`);
+  blokują tylko wcześniejsze fazy testowe, bo T-04 dodatkowo dozbraja lint + typecheck + testy
+  jako **wymagane bramki CI** (`test-plan.md § 5`).
+- **T-01** ma w `test-plan.md` status „change opened" (folder `testing-bootstrap-adjacency-core/`
+  już istnieje) → w Linear `Todo`.
+
+### Kroki wykonania (warstwami, po zależnościach)
+
+1. **Etykieta** — `create_issue_label` `roadmap:test`.
+2. **Milestone** — `save_milestone` `M4: Quality gates green` na projekcie `TablePlanner MVP`.
+3. **Issues** — każde `save_issue` z `blockedBy` / `relatedIssues` wskazującym już utworzone ID:
+   - Layer 0: **T-01** (`relates: [AGA-8]`).
+   - Layer 1: **T-02** (`blockedBy: [T-01]`, `relates: [AGA-5]`).
+   - Layer 2: **T-03** (`blockedBy: [T-01, AGA-9]`, `relates: [AGA-8]`).
+   - Layer 3: **T-04** (`blockedBy: [T-01, T-02, T-03]`, `relates: [AGA-8]`).
+   Każdy issue: label `roadmap:test`, priority, status, project, milestone M4, assignee `me`,
+   chudy opis z szablonu.
+4. **Notka zwrotna** — w `test-plan.md § 3` jedna krótka linijka, że fazy rollout są
+   trackowane jako issues w Linear (projekt + milestone). **Bez URL-i per faza** — mapowanie
+   Phase → AGA-N żyje w tym pliku (§ Mapa mocy), `test-plan.md` zostaje czystą strategią.
+5. **Raport** — tabela `Phase → AGA-N (URL)` pokazana userowi.
+
+### Nie robimy
+
+- Nie mirrorujemy Risk Map / Risk Response / stack / gates z `test-plan.md`.
+- Nie tworzymy `stream:*` dla faz testowych (cross-cutting).
+- Nie doczepiamy faz do M1–M3 (to bramki feature).
+
 ## Referencje
 
-- Źródło treści: `context/foundation/roadmap.md`
-- Linear team id: `896ee330-f0c9-412e-836b-0e6a11d79c67`
+- Źródło treści: `context/foundation/roadmap.md`, `context/foundation/test-plan.md`
+- Linear: workspace `Agata`, projekt `TablePlanner MVP` (narzędzia MCP rozwiązują po nazwie — bez raw ID)
 - MCP tools użyte: `create_issue_label`, `save_project`, `save_milestone`, `save_issue`, `list_projects`, `list_issues` (weryfikacja).
