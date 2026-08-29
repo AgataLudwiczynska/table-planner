@@ -11,8 +11,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run lint:fix` — auto-fix lint issues.
 - `npm run format` — Prettier (includes `prettier-plugin-astro` + `prettier-plugin-tailwindcss`).
 - `npx astro check` — standalone type-check (no `npm` script wired).
+- `npm test` — Vitest in watch/interactive mode.
+- `npm run test:run` — Vitest single-pass (for CI/agents).
 
-No test suite is configured yet — if you wire one, also update this section and add the runner script.
+Test runner is Vitest with a standalone `vitest.config.ts` (`defineConfig` from `vitest/config`) that replicates only the `@/*` alias — no Astro/Cloudflare boot. Tests colocate as `src/**/*.test.ts`.
 
 Pre-commit hooks: husky + lint-staged runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
 

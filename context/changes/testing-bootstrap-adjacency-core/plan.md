@@ -14,7 +14,7 @@ follow-up **F6**.
 - **The guardrail is one pure, client-only function.** `src/lib/adjacency.ts` exports
   `validateTable` (per-table ring core) and `validateAllTables` (entry point). There is
   **no** server-side or SQL re-implementation — the API/service layer enforces only the
-  one-guest-per-seat *invariant* via DB `unique` constraints, never the adjacency rule. The
+  one-guest-per-seat _invariant_ via DB `unique` constraints, never the adjacency rule. The
   challenger question "do client and server adjacency implementations drift?" is **confirmed
   moot** (`research.md` §3). This sharpens Risk #1: the zero-false-negative guardrail has
   exactly one code owner and no runtime backstop — protected today only by manual eyeballing.
@@ -24,14 +24,14 @@ follow-up **F6**.
   - **2-seat degenerate collapse**: `edgeCount = seatCount === 2 ? 1 : seatCount`
     (`adjacency.ts:23`) — a 2-seat ring has one edge; the general loop would count it twice.
 - **Ring order is data-derived, not from `seatNumber` directly.** `validateTable` iterates
-  `table.seats` *array index order*; the server sorts seats ascending by `seat_number`
+  `table.seats` _array index order_; the server sorts seats ascending by `seat_number`
   (`table.service.ts:27`). A faithful fixture must construct `seats` ascending by
   `seatNumber` (`research.md` §1).
 - **Canonical pairing is guaranteed** at three layers (DB `check`, service sort, validator
   `pairKey`); `(A,B) == (B,A)` (`research.md` §5). `pairKey` is **not exported**.
 - **Toolchain is clean-slate** (`research.md` §6, `tooling-vitest-setup.md`): Vite pinned
   `^7.3.2` → Vitest **4.x** line (exact `4.1.11`); `@/*` → `./src/*` alias must be replicated;
-  `adjacency.ts` imports only *types*, so it unit-tests as pure ESM with no Astro/Cloudflare
+  `adjacency.ts` imports only _types_, so it unit-tests as pure ESM with no Astro/Cloudflare
   boot. ESLint applies `strictTypeChecked` + `stylisticTypeChecked` to all `.ts`, and
   lint-staged runs `eslint --fix` on `*.{ts,tsx,astro}` at commit — test files are in scope.
 
@@ -49,7 +49,7 @@ marked DONE.
 - Single source of truth: `src/lib/adjacency.ts:13-47` (validateTable + validateAllTables).
 - Oracle table for ring edges (`research.md` §2): N<2 → none; N=2 → `(0,1)` once;
   N≥3 → `(i,(i+1) mod N)` for i=0..N-1, **including** the wrap edge `(N-1,0)`.
-- `Violation` carries both seat ids **and** both guest ids in *adjacency* order, not
+- `Violation` carries both seat ids **and** both guest ids in _adjacency_ order, not
   canonical UUID order (`types.ts:64-71`, `research.md` §4) — assert the flagged pair as an
   **unordered set**.
 - Config is a standalone `vitest.config.ts` (`defineConfig` from `vitest/config`, `@` alias
@@ -65,14 +65,14 @@ marked DONE.
   non-canonical `(B,A)` insert via its `check` constraint — is **deferred to Phase 2**
   (API + RLS integration), which already stands up local Supabase. This phase records that
   hand-off; it does not pull Docker/Supabase into an otherwise pure-logic phase. Order
-  independence *at the guardrail* is still proven here at the unit layer.
+  independence _at the guardrail_ is still proven here at the unit layer.
 - **No DOM / component / DnD tests.** No `jsdom`/`happy-dom`, no `@testing-library/*`, no
   `AssignmentBoard.tsx` render test. Reserved for later phases.
 - **No `@cloudflare/vitest-pool-workers`.** The target is a pure function; `environment:
-  'node'` is correct.
+'node'` is correct.
 - **No CI gate wiring.** Test-plan §5 marks unit+integration as "required after Phase 1";
   the actual CI step is wired in Phase 4 (gates phase). This phase makes the gate
-  *runnable*, not *enforced*.
+  _runnable_, not _enforced_.
 - **No server/client adjacency parity test** — confirmed moot (there is one implementation).
 
 ## Implementation Approach
@@ -112,7 +112,7 @@ as a devDependency. Confirm the resolved version against the `vite@^7.3.2` overr
 time; against Vite 7 a peer conflict signals too **low** a Vitest line, not too high — the fix
 is a newer line, never `--force`. `4.1.11` is the advisory floor; exact-pin + committed lockfile
 is deliberate for supply-chain hygiene. Rationale + advisory check: `tooling-vitest-setup.md`
-→ *Addendum*.
+→ _Addendum_.
 
 **Contract**: `devDependencies.vitest` present at `4.1.11` (exact); `npm install` completes with
 no peer-dependency error against `vite ^7.3.2`.
@@ -222,6 +222,7 @@ guestBId}` sets (a small normalize helper), never positionally.
 **File**: `src/lib/adjacency.test.ts`
 
 **Intent**: Cover, with by-hand-derived expectations, the full Risk #1 / F6 case set:
+
 - **Adjacent conflict flags** — pair at seats i, i+1 on a 4-seat ring → one violation.
 - **Non-adjacent does not flag** — same pair at seats i, i+2 → no violation (proves no
   false-positive explosion masks the check).
@@ -230,7 +231,7 @@ guestBId}` sets (a small normalize helper), never positionally.
 - **n=1 and n<2** — single/empty seat table → no violations (via `validateTable`).
 - **Partial occupancy** — one seat of an adjacent conflict pair empty → no violation.
 - **Order independence** — conflict stored `(A,B)`; guests seated `(B,A)` in adjacency → still
-  flags. Assert in *both* seatings. (This is where a naive re-impl silently drops a flag.
+  flags. Assert in _both_ seatings. (This is where a naive re-impl silently drops a flag.
   This proves the guardrail is order-independent; the DB `check`-constraint assertion remains
   separately owed in rollout Phase 2 — the unit test does not stand in for it.)
 - **Cross-table independence** — `validateAllTables` over multiple tables attributes each
@@ -342,7 +343,7 @@ cleanly, then this change is ready for `/10x-archive`.
 
 ### Unit Tests:
 
-- The full case set in Phase 2 §2 — this *is* the deliverable, not a check on other code.
+- The full case set in Phase 2 §2 — this _is_ the deliverable, not a check on other code.
 - Key edge cases: wrap edge (seat 1 ↔ seat N), 2-seat modulo collapse counted once, n<2
   empty, partial occupancy, order independence `(A,B)`/`(B,A)`, cross-table independence.
 
@@ -403,28 +404,28 @@ modified.
 
 #### Automated
 
-- [x] 2.1 npm run test:run passes the full adjacency suite
-- [x] 2.2 Suite includes explicit positive cases for the wrap edge, the 2-seat collapse, and order independence (A,B)/(B,A)
-- [x] 2.3 At least one non-adjacent negative case and one partial-occupancy case assert no violation
-- [x] 2.4 A cross-table case asserts correct tableId attribution via validateAllTables
-- [x] 2.5 npm run lint and npx astro check pass on the suite
-- [x] 2.6 The smoke test file no longer exists
+- [x] 2.1 npm run test:run passes the full adjacency suite — 068f2f1
+- [x] 2.2 Suite includes explicit positive cases for the wrap edge, the 2-seat collapse, and order independence (A,B)/(B,A) — 068f2f1
+- [x] 2.3 At least one non-adjacent negative case and one partial-occupancy case assert no violation — 068f2f1
+- [x] 2.4 A cross-table case asserts correct tableId attribution via validateAllTables — 068f2f1
+- [x] 2.5 npm run lint and npx astro check pass on the suite — 068f2f1
+- [x] 2.6 The smoke test file no longer exists — 068f2f1
 
 #### Manual
 
-- [x] 2.7 Spot-check one expected-violation literal by hand against the ring-edge table
-- [x] 2.8 Temporarily breaking edgeCount makes the 2-seat case fail (revert after)
+- [x] 2.7 Spot-check one expected-violation literal by hand against the ring-edge table — 068f2f1
+- [x] 2.8 Temporarily breaking edgeCount makes the 2-seat case fail (revert after) — 068f2f1
 
 ### Phase 3: Documentation & Bookkeeping
 
 #### Automated
 
-- [ ] 3.1 npm run lint / prettier pass on edited Markdown
-- [ ] 3.2 grep for "No test suite is configured yet" in CLAUDE.md returns nothing
-- [ ] 3.3 grep for "TBD — see §3 Phase 1" in test-plan.md returns nothing
-- [ ] 3.4 F6 line in follow-ups.md reads DONE
+- [x] 3.1 npm run lint / prettier pass on edited Markdown
+- [x] 3.2 grep for "No test suite is configured yet" in CLAUDE.md returns nothing
+- [x] 3.3 grep for "TBD — see §3 Phase 1" in test-plan.md returns nothing
+- [x] 3.4 F6 line in follow-ups.md reads DONE
 
 #### Manual
 
-- [ ] 3.5 Cookbook §6.1 reads as actionable for a first unit test
-- [ ] 3.6 The Phase 2 integration deferral is discoverable in the test-plan
+- [x] 3.5 Cookbook §6.1 reads as actionable for a first unit test
+- [x] 3.6 The Phase 2 integration deferral is discoverable in the test-plan

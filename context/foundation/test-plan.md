@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-08-25 (Phase 1 change opened)
+> Last updated: 2026-08-29 (Phase 1 complete)
 
 ## 1. Strategy
 
@@ -21,9 +21,9 @@ Tests follow three non-negotiable principles for this project:
 2. **User concerns are first-class evidence.** Risks anchored in "the
    operator is worried about X, and the failure would surface somewhere in
    `<area>`" carry the same weight as PRD lines or hot-spot data.
-3. **Risks are scenarios, not code locations.** This plan documents *what
-   could fail* and *why we believe it's likely* — drawn from documents,
-   interview, and codebase *signal* (churn, structure, test base). It does
+3. **Risks are scenarios, not code locations.** This plan documents _what
+   could fail_ and _why we believe it's likely_ — drawn from documents,
+   interview, and codebase _signal_ (churn, structure, test base). It does
    NOT claim to know which line owns the failure. That knowledge is
    produced by `/10x-research` during each rollout phase. If the plan and
    research disagree about where the failure lives, research is the ground
@@ -38,27 +38,27 @@ evidence and is corroborated by the Phase 2 interview.
 
 The top failure scenarios this project must protect against, ordered by
 risk = impact × likelihood. Risks are failure scenarios in user / business
-terms, not test names. The Source column cites the *evidence that surfaced
-this risk* — never a specific file as "where the failure lives" (that is
+terms, not test names. The Source column cites the _evidence that surfaced
+this risk_ — never a specific file as "where the failure lives" (that is
 research's job, see §1 principle #3).
 
-| # | Risk (failure scenario) | Impact | Likelihood | Source (evidence — not anchor) |
-|---|-------------------------|--------|------------|--------------------------------|
-| 1 | Two "nie obok" guests sit adjacent but no red flag appears — the guardrail silently fails (false-negative) | High | High | PRD FR-021/FR-022 guardrail "walidacja nigdy nie milczy, false-negatives = 0"; interview Q1; interview Q3 (adjacency = low-confidence); hot-spot `src/lib/services/` (7 commits/30d) |
-| 2 | Drag-and-drop drops a guest on the wrong seat, fails to commit, or double-seats someone (invariant break) | High | Medium | interview Q1 + Q3; PRD FR-017/FR-019; hot-spot `src/components/wedding/` (7 commits/30d) |
-| 3 | Another account (or anon) reads or modifies someone else's wedding — RLS / IDOR gap | High | Medium | PRD Privacy guardrail + Access Control; lessons.md "revoke anon grants"; interview Q3 (RLS low-confidence) |
-| 4 | Table resize / auto-unassign leaves inconsistent state (partial write, orphaned assignment) | High | Medium | PRD US-02 / FR-008; roadmap S-04 (upcoming → raises likelihood); lessons.md "atomic transactions" |
-| 5 | Server trusts client input — malformed or hostile payload causes a 500 or partial write instead of a clean 4xx | Medium | Medium | Abuse lens (untrusted input); Zod present; follow-ups.md F-01 unbounded `seat_count`; hot-spot `src/pages/api/` (6 commits/30d) |
-| 6 | Plan not durable across logout/login — assignments, conflicts, or tables come back wrong | High | Low | PRD US-03 + NFR persistence; roadmap S-05 (self-described low-risk, "mainly verification") |
+| #   | Risk (failure scenario)                                                                                        | Impact | Likelihood | Source (evidence — not anchor)                                                                                                                                                       |
+| --- | -------------------------------------------------------------------------------------------------------------- | ------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Two "nie obok" guests sit adjacent but no red flag appears — the guardrail silently fails (false-negative)     | High   | High       | PRD FR-021/FR-022 guardrail "walidacja nigdy nie milczy, false-negatives = 0"; interview Q1; interview Q3 (adjacency = low-confidence); hot-spot `src/lib/services/` (7 commits/30d) |
+| 2   | Drag-and-drop drops a guest on the wrong seat, fails to commit, or double-seats someone (invariant break)      | High   | Medium     | interview Q1 + Q3; PRD FR-017/FR-019; hot-spot `src/components/wedding/` (7 commits/30d)                                                                                             |
+| 3   | Another account (or anon) reads or modifies someone else's wedding — RLS / IDOR gap                            | High   | Medium     | PRD Privacy guardrail + Access Control; lessons.md "revoke anon grants"; interview Q3 (RLS low-confidence)                                                                           |
+| 4   | Table resize / auto-unassign leaves inconsistent state (partial write, orphaned assignment)                    | High   | Medium     | PRD US-02 / FR-008; roadmap S-04 (upcoming → raises likelihood); lessons.md "atomic transactions"                                                                                    |
+| 5   | Server trusts client input — malformed or hostile payload causes a 500 or partial write instead of a clean 4xx | Medium | Medium     | Abuse lens (untrusted input); Zod present; follow-ups.md F-01 unbounded `seat_count`; hot-spot `src/pages/api/` (6 commits/30d)                                                      |
+| 6   | Plan not durable across logout/login — assignments, conflicts, or tables come back wrong                       | High   | Low        | PRD US-03 + NFR persistence; roadmap S-05 (self-described low-risk, "mainly verification")                                                                                           |
 
 **Impact × Likelihood rubric.** Score both axes on a coarse High / Medium /
 Low scale so two readers agree on the same row.
 
-| Rating | Impact | Likelihood |
-|--------|--------|------------|
+| Rating | Impact                                                                                  | Likelihood                                                           |
+| ------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | High   | user loses access, data, or trust in the guardrail; failure is silent or hard to notice | area is core and low-confidence, or we have already been burned here |
-| Medium | feature degrades, a workaround exists | touched occasionally, plausible source of bugs |
-| Low    | cosmetic or easily reverted | stable code, rarely touched |
+| Medium | feature degrades, a workaround exists                                                   | touched occasionally, plausible source of bugs                       |
+| Low    | cosmetic or easily reverted                                                             | stable code, rarely touched                                          |
 
 Order rows by impact × likelihood. Protect High × High first. Risk #6 is
 High × Low: per the rubric it earns a **light** treatment — persistence is
@@ -67,8 +67,8 @@ plus one smoke — not a dedicated heavy suite.
 
 **Abuse / security lens.** The product has auth and accepts user input (no
 payments). Two abuse rows are included: authorization/IDOR (#3 — does the
-endpoint verify *this wedding belongs to you*, not merely *you are logged
-in*?) and untrusted-input parity (#5 — the server must not trust the
+endpoint verify _this wedding belongs to you_, not merely _you are logged
+in_?) and untrusted-input parity (#5 — the server must not trust the
 client). Resource abuse (rate-limit bypass, email floods) is out of scope —
 small-scale solo MVP with no email-sending flow; see §7.
 
@@ -80,14 +80,14 @@ re-implement adjacency, or does both paths share one pure function?).
 
 ### Risk Response Guidance
 
-| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
-|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
-| #1 | Ring places a conflict pair at seats N and N±1 (including the wrap seat 1 ↔ seat max, and the 2-seat degenerate table) → violation reported; non-adjacent placement → not reported | "the 4-seat happy case highlights, therefore adjacency is correct"; canonical pair order (A,B) = (B,A); whether client and server share one adjacency function or two can drift | ring-wrap formula; conflict-pair canonical ordering; where adjacency is computed (client vs server) and whether they share code; how a violation maps back to two seats | unit (pure ring fn) + integration (violation calc over assignment state) | **Oracle problem** — deriving expected violations from the implementation instead of by-hand ring geometry; happy-path-only (skipping wrap + 2-seat) |
-| #2 | Assign to empty seat, assign onto an occupied seat, click-fallback path, and unassign each produce exactly one intended assignment; the invariant (≤1 guest/seat, ≤1 seat/guest) is never broken | "the drop event fired, therefore the correct seat was persisted"; optimistic UI equals server truth | assignment entry point (service/API); how seat identity is resolved on drop; where the invariant is enforced (DB constraint vs app) | integration on assignment service/API for the logic; e2e reserved for real pointer DnD only | e2e where integration suffices; over-mocking the DnD library |
-| #3 | As user B, SELECT/INSERT/UPDATE/DELETE against user A's rows returns 0 rows or `42501`; anon returns permission denied — across all owner-scoped tables | "logged-in implies authorized" (IDOR); that each new table inherited the anon-grant revocation | RLS policies per table; owner-scoping in service queries; whether the API re-checks ownership or relies solely on RLS | integration against local Supabase with two users (automate the existing `docs/reference/rls-verification-protocol.md` runbook) | testing only the owner happy path (that is not a security test) |
-| #4 | Shrinking 10→5 seats with 7 assigned atomically yields 5 seats, 2 guests unassigned (highest-numbered), related violations recomputed; cancel changes nothing; a mid-operation failure rolls back fully | "the final seat count looks right, therefore state is consistent"; that the confirm dialog only matters when the new count drops below assigned | whether resize + unassign is one transaction / Postgres function; operation ordering; how violations recompute | integration against the DB (assert post-state + rollback) | happy-path-only (skipping cancel + partial-failure); brittle seat-order assumption |
-| #5 | Malformed bodies (missing / wrong-typed fields, out-of-range `seat_count`, a guest/seat FK from another wedding) get a clean 4xx with no partial write and no guest PII in the error body | "the client validated, therefore the server can trust the payload" | per-endpoint Zod schemas; error translation shape; what bounds exist on `seat_count` | integration (contract) on the API endpoints | asserting the exact error string copied from the error helper (oracle problem) |
-| #6 | After logout → login, assignments, conflicts, and tables are identical to the pre-logout state | "it's just Postgres, so there is nothing to test" | which state is persisted vs derived; session boundary | covered by the #2–#4 integration DB round-trips + one manual/e2e smoke | a dedicated heavy suite duplicating #2–#4 |
+| Risk | What would prove protection                                                                                                                                                                             | Must challenge                                                                                                                                                                  | Context `/10x-research` must ground                                                                                                                                     | Likely cheapest layer                                                                                                           | Anti-pattern to avoid                                                                                                                                |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #1   | Ring places a conflict pair at seats N and N±1 (including the wrap seat 1 ↔ seat max, and the 2-seat degenerate table) → violation reported; non-adjacent placement → not reported                      | "the 4-seat happy case highlights, therefore adjacency is correct"; canonical pair order (A,B) = (B,A); whether client and server share one adjacency function or two can drift | ring-wrap formula; conflict-pair canonical ordering; where adjacency is computed (client vs server) and whether they share code; how a violation maps back to two seats | unit (pure ring fn) + integration (violation calc over assignment state)                                                        | **Oracle problem** — deriving expected violations from the implementation instead of by-hand ring geometry; happy-path-only (skipping wrap + 2-seat) |
+| #2   | Assign to empty seat, assign onto an occupied seat, click-fallback path, and unassign each produce exactly one intended assignment; the invariant (≤1 guest/seat, ≤1 seat/guest) is never broken        | "the drop event fired, therefore the correct seat was persisted"; optimistic UI equals server truth                                                                             | assignment entry point (service/API); how seat identity is resolved on drop; where the invariant is enforced (DB constraint vs app)                                     | integration on assignment service/API for the logic; e2e reserved for real pointer DnD only                                     | e2e where integration suffices; over-mocking the DnD library                                                                                         |
+| #3   | As user B, SELECT/INSERT/UPDATE/DELETE against user A's rows returns 0 rows or `42501`; anon returns permission denied — across all owner-scoped tables                                                 | "logged-in implies authorized" (IDOR); that each new table inherited the anon-grant revocation                                                                                  | RLS policies per table; owner-scoping in service queries; whether the API re-checks ownership or relies solely on RLS                                                   | integration against local Supabase with two users (automate the existing `docs/reference/rls-verification-protocol.md` runbook) | testing only the owner happy path (that is not a security test)                                                                                      |
+| #4   | Shrinking 10→5 seats with 7 assigned atomically yields 5 seats, 2 guests unassigned (highest-numbered), related violations recomputed; cancel changes nothing; a mid-operation failure rolls back fully | "the final seat count looks right, therefore state is consistent"; that the confirm dialog only matters when the new count drops below assigned                                 | whether resize + unassign is one transaction / Postgres function; operation ordering; how violations recompute                                                          | integration against the DB (assert post-state + rollback)                                                                       | happy-path-only (skipping cancel + partial-failure); brittle seat-order assumption                                                                   |
+| #5   | Malformed bodies (missing / wrong-typed fields, out-of-range `seat_count`, a guest/seat FK from another wedding) get a clean 4xx with no partial write and no guest PII in the error body               | "the client validated, therefore the server can trust the payload"                                                                                                              | per-endpoint Zod schemas; error translation shape; what bounds exist on `seat_count`                                                                                    | integration (contract) on the API endpoints                                                                                     | asserting the exact error string copied from the error helper (oracle problem)                                                                       |
+| #6   | After logout → login, assignments, conflicts, and tables are identical to the pre-logout state                                                                                                          | "it's just Postgres, so there is nothing to test"                                                                                                                               | which state is persisted vs derived; session boundary                                                                                                                   | covered by the #2–#4 integration DB round-trips + one manual/e2e smoke                                                          | a dedicated heavy suite duplicating #2–#4                                                                                                            |
 
 ## 3. Phased Rollout
 
@@ -97,23 +97,23 @@ orchestrator updates Status as artifacts appear on disk.
 
 > These rollout phases are tracked as issues in Linear (project `TablePlanner MVP`, milestone `M4: Quality gates green`). See `context/foundation/tasks-linear.md` for the mapping.
 
-| # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
-|---|------------|-----------------|----------------|------------|--------|---------------|
-| 1 | Bootstrap + adjacency core | Stand up the runner; lock the guardrail so ring adjacency (wrap + 2-seat) and conflict-violation computation never miss | #1 | unit + integration | change opened | context/changes/testing-bootstrap-adjacency-core/ |
-| 2 | API + RLS integration | No cross-account leak; the server rejects hostile input cleanly | #3, #5 | integration | not started | — |
-| 3 | Assignment invariant + resize atomicity | Invariant always holds; S-04 resize/auto-unassign is atomic; state round-trips | #2 (logic), #4, #6 | integration | not started | — |
-| 4 | Critical-path e2e + quality gates | One e2e proves the north-star flow including real drag-and-drop; wire lint + typecheck + tests as required CI gates | #2 (pointer DnD) | e2e + gates | not started | — |
+| #   | Phase name                              | Goal (one line)                                                                                                         | Risks covered      | Test types         | Status      | Change folder                                     |
+| --- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------ | ----------- | ------------------------------------------------- |
+| 1   | Bootstrap + adjacency core              | Stand up the runner; lock the guardrail so ring adjacency (wrap + 2-seat) and conflict-violation computation never miss | #1                 | unit + integration | complete    | context/changes/testing-bootstrap-adjacency-core/ |
+| 2   | API + RLS integration                   | No cross-account leak; the server rejects hostile input cleanly                                                         | #3, #5             | integration        | not started | —                                                 |
+| 3   | Assignment invariant + resize atomicity | Invariant always holds; S-04 resize/auto-unassign is atomic; state round-trips                                          | #2 (logic), #4, #6 | integration        | not started | —                                                 |
+| 4   | Critical-path e2e + quality gates       | One e2e proves the north-star flow including real drag-and-drop; wire lint + typecheck + tests as required CI gates     | #2 (pointer DnD)   | e2e + gates        | not started | —                                                 |
 
 **Status vocabulary** (fixed — parser literals):
 
-| Value | Meaning |
-|-------|---------|
-| `not started` | No change folder for this rollout phase yet. |
+| Value           | Meaning                                                             |
+| --------------- | ------------------------------------------------------------------- |
+| `not started`   | No change folder for this rollout phase yet.                        |
 | `change opened` | `context/changes/<id>/` exists with `change.md`; research not done. |
-| `researched` | `research.md` exists in the change folder. |
-| `planned` | `plan.md` exists with a `## Progress` section. |
-| `implementing` | Progress section has at least one `[x]` and at least one `[ ]`. |
-| `complete` | Progress section is fully `[x]`. |
+| `researched`    | `research.md` exists in the change folder.                          |
+| `planned`       | `plan.md` exists with a `## Progress` section.                      |
+| `implementing`  | Progress section has at least one `[x]` and at least one `[ ]`.     |
+| `complete`      | Progress section is fully `[x]`.                                    |
 
 Order rationale: cheapest-highest-value first (pure logic, no infrastructure),
 then DB-backed integration, then the expensive pointer-level e2e last. There
@@ -128,15 +128,16 @@ The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date. Recommendations are grounded in the local manifest plus the
 MCP/tools exposed in the current session.
 
-| Layer | Tool | Version | Notes |
-|-------|------|---------|-------|
-| unit + integration | Vitest | none yet — see §3 Phase 1 | Fits the existing Vite/Astro toolchain; no separate runner to reconcile. |
-| integration (DB) | local Supabase (`npx supabase start`) | present | Two-user fixtures for RLS/IDOR; asserts real Postgres + RLS behavior. |
-| e2e | Playwright | none yet — see §3 Phase 4 | Reserved for the north-star flow incl. real pointer drag-and-drop. |
-| accessibility | none | — | Not in scope for MVP (see §7). |
-| (optional) AI-native | multimodal SVG-ring review — checked: 2026-08-25 | n/a | When NOT to use: any regression a deterministic unit/integration test catches — i.e. the conflict-flag logic. Optional, low priority. |
+| Layer                | Tool                                             | Version                   | Notes                                                                                                                                 |
+| -------------------- | ------------------------------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| unit + integration   | Vitest                                           | none yet — see §3 Phase 1 | Fits the existing Vite/Astro toolchain; no separate runner to reconcile.                                                              |
+| integration (DB)     | local Supabase (`npx supabase start`)            | present                   | Two-user fixtures for RLS/IDOR; asserts real Postgres + RLS behavior.                                                                 |
+| e2e                  | Playwright                                       | none yet — see §3 Phase 4 | Reserved for the north-star flow incl. real pointer drag-and-drop.                                                                    |
+| accessibility        | none                                             | —                         | Not in scope for MVP (see §7).                                                                                                        |
+| (optional) AI-native | multimodal SVG-ring review — checked: 2026-08-25 | n/a                       | When NOT to use: any regression a deterministic unit/integration test catches — i.e. the conflict-flag logic. Optional, low priority. |
 
 **Stack grounding tools (current session):**
+
 - Docs: Context7 — available; use for current Vitest / Playwright / Supabase-testing setup APIs when Phase 1/4 wires the runner; checked: 2026-08-25
 - Search: Exa.ai — available; use to confirm current Astro + Vitest integration guidance and Cloudflare Workers test patterns; checked: 2026-08-25
 - Runtime/browser: no Playwright MCP this session — `claude-in-chrome` skill available as a fallback e2e driver; checked: 2026-08-25
@@ -148,15 +149,15 @@ The full set of gates that must pass before a change reaches production.
 "Required after §3 Phase N" means the gate is enforced once that rollout
 phase lands; before that, the gate is `planned`.
 
-| Gate | Where | Required? | Catches |
-|------|-------|-----------|---------|
-| lint + typecheck | local + CI | required (already wired: `npm run lint`, `astro check`) | syntactic / type drift, Rules-of-React violations |
-| unit + integration | local + CI | required after §3 Phase 1 | adjacency / conflict / invariant logic regressions |
-| RLS cross-account integration | CI | required after §3 Phase 2 | privacy / IDOR leaks |
-| e2e on the critical flow | CI on PR | required after §3 Phase 4 | broken north-star assign → conflict-flag path |
-| prod migration apply | between merge + prod | required for any slice with a migration | schema drift (lessons.md: S-02 migration never applied) |
-| multimodal visual review of the SVG ring | CI on PR | optional | ring rendering regressions classic tests miss |
-| post-edit hook | local (agent loop) | recommended | regressions at edit time (Module 3 Lesson 3) |
+| Gate                                     | Where                | Required?                                               | Catches                                                 |
+| ---------------------------------------- | -------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| lint + typecheck                         | local + CI           | required (already wired: `npm run lint`, `astro check`) | syntactic / type drift, Rules-of-React violations       |
+| unit + integration                       | local + CI           | required after §3 Phase 1                               | adjacency / conflict / invariant logic regressions      |
+| RLS cross-account integration            | CI                   | required after §3 Phase 2                               | privacy / IDOR leaks                                    |
+| e2e on the critical flow                 | CI on PR             | required after §3 Phase 4                               | broken north-star assign → conflict-flag path           |
+| prod migration apply                     | between merge + prod | required for any slice with a migration                 | schema drift (lessons.md: S-02 migration never applied) |
+| multimodal visual review of the SVG ring | CI on PR             | optional                                                | ring rendering regressions classic tests miss           |
+| post-edit hook                           | local (agent loop)   | recommended                                             | regressions at edit time (Module 3 Lesson 3)            |
 
 The "prod migration apply" gate is not a test but a release gate — it is
 included because the operator's top past-pain (interview Q2) and lessons.md
@@ -169,7 +170,11 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 ### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 1 (ring-adjacency and conflict-violation pure-logic pattern; oracle derived by-hand from ring geometry, not from the implementation).
+- **Location & naming**: colocate as `src/**/*.test.ts` next to the module under test (e.g. `src/lib/adjacency.test.ts` beside `src/lib/adjacency.ts`).
+- **Runner & config**: Vitest, `environment: 'node'`, standalone `vitest.config.ts` replicating only the `@/*` alias — no Astro/Cloudflare boot. Import test helpers explicitly (`import { describe, it, expect } from 'vitest'`); there is no `globals`.
+- **Run command**: `npm run test:run` (single-pass) or `npm test` (watch).
+- **Reference test**: `src/lib/adjacency.test.ts` — typed fixture factories building domain shapes from `src/types.ts` (camelCase, not `*Row`), a `ringTable(n)` helper, and violations compared as unordered `{guestAId, guestBId}` sets.
+- **Oracle discipline** (load-bearing): derive every expected value by-hand from the spec/geometry and write it as a literal. Never snapshot the function's own output as the expectation — that encodes a bug as the oracle.
 
 ### 6.2 Adding an integration test (service / DB)
 
@@ -187,6 +192,8 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 (Optional. After each phase lands, `/10x-implement` appends a 2-3 line note
 here capturing anything surprising the phase taught.)
+
+- **Phase 1 (Bootstrap + adjacency core):** shipped as pure-logic unit coverage only. The "integration" slice of its test-types — asserting the `guest_conflicts` `check (guest_a_id < guest_b_id)` constraint rejects a non-canonical `(B,A)` insert — is **intentionally deferred to Phase 2** (API + RLS integration), which already stands up local Supabase; Phase 1 does not pull Docker/Supabase into an otherwise pure-logic phase. Order independence _at the guardrail_ is proven at the unit layer here.
 
 ## 7. What We Deliberately Don't Test
 
