@@ -52,8 +52,9 @@ marked DONE.
 - `Violation` carries both seat ids **and** both guest ids in *adjacency* order, not
   canonical UUID order (`types.ts:64-71`, `research.md` §4) — assert the flagged pair as an
   **unordered set**.
-- Astro's `getViteConfig()` from `astro/config` inherits the `@/*` alias for free
-  (`tooling-vitest-setup.md` §1) — the recommended config base.
+- Config is a standalone `vitest.config.ts` (`defineConfig` from `vitest/config`, `@` alias
+  only), not `getViteConfig()` — the latter fails at startup under the cloudflare adapter.
+  Rationale + plan-review F2 reversal: `tooling-vitest-setup.md` Addendum 2.
 - `Assignment` has three fields `{ id, guestId, seatId }` — a typed fixture must supply `id`
   even though the validator reads only `seatId`/`guestId` (`research.md` §7).
 
@@ -96,8 +97,9 @@ document and do the bookkeeping. Each phase is independently verifiable via `npm
 
 ### Overview
 
-Install Vitest, add a `getViteConfig()`-based config, wire the `test` scripts, reconcile
-with ESLint/lint-staged, and prove the runner + `@/*` alias work with a minimal smoke test.
+Install Vitest, add a standalone alias-based `vitest.config.ts`, wire the `test` scripts,
+reconcile with ESLint/lint-staged, and prove the runner + `@/*` alias work with a minimal
+smoke test.
 
 ### Changes Required:
 
@@ -129,14 +131,16 @@ section is handled in Phase 3 — not here.
 
 **File**: `vitest.config.ts` (new, repo root)
 
-**Intent**: Base the config on Astro's `getViteConfig()` from `astro/config` so it inherits
-the resolved `@/*` alias, the Tailwind plugin, and `astro:env/server` resolution — matching
-the official `with-vitest` template and future-proofing Phase 2/3. Set `environment: 'node'`
-(pure function, no DOM). Do **not** enable `globals` — tests import `describe/it/expect`
-explicitly.
+**Intent**: Use a standalone `defineConfig` from `vitest/config` replicating only the `@`
+alias — the adjacency module has type-only imports, so the runner needs nothing else.
+`getViteConfig()` is not viable here (fails at startup under the cloudflare adapter; full
+rationale + plan-review F2 reversal in `tooling-vitest-setup.md` Addendum 2). Set
+`environment: 'node'`; no `globals` (explicit `describe/it/expect` imports).
 
-**Contract**: `export default getViteConfig({ test: { environment: 'node' } })` with a
-`/// <reference types="vitest/config" />` triple-slash at the top. No `globals` key. No
+**Contract**: `export default defineConfig({ test: { environment: 'node', alias: { '@':
+fileURLToPath(new URL('./src', import.meta.url)) } } })` — `defineConfig` from `vitest/config`,
+`fileURLToPath` from `node:url`. **No `/// <reference>` triple-slash** — it fails
+`@typescript-eslint/triple-slash-reference` under `strictTypeChecked`. No `globals` key. No
 `@cloudflare/vitest-pool-workers`.
 
 #### 4. Lint / lint-staged reconciliation for test files
@@ -147,7 +151,9 @@ explicitly.
 imports (`describe/it/expect` from `vitest`) are ordinary typed imports, so no globals-types
 entry is needed. Verify the smoke test passes `npm run lint` with **no** config change; add a
 minimal test-file override **only if** a strict rule genuinely misfires on idiomatic test code
-(document which rule and why in the commit). Default expectation: **no ESLint change required.**
+(document which rule and why in the commit). Confirmed empirically: **no ESLint change
+required** — the only strict-rule interaction was the config triple-slash, resolved by omitting
+it (§3), not by an override.
 
 **Contract**: `npm run lint` is green on the new `vitest.config.ts` and the smoke test with,
 ideally, zero `eslint.config.js` delta. `tsconfig.json` `include: ["**/*"]` already covers
@@ -283,7 +289,7 @@ integration test, and close F6.
 
 **Intent**: Replace the "No test suite is configured yet" line in the Commands section with
 the real `npm test` / `npm run test:run` entries and a one-line note that the runner is
-Vitest on `getViteConfig()`.
+Vitest with a standalone alias config.
 
 **Contract**: Commands section lists `test` and `test:run`; the stale "No test suite" caveat
 is removed.
@@ -355,8 +361,8 @@ cleanly, then this change is ready for `/10x-archive`.
 
 ## Performance Considerations
 
-Negligible — a pure-function unit suite. `getViteConfig()` adds async Astro-config boot at
-startup; acceptable for one suite and worth the free alias resolution.
+Negligible — a pure-function unit suite. The standalone `vitest.config.ts` does no Astro boot
+(just an alias), so runner startup is minimal.
 
 ## Migration Notes
 
@@ -380,18 +386,18 @@ modified.
 
 #### Automated
 
-- [ ] 1.1 npm install resolves Vitest with no peer conflict against vite ^7.3.2
-- [ ] 1.2 npm run test:run executes the smoke test and passes
-- [ ] 1.3 The smoke test imports via the @/ alias (proves alias resolution), not a relative path
-- [ ] 1.4 npm run lint passes on vitest.config.ts and the smoke test
-- [ ] 1.5 npx astro check passes
+- [x] 1.1 npm install resolves Vitest with no peer conflict against vite ^7.3.2
+- [x] 1.2 npm run test:run executes the smoke test and passes
+- [x] 1.3 The smoke test imports via the @/ alias (proves alias resolution), not a relative path
+- [x] 1.4 npm run lint passes on vitest.config.ts and the smoke test
+- [x] 1.5 npx astro check passes
 
 #### Manual
 
-- [ ] 1.6 npm test (watch mode) starts and re-runs on file change
-- [ ] 1.7 No spurious Vite/Astro boot errors in the runner output
-- [ ] 1.8 npm audit signatures confirms provenance on the installed vitest tree
-- [ ] 1.9 npm audit surfaces no advisory against the resolved vitest subtree
+- [x] 1.6 npm test (watch mode) starts and re-runs on file change
+- [x] 1.7 No spurious Vite/Astro boot errors in the runner output
+- [x] 1.8 npm audit signatures confirms provenance on the installed vitest tree
+- [x] 1.9 npm audit surfaces no advisory against the resolved vitest subtree
 
 ### Phase 2: Adjacency Guardrail Unit Suite
 

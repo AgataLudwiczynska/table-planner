@@ -14,7 +14,8 @@ were checked against, not a manifest entry. Setup APIs last checked: **2026-08-2
 ## TL;DR for `/10x-plan`
 
 - **Use Astro's official `getViteConfig()` from `astro/config`** as the `vitest.config.ts`
-  base. It merges Astro's fully-resolved Vite config into Vitest — which hands us the
+  base. **(SUPERSEDED — see Addendum 2: `getViteConfig()` fails at startup under the cloudflare
+  adapter; the config is standalone.)** It merges Astro's fully-resolved Vite config into Vitest — which hands us the
   `@/*` alias, the Tailwind plugin, and `astro:env/server` resolution **for free**, and
   matches Astro's official `--template with-vitest`. Recommended over a hand-rolled config.
 - **Vitest 4.x line — pin `vitest@4.1.11` exact** (`vite: ^7.3.2` override; 4.x peer declares
@@ -157,3 +158,35 @@ Sources: Context7 `/vitest-dev/vitest/v4.1.6` (`docs/guide/index.md`, `migration
 `reference/modules/astro-config.mdx`); GitHub Advisory Database GHSA-5xrq-8626-4rwp,
 GHSA-2h32-95rg-cppp, GHSA-g8mr-85jm-7xhm, GHSA-p63j-vcc4-9vmv, GHSA-82fw-gwwq-j7x9
 (`@vitest/mocker`, patched 4.1.11).
+
+---
+
+## Addendum 2 — config decision, empirically corrected (2026-08-29)
+
+> Supersedes §1's `getViteConfig()` recommendation and reverses plan-review **F2** (which had
+> ACCEPTED keeping `getViteConfig()`). This is the canonical record of why the config is
+> hand-rolled; the plan and `plan-brief.md` only point here.
+
+**Chosen: a standalone `vitest.config.ts` — `defineConfig` from `vitest/config` with a single
+`@` alias (`fileURLToPath(new URL('./src', import.meta.url))`), `environment: 'node'`.**
+`getViteConfig()` (§1) was tried first and **fails at startup**:
+
+- `getViteConfig()` boots Astro's fully-resolved Vite config, which now includes
+  `@cloudflare/vite-plugin` (pulled in by the `@astrojs/cloudflare` adapter). That plugin's
+  `validateWorkerEnvironmentOptions` **rejects `resolve.external`**, which Vitest sets on its
+  `ssr` environment — a hard `Startup Error` before any test runs. The two are structurally
+  incompatible over the same config field.
+- The §1 payoff (`astro:env/server` resolution for future service/DB tests) is therefore
+  **unreachable** anyway, and is not needed now: `adjacency.ts` imports only types, so the
+  runner needs nothing but the `@` alias.
+- **No triple-slash directive.** `/// <reference types="vitest/config" />` fails
+  `@typescript-eslint/triple-slash-reference` under the repo's `strictTypeChecked` ESLint, and
+  is redundant once `defineConfig` is imported from `vitest/config` (which types the `test`
+  key). Omit it.
+
+**Future worker/env-dependent suites** (later rollout phases touching `supabase.ts` / bindings)
+use `@cloudflare/vitest-pool-workers` or a separate Vitest project alongside this one — not
+`getViteConfig()`. The `@` alias in a plain config does not block adding such a project later.
+
+Verified 2026-08-29: `npm run test:run` (1 passed), `npm run lint` (clean, no ESLint change),
+`npx astro check` (0 errors) on Vitest `4.1.11` / Vite 7 / Astro 6.

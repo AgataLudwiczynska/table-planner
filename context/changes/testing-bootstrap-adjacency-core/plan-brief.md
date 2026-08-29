@@ -33,13 +33,13 @@ pattern; follow-up F6 is closed.
 | Phase 1 test layers | Unit-only; DB `check`-constraint test deferred to Phase 2 | Violation logic is pure with no DB dependency; Phase 2 already stands up local Supabase | Plan |
 | Client vs server adjacency parity | Not tested — confirmed moot | Research found one implementation; there is nothing to drift | Research |
 | Test globals | Explicit `import { describe, it, expect } from 'vitest'` | Cleanest under strict type-aware ESLint; zero tsconfig types wiring | Plan |
-| Vitest config | Astro `getViteConfig()` | Inherits the `@/*` alias, Tailwind plugin, and `astro:env` resolution for free | Research/Plan |
+| Vitest config | Standalone `defineConfig` (`vitest/config`) + `@` alias | `getViteConfig()` fails at startup under the cloudflare adapter; pure type-only module needs only the alias (reverses plan-review F2) | Plan |
 | Suite structure | Primarily `validateAllTables`; `validateTable` for n=1/n=2/wrap | Tests the public contract while keeping geometry-edge maps readable | Plan |
 | Oracle source | Expected violations derived by-hand from ring geometry | Deriving them from the implementation would encode a bug as the expectation | Research |
 
 ## Scope
 
-**In scope:** Vitest install + `getViteConfig()` config + `test`/`test:run` scripts;
+**In scope:** Vitest install + standalone alias config + `test`/`test:run` scripts;
 oracle-disciplined unit suite over `adjacency.ts`; CLAUDE.md commands, test-plan §6.1
 cookbook, F6 closure.
 

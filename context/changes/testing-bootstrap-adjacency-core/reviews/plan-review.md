@@ -60,6 +60,7 @@
   - Confidence: HIGH — documented, working Astro approach.
   - Blind spot: None significant.
 - **Decision**: ACCEPTED (Fix B) — keep getViteConfig() as planned; matches the official with-vitest template and avoids re-work when Phase 2/3 add DOM/astro:env tests. Plan unchanged.
+- **Superseded (2026-08-29)**: Reversed to Fix A at implementation time — `getViteConfig()` fails at startup under `@cloudflare/vite-plugin` (rejects Vitest's `resolve.external`). Re-planned to a standalone alias config; see `tooling-vitest-setup.md` Addendum 2.
 
 ### F3 — Order-independence unit test framed as "substituting for" the deferred DB check test
 
