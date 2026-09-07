@@ -108,3 +108,72 @@ Re-grounded against migrations + endpoints. Confirmed: `weddings/tables/seats` (
 - **Detail**: With `@supabase/supabase-js`, `.update({…}).eq('id', …)` / `.delete().eq('id', …)` return `{ data: null, error: null }` by **default** — RLS-filtered rows produce no error and no row count. To assert "0 rows affected" the call must chain `.select()` and assert `data.length === 0`. If a spec instead asserts only `error === null` (the natural reading of "0 rows affected, no error"), it passes even if RLS were broken and A's row were actually mutated — a silent false-green on the RLS-only mutation cells (`PATCH/DELETE guests`, `DELETE conflicts`, `DELETE assignments`), which are the plan's highest-priority regression surface. The INSERT→`42501` and DB-check cells are unaffected (they raise, so the oracle is the SQLSTATE).
 - **Fix**: State in Phase 2 §3's contract that rows-affected cells chain `.select()` and assert on the returned array length (`[]` = 0 affected), not on `error` alone. One line in the plan; keeps the oracle honest for the four RLS-only mutations.
 - **Decision**: FIXED (Phase 2 §3 contract now requires rows-affected cells to chain `.select()` and assert on returned array length, not on `error` alone)
+
+---
+
+## Third Review Pass
+
+- **Date**: 2026-09-06
+- **Mode**: Deep
+- **Acceptance criterion**: `secure-integration-testing-research.md` — does the plan realize its "five rules"? Special focus (per request): re-read-as-owner feasibility for the four RLS-only mutations; the cross-wedding FK cell in POST; whether "per-spec cleanup + never-in-expect" leaves a hole.
+- **Findings this pass**: 0 critical · 2 warnings · 1 observation (F7–F9)
+- **Verdict this pass**: REVISE at review time → SOUND after triage (all three FIXED: F7 via Fix A + deferred follow-up, F8 invariant documented, F9 differing-value precondition added). All P1–P8 deltas from `plan-security-deltas.md` are already folded into the plan; these three are new and do not overlap F1–F6.
+
+### Five-rules acceptance check
+
+| Rule (research note §Bottom line) | Verdict | Note |
+|---|---|---|
+| 1. Service-role setup/teardown only; every assertion under real user/anon JWT | PASS\* | Never-in-`expect()` stated (plan 291); smoke-test exception annotated (112); DB-check under owner JWT (52). Narrow-reach *preference* (note §3) deviated — per-spec cleanup + `createServiceClient()` exposed to specs — but documented with rationale (63, 101–103). See F8. |
+| 2. Assert post-state/row-count, not "error≠null"; SQLSTATE only where an error is truly expected | PASS | Re-read-as-owner primary oracle (171); `.select()`-length complementary; `42501`/`23514`/`23505` reserved for grant/CHECK/unique (292). See F9 (minor). |
+| 3. Guard blast radius — refuse unless DB host local; source from `supabase status` | PASS | Host guard incl. `::1`, JSON-parsed not scraped (61); connection only from `supabase status` (96). |
+| 4. Never commit/log the secret key; keep reach narrow | PASS\* | In-memory only, never logged (62). Reach widened by per-spec cleanup — documented. See F8. |
+| 5. CI uses a fresh local throwaway stack | PASS | Forward pointer, local keys, guard kept (41). |
+
+### Focus-area verdicts
+
+- **Focus 1 — re-read-as-owner for the four RLS-only mutations: FEASIBLE & SOUND.** A owns each target row and has a `*_select` policy on all four tables (`guests_update`/`guests_delete`/`guest_conflicts_delete`/`assignments_delete` each paired with a select policy — migrations grounded), so re-reading as A is possible for every RLS-only mutation, and it correctly closes the "write policy more permissive than SELECT" drift the plan cites. One minor precondition → F9.
+- **Focus 2 — cross-wedding FK cell in POST: REFUSAL PROVEN, mechanism overclaimed → F7.** Verified in code that `assignSeat` (`seat_not_found` 404) and `createConflict` (`invalid_guest` 400) both refuse cross-wedding FKs and write nothing; but the cell cannot regression-protect the service-level membership check it cites.
+- **Focus 3 — per-spec cleanup + never-in-expect: SOUND AS WRITTEN, rests on an unstated invariant → F8.**
+
+### Grounding (this pass)
+
+6/6 endpoints + services read (`assignments.ts`/`assignment.service.ts`, `conflicts.ts`/`conflict.service.ts`, `guests.ts`/`guest.service.ts`, `api.ts`, `errors.ts`, `result.ts`). Confirmed: cross-wedding FK POSTs re-checked server-side within the owner's wedding → 4xx no-write; the four RLS-only mutations resolve to 404 via `.maybeSingle()` null; `tables`/`seats` no INSERT policy, `guest_conflicts` no UPDATE policy, all six tables `revoke all … from anon`, RPC revokes execute — structural-denial cells accurate; CHECK `(guest_a_id < guest_b_id)` + UNIQUE present. Status catalog: `*_not_found` = 404, `invalid_guest` = 400, `seat_not_found` = 404, `validation_error`/`invalid_seat_count` = 400.
+
+### F7 — Cross-wedding FK POST proves the refusal, not the membership check
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
+- **Dimension**: End-State Alignment
+- **Location**: Phase 3 §3 (api-idor) line 245
+- **Detail**: The cell "`POST /api/assignments` with A's `seat_id` (as B) → 4xx, no row written" is cited as testing "research §Area 1 F3, the seats→tables membership check." But that check runs under B's own RLS-scoped client: `seats.select(...).eq("id", A_seat).eq("tables.wedding_id", B_wedding).maybeSingle()` (`assignment.service.ts:44-51`). A's seat is invisible to B via RLS regardless of the `.eq("tables.wedding_id", …)` filter, so the query returns null and the request is refused whether or not the service-level membership filter exists. If a future refactor dropped that filter (the exact defense F3 flagged; the code comment calls it "the primary check, RLS is a backstop"), the test stays green — it proves the *outcome* (refused) but not the *mechanism*. It cannot be isolated under real-JWT-only rules (isolating the check needs B to read A's seat, i.e. service-role — forbidden in an `expect()`). Secondary: the 4xx code varies by which FK is crossed — A's seat → `seat_not_found` 404; A's guest → `invalid_guest` 400 (guest check runs first, `assignment.service.ts:34-41`) — so a pinned-code assertion would be brittle.
+- **Fix A ⭐ Recommended**: Correct the claim; assert 4xx-class + no-write; note combined coverage
+  - Strength: Honest about what real-JWT HTTP can prove; the security outcome (payload refused, nothing written to B's wedding) is locked in. Assert status is 4xx (not a pinned code) and re-read as B shows no assignment/conflict created.
+  - Tradeoff: The service membership check itself is not regression-guarded here — record it as a follow-up (unit test of `assignSeat`/`createConflict`, or a pgTAP cell) if that layer matters.
+  - Confidence: HIGH — verified against `assignment.service.ts` / `conflict.service.ts`.
+  - Blind spot: None significant.
+- **Fix B**: Add a direct unit test of the membership check to a later slice
+  - Strength: Actually regression-guards the service filter in isolation.
+  - Tradeoff: Out of this phase's integration scope; needs a mocked/seeded client; more work now.
+  - Confidence: MED — belongs to a different test layer than this plan builds.
+  - Blind spot: Overlaps intent with service unit tests not yet planned.
+- **Decision**: FIXED via Fix A + deferred follow-up. Phase 3 §3 cell (line 245) reworded to assert a 4xx-class status (no pinned code) + no-write re-read-as-B, and to state explicitly it proves the outcome, not the service membership filter (invisible-under-RLS reasoning). The membership-check regression guard is recorded as a new OPEN follow-up **targeted at a future service unit-test slice** (not this change), wired into Phase 2 §6 bookkeeping alongside the wedding_id follow-up (criteria + Progress 2.5 aligned). No production-code change.
+
+### F8 — Isolation rests on an unstated "no successful writes against seed rows" invariant
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
+- **Dimension**: Blind Spots
+- **Location**: Critical Implementation Details (isolation) line 63; Phase 2 §3
+- **Detail**: The isolation model leans on "almost all matrix writes are denied → residue is minimal; the only successful writes are the one-time seed," with per-spec cleanup = idempotent service-role DELETE and `fileParallelism: false`. That holds ONLY while no spec performs a *successful* write against a *seed* row — an invariant the plan never states. Two ways it breaks: **(a)** the research CRUD matrix (§5) shows a "user A own: ✅ mutates / ✅ removes" positive diagonal; a diligent implementer may add an owner-happy-path control (A updates/deletes its own seed guest). A successful UPDATE can't be undone by DELETE cleanup; a successful DELETE of a seed guest cascades to the conflict pair + assignment — and `db reset` runs once per suite (globalSetup), not per spec — so the shared seed graph is corrupted for every later spec in the run (db-check needs the two seeded guests; rls-select's positive control needs A's N seed rows). **(b)** Phase 3's `wedding_id`-ignored cell and any conflict/`seat_occupied` error setup are genuine successful writes; cleanup must delete them by id, and on a mid-file crash they survive to the next run's reset (lower risk — they land in B's own wedding, invisible to cross-account cells). The "never-in-`expect()`" rule is a convention, not enforced; `fixtures.ts` exposes `createServiceClient()` to every spec (lines 101–103), so the only sanctioned in-spec service-role use is cleanup — worth stating alongside the invariant.
+- **Fix**: State the invariant explicitly in Critical Implementation Details — "specs perform no successful writes against seed rows; any successful write targets throwaway rows the spec creates and deletes in `afterEach`; owner-side positive controls are reads only." Note that seed integrity is guaranteed only by `db reset` per *run*, so a mutated/deleted seed row cannot be restored mid-run.
+- **Decision**: FIXED. Seed-integrity invariant added to Critical Implementation Details (isolation bullet): specs perform no successful writes against seed rows; owner positive-controls are reads only; seed integrity is guaranteed only by `db reset` per run (cascade risk on a deleted seed guest spelled out). Also states the sanctioned in-spec `service_role` use is teardown/cleanup only — never a mutation asserted on or a seed-row mutation — which keeps the widened `createServiceClient()` reach inside the "never in an RLS/IDOR `expect()`" boundary. No production-code change; security discipline tightened, not loosened.
+
+### F9 — Re-read-as-owner UPDATE oracle needs the attempted value to differ from seed
+
+- **Severity**: 🔍 OBSERVATION
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Blind Spots
+- **Location**: Phase 2 §3 (rls-writes) line 171 — re-read-as-owner oracle
+- **Detail**: Focus 1 is feasible and sound (A can re-read every target row; the oracle correctly closes the "write policy more permissive than SELECT" drift). One precondition is implicit: for the UPDATE (PATCH guests) cell, B's attempted update must set a value that DIFFERS from the seeded value — else "re-read shows unchanged" is trivially true even if the write had succeeded, and the oracle proves nothing. The DELETE cells are fine ("unchanged" = still exists). The plan says "assert it is unchanged" without stating the differing-value precondition.
+- **Fix**: One line in Phase 2 §3 — the UPDATE-cell re-read compares against the known seed value, and B's attempted update sets a distinct sentinel value (e.g. `full_name = "IDOR-probe"`) so "unchanged" is a real oracle.
+- **Decision**: FIXED. Phase 2 §3 contract now requires the UPDATE cell (PATCH guests) to set a differing sentinel value (`full_name = "IDOR-probe"`) and re-read against the known seed value, so "unchanged" is a real oracle; DELETE cells noted as fine ("unchanged" = row still exists). No production-code change.

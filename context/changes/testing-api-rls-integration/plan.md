@@ -38,7 +38,8 @@ The fast unit run (`npm run test:run`) is untouched — still Astro-free, no Sup
 - **No migration** — this phase ships zero schema changes, so no prod-apply gate applies (`lessons.md:47-51` N/A here).
 - **The `guest_conflicts.wedding_id` cross-scope smell** (S-02 review) — a service-invariant gap, not an RLS/payload gap. Out of scope; recorded as a new follow-up targeting a future DB constraint/trigger or service test.
 - **The optional S-04 DB-side `seatCount` guard** (F1 second half, OPEN) — belongs to the resize slice and needs a migration; our #5 tests assert against the existing zod `1..30` contract regardless.
-- **CI wiring** — the harness is CI-portable (reads connection from `supabase status`), but authoring a Supabase-starting workflow is Phase 4 / out of this lesson's scope. Tests are local-only for now.
+- **CI wiring** — the harness is CI-portable (reads connection from `supabase status`), but authoring a Supabase-starting workflow is Phase 4 / out of this lesson's scope. Tests are local-only for now. When CI is wired (Phase 4) it will run `supabase start` for a fresh throwaway DB with the well-known local keys — this suite needs **no production secrets**; keep the local-host guard active there too (security note §8).
+- **pgTAP / `supabase test db`** — considered as an alternative SQL-level RLS layer; deferred in favor of Vitest + real JWTs (the existing runner, the same PostgREST path the app uses, extends naturally to the #5 contract tests). Revisit only if an exhaustive per-table policy matrix is later wanted (security note §5).
 - **Auth-flow internals, UI/pixel, static pages, shadcn primitives** — excluded per test-plan §7.
 - **Starting Supabase or building the app inside `globalSetup`** — both are the developer's responsibility (assert-running), kept out of the test lifecycle by decision.
 
@@ -48,7 +49,7 @@ Three phases, cheapest-enabling-first: build the harness, then the direct-Postgr
 
 Key architecture decisions (from planning, grounded in research's open questions):
 
-- **Impersonation** — two real anon-key JWT sessions (each user signs in; queries run under real `auth.uid()`). `service_role` is reserved for seed/teardown and the owner-side DB-check insert. Most faithful to production RLS.
+- **Impersonation** — two real anon-key JWT sessions (each user signs in; queries run under real `auth.uid()`). `service_role` is reserved for seed/teardown only. The `guest_conflicts` DB-check insert runs under the **owner's real JWT** (RLS `with check` passes first, then the CHECK/UNIQUE is the failing constraint) — this keeps `service_role` out of every spec and exercises the real insert path a buggy service could take; a deliberate divergence from the security note §7's service-client suggestion. Most faithful to production RLS.
 - **Config shape** — a separate `vitest.integration.config.ts` invoked by a new `test:integration` script, keeping the fast unit run Astro-free and Supabase-free.
 - **Boot strategy** — `globalSetup` asserts Supabase is running (fail-fast with a message), guards that the DB host is `127.0.0.1`/`localhost` before any destructive op, runs `db reset`, then programmatically seeds users A/B and mints their JWTs.
 - **Contract-test server** — `npm run preview` (workerd, faithful to prod). The developer starts it (and rebuilds) themselves, like Supabase; the stale-build footgun is documented loudly.
@@ -57,9 +58,10 @@ Key architecture decisions (from planning, grounded in research's open questions
 
 ## Critical Implementation Details
 
-- **Destructive-op safety guard** — `globalSetup` runs `db reset`, which is destructive. Before any reset/seed, assert the DB URL host resolved from `supabase status` is `127.0.0.1`/`localhost` and abort otherwise. This is the one guard that prevents a mis-targeted reset (e.g. a linked remote project). Parse `supabase status -o json`, never scrape the human-formatted text output.
+- **Destructive-op safety guard** — `globalSetup` runs `db reset`, which is destructive. Before any reset/seed, assert the DB URL host resolved from `supabase status` is `127.0.0.1`, `localhost`, or `::1` and abort (throw) otherwise. This is the one guard that prevents a mis-targeted reset (e.g. a linked remote project). Parse `supabase status -o json`, never scrape the human-formatted text output.
 - **`service_role` hygiene** — the service-role key is powerful even locally; keep it in process memory only, never log it, never write it to a committed file.
-- **Test isolation on a shared DB** — `globalSetup` seeds once for the whole suite. Almost all cross-account writes in the matrix are *denied* (RLS refuses them → no residue), and the DB-check inserts are *rejected* too (`23514`/`23505` reuse the seeded guests + canonical pair, leaving nothing); the only successful writes are the one-time seed graph in `globalSetup`. Mechanism: **each write-spec cleans up its own rows** (`afterAll`/`afterEach` service-role `DELETE`, idempotent), so residue never survives into a later assertion regardless of file order. Additionally, run the integration specs **without file parallelism** (`fileParallelism: false` / single fork in `vitest.integration.config.ts`) so concurrent files never write to the shared DB at once. Order-dependence is thus avoided, not relied upon.
+- **Test isolation on a shared DB** — `globalSetup` seeds once for the whole suite. Almost all cross-account writes in the matrix are *denied* (RLS refuses them → no residue), and the DB-check inserts are *rejected* too (`23514`/`23505` reuse the seeded guests + canonical pair, leaving nothing); the only successful writes are the one-time seed graph in `globalSetup`. Mechanism: **each write-spec cleans up its own rows** (`afterAll`/`afterEach` service-role `DELETE`, idempotent), so residue never survives into a later assertion regardless of file order. (The security note §3 prefers confining `service_role` to `globalSetup`; per-spec cleanup is accepted here because the key is the local throwaway and almost all matrix writes are denied → residue is minimal — the "`service_role` never in an RLS/IDOR `expect()`" rule in Testing Strategy → Oracle discipline is the actual security boundary.) Additionally, run the integration specs **without file parallelism** (`fileParallelism: false` / single fork in `vitest.integration.config.ts`) so concurrent files never write to the shared DB at once. Order-dependence is thus avoided, not relied upon.
+  - **Seed-integrity invariant (must hold for the above to be sound)** — specs perform **no successful writes against seed rows**. Any successful write targets throwaway rows the spec creates and deletes in `afterEach`/`afterAll`; owner-side positive controls (e.g. "A sees its own N seeded rows") are **reads only**. This matters because seed integrity is guaranteed only by `db reset` per *run* (not per spec): a successful UPDATE of a seed row can't be undone by DELETE-cleanup, and a successful DELETE of a seeded guest cascades to the canonical conflict pair + assignment — corrupting the shared graph for every later spec in the same run (db-check needs the two seeded guests; the SELECT-isolation positive control needs A's seeded rows). Because `fixtures.ts` exposes `createServiceClient()` to every spec, state the sanctioned use explicitly: **the only in-spec `service_role` operation is teardown/cleanup** — never a mutation asserted on, and never a mutation of a seed row. This keeps the widened `service_role` reach inside the "never in an RLS/IDOR `expect()`" security boundary.
 - **Contract-test ordering dependency** — `npm run preview` serves a built snapshot; the developer must rebuild + restart it before an integration run or the contract tests silently exercise stale code. Document this in the script's failure/readiness message and in the cookbook.
 
 ## Phase 1: Integration Harness Foundation
@@ -108,7 +110,7 @@ Stand up the second Vitest config, `globalSetup`, programmatic two-user seed, an
 
 **Intent**: Prove the harness end-to-end before building the matrix: two JWT sessions resolve distinct `auth.uid()`, each sees its own seeded wedding, and the service-role client can read across both.
 
-**Contract**: Asserts user A's client reads A's wedding (1 row) and user B's reads B's (1 row); service-role reads both. Green run = harness proven.
+**Contract**: Asserts user A's client reads A's wedding (1 row) and user B's reads B's (1 row); the service-role read of both is a **harness self-check only** — explicitly the one place a `service_role` assertion is allowed, never in the RLS/IDOR matrix (see Testing Strategy → Oracle discipline). Green run = harness proven.
 
 #### 6. Cookbook stub updates
 
@@ -167,7 +169,7 @@ Using the direct-Postgres seam, prove the risk-weighted cross-account matrix (#3
 
 **Intent**: As user B, mutating A's rows is refused. Hardest coverage on the four RLS-only mutations (`PATCH/DELETE guests`, `DELETE conflicts`, `DELETE assignments`); reachable INSERTs into A's scope raise `42501`; UPDATE/DELETE on A's rows affect 0 rows; structural-denial cells (no INSERT policy on `tables`/`seats`, no UPDATE on `guest_conflicts`) asserted once each.
 
-**Contract**: UPDATE/DELETE on A's rows as B → 0 rows affected. INSERT into A's scope (`guests`/`guest_conflicts`/`assignments`/`weddings`) as B → `42501`. Direct INSERT into `tables`/`seats` → denied (no policy). Assert on rows-affected / SQLSTATE. **Rows-affected cells chain `.select()` and assert on the returned array length (`[]` = 0 affected), not on `error` alone — a bare `.update()`/`.delete()` returns `{ data: null, error: null }` whether RLS filtered the row or not, so an `error`-only check is a no-op.**
+**Contract**: UPDATE/DELETE on A's rows as B → 0 rows affected. INSERT into A's scope (`guests`/`guest_conflicts`/`assignments`/`weddings`) as B → `42501`. Direct INSERT into `tables`/`seats` → denied (no policy). Assert on rows-affected / SQLSTATE. **For the RLS-only UPDATE/DELETE cells the primary oracle is a post-state re-read as the owner: after B's write, re-read the target row as user A and assert it is unchanged. This is more robust than the returned-array check because PostgREST's `RETURNING` is itself filtered by the SELECT policy — if a future migration ever made the write policy more permissive than SELECT, a real mutation by B could still return `[]` (a false pass), and only a re-read as A catches it.** Keep the `.select()`-length check (`[]` = 0 affected) as a complementary signal; never rely on `error` alone — a bare `.update()`/`.delete()` returns `{ data: null, error: null }` whether RLS filtered the row or not, so an `error`-only check is a no-op. **For the UPDATE cell (PATCH guests) B's attempted update must set a value that DIFFERS from the seeded value (e.g. `full_name = "IDOR-probe"`), and the owner re-read compares against the known seed value** — otherwise "re-read shows unchanged" is trivially true even if the write had succeeded, and the oracle proves nothing. (DELETE cells are fine: "unchanged" = the row still exists.)
 
 #### 4. RPC ownership check
 
@@ -183,15 +185,15 @@ Using the direct-Postgres seam, prove the risk-weighted cross-account matrix (#3
 
 **Intent**: As the owner, a non-canonical insert (larger uuid as `guest_a_id`, using two of the owner's seeded guests) is rejected by the DB CHECK; a duplicate of the seeded canonical pair is rejected by UNIQUE.
 
-**Contract**: Owner insert with `guest_a_id > guest_b_id` (the two seeded guests, larger uuid first) → SQLSTATE `23514`. Insert duplicating the seeded canonical pair → `23505`. Both inserts pass RLS `with check` first (done as owner) so the CHECK / UNIQUE is the failing constraint. Both are *rejected*, so this spec leaves **no successful write** — no per-spec cleanup needed (the two guests and the canonical pair are seed rows, reset by `globalSetup`).
+**Contract**: Owner insert with `guest_a_id > guest_b_id` (the two seeded guests, larger uuid first) → SQLSTATE `23514`. Insert duplicating the seeded canonical pair → `23505`. Both inserts pass RLS `with check` first (done as the owner's real JWT, not service-role) so the CHECK / UNIQUE is the failing constraint. Both are *rejected*, so this spec leaves **no successful write** — no per-spec cleanup needed (the two guests and the canonical pair are seed rows, reset by `globalSetup`).
 
 #### 6. Follow-up bookkeeping
 
 **File**: `context/foundation/follow-ups.md`
 
-**Intent**: Flip F9 to DONE (with commit/slice). Add a new OPEN follow-up for the `guest_conflicts.wedding_id` cross-scope smell (target: future DB constraint/trigger or service test), with rationale.
+**Intent**: Flip F9 to DONE (with commit/slice). Add a new OPEN follow-up for the `guest_conflicts.wedding_id` cross-scope smell (target: future DB constraint/trigger or service test), with rationale. Add a second OPEN follow-up for the seats→tables / guests **membership-check regression guard** (F7 — the integration IDOR cell proves refusal-of-outcome only; a real-JWT HTTP test can't isolate the service filter; **target: a future service unit-test slice**), with rationale.
 
-**Contract**: F9 row → DONE; new row appended for the wedding_id smell.
+**Contract**: F9 row → DONE; new rows appended for the wedding_id smell **and** the membership-check regression guard.
 
 ### Success Criteria:
 
@@ -204,7 +206,7 @@ Using the direct-Postgres seam, prove the risk-weighted cross-account matrix (#3
 #### Manual Verification:
 
 - The matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed against the research crib sheet).
-- F9 is flipped to DONE and the new wedding_id follow-up is recorded.
+- F9 is flipped to DONE and the new wedding_id + membership-check follow-ups are recorded.
 - Tests are isolated *within a run* — after the write/DB-check specs have run, a baseline/SELECT-isolation check still sees only seed rows (0 cross-account, no orphan rows), proving per-spec cleanup worked; a second consecutive run also yields identical results.
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation before proceeding.
@@ -239,9 +241,9 @@ Using the HTTP seam against `npm run preview` (workerd), prove the server reject
 
 **File**: `test/integration/api-idor.test.ts` (new)
 
-**Intent**: As user B over HTTP, the RLS-only mutations against A's ids return the not-found path (404), and a body carrying an extra `wedding_id` is provably ignored (mass-assignment defense by construction).
+**Intent**: As user B over HTTP, the RLS-only mutations against A's ids return the not-found path (404), a body carrying an extra `wedding_id` is provably ignored (mass-assignment defense by construction), and a POST referencing another wedding's FK in the payload is rejected, not silently accepted (IDOR-via-payload, the #3 × #5 overlap).
 
-**Contract**: `PATCH/DELETE /api/guests`, `DELETE /api/conflicts`, `DELETE /api/assignments` with A's id as B → 404 (`*_not_found`). A create body with an extra `wedding_id` → the row is scoped to B's own wedding, not the supplied one.
+**Contract**: `PATCH/DELETE /api/guests`, `DELETE /api/conflicts`, `DELETE /api/assignments` with A's id as B → 404 (`*_not_found`). A create body with an extra `wedding_id` → the row is scoped to B's own wedding, not the supplied one. As user B, `POST /api/assignments` with A's `seat_id` (or a `guestId` from A's wedding), and `POST /api/conflicts` referencing A's guests → a **4xx-class** status (do **not** pin the code — A's seat → `seat_not_found` 404, A's guest → `invalid_guest` 400) with **no row written to B's wedding** (re-read as B shows no assignment/conflict). This proves the *outcome* — the payload is refused and nothing is written — but **not** the service-level seats→tables membership filter itself: under B's RLS-scoped client A's rows are invisible regardless of that filter, so the cell stays green even if the filter were dropped. Regression-guarding that filter is a deferred follow-up (see `follow-ups.md`).
 
 #### 4. No-PII-in-error assertion
 
@@ -287,6 +289,8 @@ Using the HTTP seam against `npm run preview` (workerd), prove the server reject
 ### Oracle discipline:
 
 - Assert on SQLSTATE codes (`42501`, `23514`, `23505`) and HTTP status/error codes — never on message strings copied from the error catalog (test-plan §89, `lessons.md:40-44`).
+- The `service_role` client (BYPASSRLS) may appear only in seed/teardown/cleanup and the harness smoke check — **never in an RLS/IDOR `expect()`**. A `service_role` assertion proves Postgres works, not that your RLS works; every security assertion runs under a real user JWT or the anon session (security note §1).
+- For cross-account UPDATE/DELETE, the oracle is post-state: re-read the target row as the owner and assert it is unchanged. Do not treat `error: null` as denial — an RLS-blocked write is a silent 0-row no-op (security note §2).
 
 ### Manual Testing Steps:
 
@@ -307,6 +311,7 @@ None — this phase ships no migration.
 ## References
 
 - Research: `context/changes/testing-api-rls-integration/research.md`
+- Security research note (secure integration testing — role/client matrix, the "error is null" oracle trap, blast-radius guard): `context/changes/testing-api-rls-integration/secure-integration-testing-research.md`
 - Test plan (Phase 2, risk map, §6/§7): `context/foundation/test-plan.md`
 - Follow-ups F9 (target = this phase), F1 (S-04 optional DB guard): `context/foundation/follow-ups.md`
 - RLS runbook this phase automates: `docs/reference/rls-verification-protocol.md`
@@ -344,7 +349,7 @@ None — this phase ships no migration.
 #### Manual
 
 - [ ] 2.4 Matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed vs research crib sheet)
-- [ ] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` follow-up recorded
+- [ ] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` + membership-check (F7) follow-ups recorded
 - [ ] 2.6 Tests isolated within a run — after write/DB-check specs, a baseline/SELECT-isolation check sees only seed rows (per-spec cleanup proven); two consecutive runs also identical
 
 ### Phase 3: API Payload Contract Tests (Risk #5)
