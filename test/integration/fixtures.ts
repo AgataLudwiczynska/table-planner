@@ -31,6 +31,7 @@ export const createServiceClient = (): IntegrationClient =>
   serviceClientFor(inject("apiUrl"), inject("serviceRoleKey"));
 export const createUserClient = (accessToken: string): IntegrationClient =>
   userClientFor(inject("apiUrl"), inject("anonKey"), accessToken);
+export const createAnonClient = (): IntegrationClient => anonClientFor(inject("apiUrl"), inject("anonKey"));
 
 export const seededUserA = (): SeededUser => inject("userA");
 export const seededUserB = (): SeededUser => inject("userB");

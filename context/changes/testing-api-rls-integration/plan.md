@@ -327,30 +327,30 @@ None — this phase ships no migration.
 
 #### Automated
 
-- [x] 1.1 Integration config loads without booting Astro (`npm run test:integration:db` starts, no `astro:env/server` error)
-- [x] 1.2 Smoke test passes (`npm run test:integration:db`)
-- [x] 1.3 Fast unit run unaffected (`npm run test:run`)
-- [x] 1.4 Lint passes (`npm run lint`)
+- [x] 1.1 Integration config loads without booting Astro (`npm run test:integration:db` starts, no `astro:env/server` error) — 5c24269
+- [x] 1.2 Smoke test passes (`npm run test:integration:db`) — 5c24269
+- [x] 1.3 Fast unit run unaffected (`npm run test:run`) — 5c24269
+- [x] 1.4 Lint passes (`npm run lint`) — 5c24269
 
 #### Manual
 
-- [x] 1.5 With Supabase stopped, `test:integration:db` fails fast with the "run `npx supabase start` first" message
-- [x] 1.6 Destructive-op guard aborts on a non-local DB host
-- [x] 1.7 No `service_role` key appears in test output/logs
+- [x] 1.5 With Supabase stopped, `test:integration:db` fails fast with the "run `npx supabase start` first" message — 5c24269
+- [x] 1.6 Destructive-op guard aborts on a non-local DB host — 5c24269
+- [x] 1.7 No `service_role` key appears in test output/logs — 5c24269
 
 ### Phase 2: RLS / IDOR Cross-Account Matrix + guest_conflicts DB-Check
 
 #### Automated
 
-- [ ] 2.1 All RLS/IDOR specs pass (`npm run test:integration:db`)
-- [ ] 2.2 `guest_conflicts` `(B,A)` insert raises `23514` (asserted) (`npm run test:integration:db`)
-- [ ] 2.3 Lint passes (`npm run lint`)
+- [x] 2.1 All RLS/IDOR specs pass (`npm run test:integration:db`)
+- [x] 2.2 `guest_conflicts` `(B,A)` insert raises `23514` (asserted) (`npm run test:integration:db`)
+- [x] 2.3 Lint passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 2.4 Matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed vs research crib sheet)
-- [ ] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` + membership-check (F7) follow-ups recorded
-- [ ] 2.6 Tests isolated within a run — after write/DB-check specs, a baseline/SELECT-isolation check sees only seed rows (per-spec cleanup proven); two consecutive runs also identical
+- [x] 2.4 Matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed vs research crib sheet)
+- [x] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` + membership-check (F7) follow-ups recorded
+- [x] 2.6 Tests isolated within a run — after write/DB-check specs, a baseline/SELECT-isolation check sees only seed rows (per-spec cleanup proven); two consecutive runs also identical
 
 ### Phase 3: API Payload Contract Tests (Risk #5)
 
