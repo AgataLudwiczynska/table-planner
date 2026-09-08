@@ -327,16 +327,16 @@ None — this phase ships no migration.
 
 #### Automated
 
-- [ ] 1.1 Integration config loads without booting Astro (`npm run test:integration:db` starts, no `astro:env/server` error)
-- [ ] 1.2 Smoke test passes (`npm run test:integration:db`)
-- [ ] 1.3 Fast unit run unaffected (`npm run test:run`)
-- [ ] 1.4 Lint passes (`npm run lint`)
+- [x] 1.1 Integration config loads without booting Astro (`npm run test:integration:db` starts, no `astro:env/server` error)
+- [x] 1.2 Smoke test passes (`npm run test:integration:db`)
+- [x] 1.3 Fast unit run unaffected (`npm run test:run`)
+- [x] 1.4 Lint passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 1.5 With Supabase stopped, `test:integration:db` fails fast with the "run `npx supabase start` first" message
-- [ ] 1.6 Destructive-op guard aborts on a non-local DB host
-- [ ] 1.7 No `service_role` key appears in test output/logs
+- [x] 1.5 With Supabase stopped, `test:integration:db` fails fast with the "run `npx supabase start` first" message
+- [x] 1.6 Destructive-op guard aborts on a non-local DB host
+- [x] 1.7 No `service_role` key appears in test output/logs
 
 ### Phase 2: RLS / IDOR Cross-Account Matrix + guest_conflicts DB-Check
 

@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   test: {
     environment: "node",
+    // Unit lane is src-colocated only; keeps test/integration/** (real Supabase) out of the fast run.
+    include: ["src/**/*.test.ts"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },

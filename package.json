@@ -10,6 +10,8 @@
     "astro": "astro",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:db": "vitest run --config vitest.integration.config.ts test/integration/db",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

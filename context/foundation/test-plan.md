@@ -178,7 +178,13 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 ### 6.2 Adding an integration test (service / DB)
 
-- TBD — see §3 Phase 2 and Phase 3 (local-Supabase two-user RLS/IDOR pattern; assignment invariant and atomic resize post-state assertions).
+- **Prerequisite**: a local Supabase must be running — `npx supabase start` (Docker). The harness fails fast with that message if it is not, and before any destructive step it guards that the DB host is local (`127.0.0.1`/`localhost`/`::1`), so a mis-targeted reset can never hit a remote database.
+- **Config & runner**: a second Vitest config, `vitest.integration.config.ts` (separate from the Astro-free `vitest.config.ts` so the fast unit lane never touches Supabase). It wires a `globalSetup`, runs specs single-fork with `fileParallelism: false` (one shared local DB), and replicates the `@/*` alias. It boots no Astro/Cloudflare — specs never import `src/lib/supabase.ts` (its `astro:env/server` import cannot resolve here).
+- **Two lanes**: `npm run test:integration:db` runs only the direct-Postgres specs (`test/integration/db/**`) and needs just local Supabase; `npm run test:integration` runs everything, including the HTTP contract layer (§6.3, needs `npm run preview` too). The fast unit lane (`npm run test:run`) is unchanged.
+- **Seed & sessions** (`test/integration/global-setup.ts`): reads connection details from `supabase status -o json` (never from committed env), runs `db reset`, then programmatically seeds two users A and B — each an Auth-admin-created, pre-confirmed account (`enable_confirmations = false`) with a full owner-owned graph (wedding → table+seats via the RPC → guests → a canonical `guest_conflicts` pair → an assignment). It signs both in to mint real JWTs and exposes connection + per-user credentials/ids to specs via Vitest `provide`/`inject`.
+- **Seam & clients** (`test/integration/fixtures.ts`): specs build `@supabase/supabase-js` clients directly — `createUserClient(accessToken)` for a real per-user session (production-faithful `authenticated` role), an anon client, and `createServiceClient()` for setup/teardown only.
+- **Oracle discipline** (load-bearing): every RLS/IDOR assertion runs under a real user or anon JWT; the `service_role` client (`BYPASSRLS`) may appear only in seed/teardown and the harness smoke self-check — never in a security `expect()`. Assert on SQLSTATE (`42501`/`23514`/`23505`) and row-count / post-state, never on copied message strings.
+- **Reference**: `test/integration/db/smoke.test.ts` (two JWT sessions + the service-role self-check).
 
 ### 6.3 Adding a test for a new API endpoint
 
