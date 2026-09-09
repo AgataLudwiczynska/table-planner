@@ -356,12 +356,12 @@ None — this phase ships no migration.
 
 #### Automated
 
-- [x] 3.1 All contract specs pass against a running preview (`npm run test:integration`)
-- [x] 3.2 Fast unit run still unaffected (`npm run test:run`)
-- [x] 3.3 Lint passes (`npm run lint`)
+- [x] 3.1 All contract specs pass against a running preview (`npm run test:integration`) — 9f107e2
+- [x] 3.2 Fast unit run still unaffected (`npm run test:run`) — 9f107e2
+- [x] 3.3 Lint passes (`npm run lint`) — 9f107e2
 
 #### Manual
 
-- [x] 3.4 With preview stopped, the HTTP suite fails fast with the "run `npm run build && npm run preview` first" message
-- [x] 3.5 Spot-check one error body confirms no guest PII / input echo
-- [x] 3.6 Rebuild-before-run footgun documented in cookbook + readiness message
+- [x] 3.4 With preview stopped, the HTTP suite fails fast with the "run `npm run build && npm run preview` first" message — 9f107e2
+- [x] 3.5 Spot-check one error body confirms no guest PII / input echo — 9f107e2
+- [x] 3.6 Rebuild-before-run footgun documented in cookbook + readiness message — 9f107e2
