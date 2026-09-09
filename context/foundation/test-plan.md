@@ -188,7 +188,13 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 ### 6.3 Adding a test for a new API endpoint
 
-- TBD — see §3 Phase 2 (contract test: hostile/malformed payload → clean 4xx, no partial write, no PII in error body).
+- **Prerequisite (developer-owned)**: the built preview server must be running — `npm run build && npm run preview` (workerd, prod-faithful). The HTTP harness fails fast with that message if it is unreachable. A **stale build silently tests old code** — always rebuild before an integration run.
+- **Env coupling**: preview reads `SUPABASE_URL`/`SUPABASE_KEY` from `.dev.vars`; both must point at the **same local Supabase** (`127.0.0.1:54321`) that `globalSetup` reset+seeds. If they diverge, signin fails with a confusing auth error (the seeded users don't exist in the other store), not the readiness message.
+- **Run command**: `npm run test:integration` (the full lane — runs the direct-Postgres specs _and_ the HTTP contract layer, so it can never report green while skipping the security tests). `npm run test:integration:db` skips the HTTP layer (no preview needed) for a fast inner loop.
+- **Seam & auth** (`test/integration/http/http-client.ts`): real `fetch` against the preview base URL with a cookie jar. `signIn(email, password)` posts to the form endpoint and captures the Supabase session cookies; `authedFetch(jar, path, init)` replays them. Address endpoints via `ROUTES.*`, not path literals.
+- **Oracle discipline** (load-bearing): assert on HTTP **status + error `code`**, never the copied Polish message string (oracle problem). For "no partial write", re-read the target scope with `createServiceClient()` and assert row counts. For IDOR-via-payload the code is deliberately **not** pinned (a foreign seat → `seat_not_found` 404, a foreign guest → `invalid_guest` 400) — assert a 4xx-class status plus nothing written.
+- **No data echo**: error bodies carry only the static catalog `{ code, message }` — a spec sends a recognizable value in the payload and asserts the raw body does not contain it (no guest personal data leaks through the error path).
+- **Reference**: `test/integration/http/api-validation.test.ts` (malformed → 4xx), `api-idor.test.ts` (404 path + `wedding_id` ignored), `api-error-body.test.ts` (no input echo).
 
 ### 6.4 Adding an e2e test
 

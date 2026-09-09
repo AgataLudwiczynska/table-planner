@@ -342,26 +342,26 @@ None — this phase ships no migration.
 
 #### Automated
 
-- [x] 2.1 All RLS/IDOR specs pass (`npm run test:integration:db`)
-- [x] 2.2 `guest_conflicts` `(B,A)` insert raises `23514` (asserted) (`npm run test:integration:db`)
-- [x] 2.3 Lint passes (`npm run lint`)
+- [x] 2.1 All RLS/IDOR specs pass (`npm run test:integration:db`) — 4bf4be7
+- [x] 2.2 `guest_conflicts` `(B,A)` insert raises `23514` (asserted) (`npm run test:integration:db`) — 4bf4be7
+- [x] 2.3 Lint passes (`npm run lint`) — 4bf4be7
 
 #### Manual
 
-- [x] 2.4 Matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed vs research crib sheet)
-- [x] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` + membership-check (F7) follow-ups recorded
-- [x] 2.6 Tests isolated within a run — after write/DB-check specs, a baseline/SELECT-isolation check sees only seed rows (per-spec cleanup proven); two consecutive runs also identical
+- [x] 2.4 Matrix covers all six tables for SELECT-isolation and anon-denial, incl. a positive control (each user sees its own seeded rows while the other sees 0) (reviewed vs research crib sheet) — 4bf4be7
+- [x] 2.5 F9 flipped to DONE; new `guest_conflicts.wedding_id` + membership-check (F7) follow-ups recorded — 4bf4be7
+- [x] 2.6 Tests isolated within a run — after write/DB-check specs, a baseline/SELECT-isolation check sees only seed rows (per-spec cleanup proven); two consecutive runs also identical — 4bf4be7
 
 ### Phase 3: API Payload Contract Tests (Risk #5)
 
 #### Automated
 
-- [ ] 3.1 All contract specs pass against a running preview (`npm run test:integration`)
-- [ ] 3.2 Fast unit run still unaffected (`npm run test:run`)
-- [ ] 3.3 Lint passes (`npm run lint`)
+- [x] 3.1 All contract specs pass against a running preview (`npm run test:integration`)
+- [x] 3.2 Fast unit run still unaffected (`npm run test:run`)
+- [x] 3.3 Lint passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 3.4 With preview stopped, the HTTP suite fails fast with the "run `npm run build && npm run preview` first" message
-- [ ] 3.5 Spot-check one error body confirms no guest PII / input echo
-- [ ] 3.6 Rebuild-before-run footgun documented in cookbook + readiness message
+- [x] 3.4 With preview stopped, the HTTP suite fails fast with the "run `npm run build && npm run preview` first" message
+- [x] 3.5 Spot-check one error body confirms no guest PII / input echo
+- [x] 3.6 Rebuild-before-run footgun documented in cookbook + readiness message
