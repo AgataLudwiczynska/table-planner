@@ -319,6 +319,29 @@ None — this phase ships no migration.
 - Reference unit test (oracle discipline): `src/lib/adjacency.test.ts`
 - `db reset` never fails on a missing seed (WARN-only, exit 0) — CLI source `GetPendingSeeds`: `https://github.com/supabase/cli/blob/develop/apps/cli-go/pkg/migration/seed.go`; reset docs: `https://github.com/supabase/cli/blob/develop/apps/cli/docs/supabase/db/reset.md` (via Context7, verified 2026-09-03)
 
+## Implementation Addendum (deviations from plan)
+
+Recorded after the full-plan impl review (2026-09-10). The diff touched four
+things not listed in any phase's "Changes Required"; they fall into two kinds:
+
+**Harness structure — not listed, but within the phase's intent:**
+
+- `test/integration/seed.ts` and `test/integration/supabase-status.ts` — the
+  programmatic seed and the `supabase status -o json` parsing + local-host guard
+  were split out of `global-setup.ts` into their own modules (the plan folded
+  both into `global-setup.ts`). Decomposition only; no behaviour change.
+- `vitest.config.ts` — added `include: ["src/**/*.test.ts"]`. The plan called the
+  unit lane "untouched"; this line is required to keep `test/integration/**` out
+  of the default unit glob, so it preserves the "fast unit run stays Astro-free /
+  Supabase-free" intent rather than changing it.
+
+**Process artifact — emerged during implementation, not a planned file change:**
+
+- `context/foundation/lessons.md` — appended the "Small, single-purpose files;
+  export only what's used" lesson, which surfaced while decomposing the harness
+  above. Captured as a recurring project rule, not part of this phase's test
+  deliverable.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

@@ -1,9 +1,9 @@
 ---
 change_id: testing-api-rls-integration
 title: API + RLS integration tests (test-plan Phase 2)
-status: implemented
+status: impl_reviewed
 created: 2026-08-30
-updated: 2026-09-09
+updated: 2026-09-10
 archived_at: null
 ---
 
