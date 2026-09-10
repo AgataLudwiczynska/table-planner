@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx eslint --fix . --quiet  1>&2 || exit 2",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -50,3 +50,10 @@
 - **Problem**: S-02's migration was merged but never applied to prod, because no plan/phase owned the prod apply — prod schema silently drifted behind the deployed code.
 - **Rule**: Every plan carrying a migration must include an explicit prod-apply step; reviews flag its absence. How-to: `docs/reference/deploy-runbook.md`.
 - **Applies to**: plan, plan-review
+
+## Small, single-purpose files; export only what's used
+
+- **Context**: Any new or edited source file under `src/` — services, helpers, types, API routes.
+- **Problem**: Large files that mix unrelated functions with type definitions and cross-cutting concerns hurt readability, testability, and reuse; over-exporting every symbol widens the module's public API surface and hides which functions are actually dead code.
+- **Rule**: Build small, single-responsibility files with one clear role — don't mix unrelated functions and types in one file. Export only the symbols actually consumed by other files; keep everything else module-private.
+- **Applies to**: plan, implement, impl-review
