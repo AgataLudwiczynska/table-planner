@@ -3,7 +3,7 @@ project: TablePlanner
 version: 1
 status: draft
 created: 2026-08-09
-updated: 2026-08-24
+updated: 2026-09-04
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -35,7 +35,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | S-01  | `wedding-shell-with-tables`                     | zalogować się, mieć wesele z nazwą, dodać okrągły stół z auto-generowanymi miejscami         | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007         | done |
 | S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01, S-01    | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | done |
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | done |
-| S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | proposed |
+| S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | planning |
 | S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | proposed |
 
 ## Streams
@@ -127,7 +127,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Atomowość operacji (zmiana `seat_count` + unassign gości z zwalnianych miejsc + rekalkulacja naruszeń konfliktów) w jednej transakcji vs. wielu żądaniach — łatwo o niespójny stan przy błędzie sieci lub gońcu klienta. Mitygacja: cała operacja jako pojedynczy endpoint / Postgres function z transakcją, klient dostaje tylko wynik atomowy. Test acceptance: sekwencja „zmniejsz z 10 do 5 przy 7 przypisanych → potwierdź → zweryfikuj stan wesela w DB" — dokładnie 5 miejsc, 2 gości wolnych, 0 powiązanych naruszeń.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-05: Operator śledzi postęp i wraca do stanu po wylogowaniu
 
