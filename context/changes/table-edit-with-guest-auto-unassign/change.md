@@ -1,9 +1,9 @@
 ---
 change_id: table-edit-with-guest-auto-unassign
 title: Table edit with guest auto unassign
-status: plan_reviewed
+status: implementing
 created: 2026-09-04
-updated: 2026-09-06
+updated: 2026-09-11
 archived_at: null
 ---
 

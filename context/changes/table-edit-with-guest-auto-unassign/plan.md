@@ -274,15 +274,15 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 
 #### Automated
 
-- [ ] 1.1 Migration applies cleanly against local Supabase (`npx supabase db reset`/`db push`)
-- [ ] 1.2 Types regenerate cleanly (`npm run db:types`; review `git diff` of `src/db/database.types.ts`)
-- [ ] 1.3 Type checking passes (`npx astro check`)
-- [ ] 1.4 Linting passes (`npm run lint`)
+- [x] 1.1 Migration applies cleanly against local Supabase (`npx supabase db reset`/`db push`)
+- [x] 1.2 Types regenerate cleanly (`npm run db:types`; review `git diff` of `src/db/database.types.ts`)
+- [x] 1.3 Type checking passes (`npx astro check`)
+- [x] 1.4 Linting passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 1.5 RPC shrinks/grows and returns freed guest ids as owner; raises `42501` as non-owner; raises `22023` for seat_count 0/31
-- [ ] 1.6 `anon` cannot execute the RPC (revoke/grant verified)
+- [x] 1.5 RPC shrinks/grows and returns freed guest ids as owner; raises `42501` as non-owner; raises `22023` for seat_count 0/31
+- [x] 1.6 `anon` cannot execute the RPC (revoke/grant verified)
 
 ### Phase 2: Backend — service, types, API endpoints
 
