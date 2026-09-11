@@ -274,29 +274,29 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly against local Supabase (`npx supabase db reset`/`db push`)
-- [x] 1.2 Types regenerate cleanly (`npm run db:types`; review `git diff` of `src/db/database.types.ts`)
-- [x] 1.3 Type checking passes (`npx astro check`)
-- [x] 1.4 Linting passes (`npm run lint`)
+- [x] 1.1 Migration applies cleanly against local Supabase (`npx supabase db reset`/`db push`) — 673c5d4
+- [x] 1.2 Types regenerate cleanly (`npm run db:types`; review `git diff` of `src/db/database.types.ts`) — 673c5d4
+- [x] 1.3 Type checking passes (`npx astro check`) — 673c5d4
+- [x] 1.4 Linting passes (`npm run lint`) — 673c5d4
 
 #### Manual
 
-- [x] 1.5 RPC shrinks/grows and returns freed guest ids as owner; raises `42501` as non-owner; raises `22023` for seat_count 0/31
-- [x] 1.6 `anon` cannot execute the RPC (revoke/grant verified)
+- [x] 1.5 RPC shrinks/grows and returns freed guest ids as owner; raises `42501` as non-owner; raises `22023` for seat_count 0/31 — 673c5d4
+- [x] 1.6 `anon` cannot execute the RPC (revoke/grant verified) — 673c5d4
 
 ### Phase 2: Backend — service, types, API endpoints
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npx astro check`)
-- [ ] 2.2 Linting passes (`npm run lint`)
+- [x] 2.1 Type checking passes (`npx astro check`)
+- [x] 2.2 Linting passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 2.3 `PATCH /api/tables` renames+resizes, returns updated table + correct `unassignedGuestIds`
-- [ ] 2.4 `DELETE /api/tables` removes the table, returns freed ids
-- [ ] 2.5 Malformed body → clean 4xx, no partial write
-- [ ] 2.6 Cross-account `tableId` → 403/404, no mutation
+- [x] 2.3 `PATCH /api/tables` renames+resizes, returns updated table + correct `unassignedGuestIds`
+- [x] 2.4 `DELETE /api/tables` removes the table, returns freed ids
+- [x] 2.5 Malformed body → clean 4xx, no partial write
+- [x] 2.6 Cross-account `tableId` → 403/404, no mutation
 
 ### Phase 3: Frontend — edit/delete UI + confirmation dialogs
 
