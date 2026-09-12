@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-08-29 (Phase 1 complete)
+> Last updated: 2026-09-12 (Phase 2 complete)
 
 ## 1. Strategy
 
@@ -99,8 +99,8 @@ orchestrator updates Status as artifacts appear on disk.
 
 | #   | Phase name                              | Goal (one line)                                                                                                         | Risks covered                                 | Test types         | Status        | Change folder                                     |
 | --- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------ | ------------- | ------------------------------------------------- |
-| 1   | Bootstrap + adjacency core              | Stand up the runner; lock the guardrail so ring adjacency (wrap + 2-seat) and conflict-violation computation never miss | #1                                            | unit + integration | complete      | context/changes/testing-bootstrap-adjacency-core/ |
-| 2   | API + RLS integration                   | No cross-account leak; the server rejects hostile input cleanly                                                         | #3, #5 (+ #1 DB-check, deferred from Phase 1) | integration        | change opened | context/changes/testing-api-rls-integration/      |
+| 1   | Bootstrap + adjacency core              | Stand up the runner; lock the guardrail so ring adjacency (wrap + 2-seat) and conflict-violation computation never miss | #1                                            | unit + integration | complete      | context/archive/2026-08-25-testing-bootstrap-adjacency-core/ |
+| 2   | API + RLS integration                   | No cross-account leak; the server rejects hostile input cleanly                                                         | #3, #5 (+ #1 DB-check, deferred from Phase 1) | integration        | complete      | context/archive/2026-08-30-testing-api-rls-integration/      |
 | 3   | Assignment invariant + resize atomicity | Invariant always holds; S-04 resize/auto-unassign is atomic; state round-trips                                          | #2 (logic), #4, #6                            | integration        | not started   | —                                                 |
 | 4   | Critical-path e2e + quality gates       | One e2e proves the north-star flow including real drag-and-drop; wire lint + typecheck + tests as required CI gates     | #2 (pointer DnD)                              | e2e + gates        | not started   | —                                                 |
 

@@ -13,8 +13,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npx astro check` — standalone type-check (no `npm` script wired).
 - `npm test` — Vitest in watch/interactive mode.
 - `npm run test:run` — Vitest single-pass (for CI/agents).
+- `npm run test:integration:db` — integration specs needing only local Supabase (`test/integration/db/**`); start it first with `npx supabase start`.
+- `npm run test:integration` — full integration lane: the DB specs **plus** the HTTP contract layer, so it also needs `npm run build && npm run preview` (workerd) running against the same local Supabase.
 
 Test runner is Vitest with a standalone `vitest.config.ts` (`defineConfig` from `vitest/config`) that replicates only the `@/*` alias — no Astro/Cloudflare boot. Tests colocate as `src/**/*.test.ts`.
+
+Integration tests use a second config, `vitest.integration.config.ts`, run single-fork against one local Supabase (still no Astro/Cloudflare boot). Specs live under `test/integration/` — `db/**` (direct Postgres: RLS/IDOR, DB constraints) and `http/**` (API contract via the preview server). See `context/foundation/test-plan.md` §6.2/§6.3 for the full harness (two-user seed, fixtures, oracle discipline) before adding one.
 
 Pre-commit hooks: husky + lint-staged runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
 
