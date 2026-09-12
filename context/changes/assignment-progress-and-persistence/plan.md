@@ -306,12 +306,12 @@ provided by F-01/S-03.
 
 #### Automated
 
-- [x] 2.1 Existing suite still green: `npm run lint` and `npm run test:run`
+- [x] 2.1 Existing suite still green: `npm run lint` and `npm run test:run` — a50b674
 
 #### Manual
 
-- [x] 2.2 Seed wedding (≥2 tables, several guests, ≥1 conflict, several assignments incl. a seated conflicting pair); record N/M, K, layout
-- [x] 2.3 Log out and log back in as the same operator
-- [x] 2.4 After login: same N/M, each guest on the same seat
-- [x] 2.5 After login: same K conflicts and same flagged violations
-- [x] 2.6 After login: all tables unchanged (names, seat counts, seat numbering)
+- [x] 2.2 Seed wedding (≥2 tables, several guests, ≥1 conflict, several assignments incl. a seated conflicting pair); record N/M, K, layout — a50b674
+- [x] 2.3 Log out and log back in as the same operator — a50b674
+- [x] 2.4 After login: same N/M, each guest on the same seat — a50b674
+- [x] 2.5 After login: same K conflicts and same flagged violations — a50b674
+- [x] 2.6 After login: all tables unchanged (names, seat counts, seat numbering) — a50b674
