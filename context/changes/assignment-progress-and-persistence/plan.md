@@ -289,18 +289,18 @@ provided by F-01/S-03.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm run test:run`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Production build succeeds: `npm run build`
+- [x] 1.1 Unit tests pass: `npm run test:run` — faeb6e7
+- [x] 1.2 Type checking passes: `npx astro check` — faeb6e7
+- [x] 1.3 Linting passes: `npm run lint` — faeb6e7
+- [x] 1.4 Production build succeeds: `npm run build` — faeb6e7
 
 #### Manual
 
-- [x] 1.5 Counter visible in the header on all four tabs
-- [x] 1.6 N tracks assign / unassign / table shrink+delete; M tracks guest add / delete
-- [x] 1.7 With no guests the counter reads "0 / 0"
-- [x] 1.8 Counter emphasised when N === M and M > 0; not emphasised at "0 / 0"
-- [x] 1.9 Seating a conflicting pair still counts toward N while violations list grows separately
+- [x] 1.5 Counter visible in the header on all four tabs — faeb6e7
+- [x] 1.6 N tracks assign / unassign / table shrink+delete; M tracks guest add / delete — faeb6e7
+- [x] 1.7 With no guests the counter reads "0 / 0" — faeb6e7
+- [x] 1.8 Counter emphasised when N === M and M > 0; not emphasised at "0 / 0" — faeb6e7
+- [x] 1.9 Seating a conflicting pair still counts toward N while violations list grows separately — faeb6e7
 
 ### Phase 2: Persistence Verification
 
