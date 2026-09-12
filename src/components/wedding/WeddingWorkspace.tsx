@@ -5,6 +5,7 @@ import { TablesTab } from "@/components/wedding/TablesTab";
 import { GuestsTab } from "@/components/wedding/GuestsTab";
 import { ConflictsTab } from "@/components/wedding/ConflictsTab";
 import { AssignmentBoard } from "@/components/wedding/AssignmentBoard";
+import { computeProgress } from "@/lib/assignment-progress";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Assignment, Conflict, Guest, Table, Wedding } from "@/types";
@@ -48,6 +49,8 @@ export default function WeddingWorkspace({
   const [guests, setGuests] = useState(initialGuests);
   const [conflicts, setConflicts] = useState(initialConflicts);
   const [assignments, setAssignments] = useState(initialAssignments);
+
+  const progress = computeProgress(guests, assignments);
 
   const [nameDraft, setNameDraft] = useState(initialWedding.name);
 
@@ -121,30 +124,41 @@ export default function WeddingWorkspace({
 
   return (
     <div>
-      <div>
-        <input
-          value={nameDraft}
-          onChange={(e) => {
-            setNameDraft(e.target.value);
-            if (rename.error) rename.setError(null);
-          }}
-          onBlur={() => {
-            void saveName();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              e.currentTarget.blur();
-            }
-          }}
-          disabled={rename.pending}
-          aria-label="Nazwa wesela"
+      <div className="flex items-baseline justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <input
+            value={nameDraft}
+            onChange={(e) => {
+              setNameDraft(e.target.value);
+              if (rename.error) rename.setError(null);
+            }}
+            onBlur={() => {
+              void saveName();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            }}
+            disabled={rename.pending}
+            aria-label="Nazwa wesela"
+            className={cn(
+              "w-full bg-transparent text-3xl font-bold text-rose-600 caret-rose-500 outline-none",
+              "border-b border-transparent transition-colors focus:border-rose-300 disabled:opacity-60",
+            )}
+          />
+          {rename.error ? <p className="mt-1 text-sm text-red-600">{rename.error}</p> : null}
+        </div>
+        <p
+          aria-live="polite"
           className={cn(
-            "w-full bg-transparent text-3xl font-bold text-rose-600 caret-rose-500 outline-none",
-            "border-b border-transparent transition-colors focus:border-rose-300 disabled:opacity-60",
+            "shrink-0 text-sm tabular-nums",
+            progress.isComplete ? "font-semibold text-emerald-600" : "font-medium text-slate-500",
           )}
-        />
-        {rename.error ? <p className="mt-1 text-sm text-red-600">{rename.error}</p> : null}
+        >
+          {progress.assigned} / {progress.total} gości przypisanych
+        </p>
       </div>
 
       <div className="mt-6 flex gap-1 border-b border-rose-100" role="tablist">
