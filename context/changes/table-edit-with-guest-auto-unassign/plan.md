@@ -323,6 +323,6 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 
 #### Manual
 
-- [ ] R.1 Migration applied to prod per `docs/reference/deploy-runbook.md`; RPC verified present in prod
+- [x] R.1 Migration applied to prod per `docs/reference/deploy-runbook.md`; RPC verified present in prod — 2026-09-12
 - [x] R.2 Mark follow-up **F5** DONE in `context/foundation/follow-ups.md` with this slice's commit — 74174bb
 - [x] R.3 Mark follow-up **F1**'s S-04 DB-guard portion DONE in `context/foundation/follow-ups.md` with this slice's commit (the `22023` seat_count guard in the resize RPC) — 673c5d4
