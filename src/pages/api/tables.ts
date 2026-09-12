@@ -4,21 +4,22 @@ import { createClient } from "@/lib/supabase";
 import { apiError, apiErrorFrom, apiFailure, apiSuccess } from "@/lib/api";
 import { getWedding } from "@/lib/services/wedding.service";
 import { createTable, deleteTable, updateTable } from "@/lib/services/table.service";
+import { SEATS_MAX, SEATS_MIN, TABLE_NAME_MAX_LENGTH } from "@/lib/table-constraints";
 
 export const prerender = false;
 
-// seatCount ceiling (30) closes F-01 follow-up F1 at the API layer.
+// seatCount ceiling closes F-01 follow-up F1 at the API layer; limits shared with the form via table-constraints.
 const createTableSchema = z.object({
   name: z
     .string()
     .trim()
     .min(1, "Nazwa stołu nie może być pusta.")
-    .max(50, "Nazwa stołu jest za długa (maks. 50 znaków)."),
+    .max(TABLE_NAME_MAX_LENGTH, `Nazwa stołu jest za długa (maks. ${String(TABLE_NAME_MAX_LENGTH)} znaków).`),
   seatCount: z
     .number({ error: "Liczba miejsc musi być liczbą." })
     .int("Liczba miejsc musi być liczbą całkowitą.")
-    .min(1, "Liczba miejsc musi być co najmniej 1.")
-    .max(30, "Liczba miejsc nie może przekraczać 30."),
+    .min(SEATS_MIN, `Liczba miejsc musi być co najmniej ${String(SEATS_MIN)}.`)
+    .max(SEATS_MAX, `Liczba miejsc nie może przekraczać ${String(SEATS_MAX)}.`),
 });
 
 const updateTableSchema = createTableSchema.extend({

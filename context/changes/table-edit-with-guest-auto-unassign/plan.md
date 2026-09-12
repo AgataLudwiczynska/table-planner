@@ -288,32 +288,32 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 
 #### Automated
 
-- [x] 2.1 Type checking passes (`npx astro check`)
-- [x] 2.2 Linting passes (`npm run lint`)
+- [x] 2.1 Type checking passes (`npx astro check`) — 65cfac4
+- [x] 2.2 Linting passes (`npm run lint`) — 65cfac4
 
 #### Manual
 
-- [x] 2.3 `PATCH /api/tables` renames+resizes, returns updated table + correct `unassignedGuestIds`
-- [x] 2.4 `DELETE /api/tables` removes the table, returns freed ids
-- [x] 2.5 Malformed body → clean 4xx, no partial write
-- [x] 2.6 Cross-account `tableId` → 403/404, no mutation
+- [x] 2.3 `PATCH /api/tables` renames+resizes, returns updated table + correct `unassignedGuestIds` — 65cfac4
+- [x] 2.4 `DELETE /api/tables` removes the table, returns freed ids — 65cfac4
+- [x] 2.5 Malformed body → clean 4xx, no partial write — 65cfac4
+- [x] 2.6 Cross-account `tableId` → 403/404, no mutation — 65cfac4
 
 ### Phase 3: Frontend — edit/delete UI + confirmation dialogs
 
 #### Automated
 
-- [ ] 3.1 Type checking passes (`npx astro check`)
-- [ ] 3.2 Linting passes incl. React Compiler rule (`npm run lint`)
-- [ ] 3.3 Existing unit suite green (`npm run test:run`)
+- [x] 3.1 Type checking passes (`npx astro check`)
+- [x] 3.2 Linting passes incl. React Compiler rule (`npm run lint`)
+- [x] 3.3 Existing unit suite green (`npm run test:run`)
 
 #### Manual
 
-- [ ] 3.4 Roadmap acceptance test (10→5 at 7 assigned) passes end-to-end incl. DB state
-- [ ] 3.5 "Anuluj" leaves the table unchanged
-- [ ] 3.6 Grow and rename-only paths skip the dialog; every shrink shows the warning dialog
-- [ ] 3.7 Rename-only edit touches only the name
-- [ ] 3.8 Delete-with-guests returns them to the unassigned panel; no reload needed
-- [ ] 3.9 "Stoły" tab extracted to `TablesTab.tsx` with no behaviour change (F5 closed)
+- [x] 3.4 Roadmap acceptance test (10→5 at 7 assigned) passes end-to-end incl. DB state
+- [x] 3.5 "Anuluj" leaves the table unchanged
+- [x] 3.6 Grow and rename-only paths skip the dialog; every shrink shows the warning dialog
+- [x] 3.7 Rename-only edit touches only the name
+- [x] 3.8 Delete-with-guests returns them to the unassigned panel; no reload needed
+- [x] 3.9 "Stoły" tab extracted to `TablesTab.tsx` with no behaviour change (F5 closed)
 
 ### Release
 

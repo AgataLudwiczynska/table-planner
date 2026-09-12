@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
-import { FormField, type FormFieldTheme } from "@/components/ui/FormField";
-import { ServerError } from "@/components/ui/ServerError";
+import { type FormFieldTheme } from "@/components/ui/FormField";
 import { useApiMutation } from "@/components/hooks/useApiMutation";
+import { TablesTab } from "@/components/wedding/TablesTab";
 import { GuestsTab } from "@/components/wedding/GuestsTab";
 import { ConflictsTab } from "@/components/wedding/ConflictsTab";
 import { AssignmentBoard } from "@/components/wedding/AssignmentBoard";
@@ -18,10 +17,6 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "conflicts", label: "Konflikty" },
   { key: "seating", label: "Rozsadzanie" },
 ];
-
-const MAX_TABLE_NAME = 50;
-const MIN_SEATS = 1;
-const MAX_SEATS = 30;
 
 // Light wedding palette (bg-wedding background), injected into the shared FormField.
 const fieldTheme: FormFieldTheme = {
@@ -40,10 +35,6 @@ interface Props {
   initialAssignments?: Assignment[];
 }
 
-function seatLabel(count: number) {
-  return count === 1 ? "miejsce" : "miejsc";
-}
-
 export default function WeddingWorkspace({
   initialWedding,
   initialTables,
@@ -59,12 +50,8 @@ export default function WeddingWorkspace({
   const [assignments, setAssignments] = useState(initialAssignments);
 
   const [nameDraft, setNameDraft] = useState(initialWedding.name);
-  const [tableName, setTableName] = useState("");
-  const [seatCount, setSeatCount] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{ name?: string; seatCount?: string }>({});
 
   const rename = useApiMutation<Wedding>("Nie udało się zapisać nazwy.");
-  const createTable = useApiMutation<Table>("Nie udało się dodać stołu.");
 
   async function saveName() {
     if (rename.pending) return;
@@ -87,33 +74,23 @@ export default function WeddingWorkspace({
     setNameDraft(data.name);
   }
 
-  async function addTable() {
-    const trimmed = tableName.trim();
-    const seats = Number(seatCount);
-    const errors: { name?: string; seatCount?: string } = {};
-    if (!trimmed) {
-      errors.name = "Podaj nazwę stołu.";
-    } else if (trimmed.length > MAX_TABLE_NAME) {
-      errors.name = `Nazwa może mieć maksymalnie ${String(MAX_TABLE_NAME)} znaków.`;
+  function onTableCreated(table: Table) {
+    setTables((prev) => [...prev, table]);
+  }
+  // Resize: swap the table (new seats) and drop assignments freed by a shrink so guests reappear + violations recompute.
+  function onTableUpdated(table: Table, unassignedGuestIds: string[]) {
+    setTables((prev) => prev.map((t) => (t.id === table.id ? table : t)));
+    if (unassignedGuestIds.length > 0) {
+      const freed = new Set(unassignedGuestIds);
+      setAssignments((prev) => prev.filter((a) => !freed.has(a.guestId)));
     }
-    if (!seatCount.trim() || !Number.isInteger(seats)) {
-      errors.seatCount = "Podaj liczbę miejsc.";
-    } else if (seats < MIN_SEATS || seats > MAX_SEATS) {
-      errors.seatCount = `Liczba miejsc musi być od ${String(MIN_SEATS)} do ${String(MAX_SEATS)}.`;
+  }
+  function onTableDeleted(tableId: string, unassignedGuestIds: string[]) {
+    setTables((prev) => prev.filter((t) => t.id !== tableId));
+    if (unassignedGuestIds.length > 0) {
+      const freed = new Set(unassignedGuestIds);
+      setAssignments((prev) => prev.filter((a) => !freed.has(a.guestId)));
     }
-    setFieldErrors(errors);
-    createTable.setError(null);
-    if (Object.keys(errors).length > 0) return;
-
-    const data = await createTable.run({
-      url: ROUTES.apiTables,
-      method: "POST",
-      body: { name: trimmed, seatCount: seats },
-    });
-    if (!data) return;
-    setTables((prev) => [...prev, data]);
-    setTableName("");
-    setSeatCount("");
   }
 
   function onGuestCreated(guest: Guest) {
@@ -194,73 +171,15 @@ export default function WeddingWorkspace({
 
       {activeTab === "tables" && (
         <div className="mx-auto mt-6 max-w-2xl">
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-slate-700">Dodaj stół</h2>
-            <form
-              noValidate
-              onSubmit={(e) => {
-                e.preventDefault();
-                void addTable();
-              }}
-              className="space-y-4 rounded-xl border border-rose-100 bg-white/70 p-4"
-            >
-              <FormField
-                {...fieldTheme}
-                id="tableName"
-                label="Nazwa stołu"
-                value={tableName}
-                onChange={(v) => {
-                  setTableName(v);
-                  if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
-                }}
-                placeholder="np. Stół 1"
-                error={fieldErrors.name}
-              />
-              <FormField
-                {...fieldTheme}
-                id="seatCount"
-                type="number"
-                label={`Liczba miejsc (${String(MIN_SEATS)}–${String(MAX_SEATS)})`}
-                value={seatCount}
-                onChange={(v) => {
-                  setSeatCount(v);
-                  if (fieldErrors.seatCount) setFieldErrors((prev) => ({ ...prev, seatCount: undefined }));
-                }}
-                placeholder="np. 10"
-                error={fieldErrors.seatCount}
-              />
-              <ServerError message={createTable.error} className={serverErrorClass} />
-              <button
-                type="submit"
-                disabled={createTable.pending}
-                className="inline-flex items-center gap-2 rounded-lg bg-rose-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-600 disabled:opacity-50"
-              >
-                <Plus className="size-4" />
-                {createTable.pending ? "Dodawanie..." : "Dodaj stół"}
-              </button>
-            </form>
-          </section>
-
-          <section className="mt-8">
-            <h2 className="mb-3 text-lg font-semibold text-slate-700">Stoły</h2>
-            {tables.length === 0 ? (
-              <p className="text-sm text-slate-500">Nie dodano jeszcze żadnych stołów.</p>
-            ) : (
-              <ul className="space-y-2">
-                {tables.map((table) => (
-                  <li
-                    key={table.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3"
-                  >
-                    <span className="font-medium text-slate-800">{table.name}</span>
-                    <span className="text-sm text-slate-500">
-                      {table.seatCount} {seatLabel(table.seatCount)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          <TablesTab
+            fieldTheme={fieldTheme}
+            serverErrorClass={serverErrorClass}
+            tables={tables}
+            assignments={assignments}
+            onTableCreated={onTableCreated}
+            onTableUpdated={onTableUpdated}
+            onTableDeleted={onTableDeleted}
+          />
         </div>
       )}
 
