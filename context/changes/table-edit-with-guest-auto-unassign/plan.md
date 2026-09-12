@@ -266,6 +266,10 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 - Inline-edit UI precedent: `src/components/wedding/GuestsTab.tsx:66-112`
 - Follow-up F5 (extract TablesTab): `context/foundation/follow-ups.md`; `context/changes/guest-and-conflict-management/follow-ups/extract-tables-tab.md`
 
+## Post-Implementation Addenda
+
+- **Dialog primitive (Phase 3 step 2):** Instead of installing the full shadcn `alert-dialog` kit as `src/components/ui/alert-dialog.tsx`, the implementation hand-wrote a single purpose-built `ConfirmDialog` over `@radix-ui/react-alert-dialog` (`src/components/ui/confirm-dialog.tsx`). Same Radix dependency as planned; the wrapper exposes exactly the title/description/Anuluj/action surface the shrink-warning and delete-confirm dialogs need. Aligned with the "minimal purpose-built wrapper over the shadcn flat kit" preference. (impl-review F1, 2026-09-12)
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -320,5 +324,5 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 #### Manual
 
 - [ ] R.1 Migration applied to prod per `docs/reference/deploy-runbook.md`; RPC verified present in prod
-- [ ] R.2 Mark follow-up **F5** DONE in `context/foundation/follow-ups.md` with this slice's commit
-- [ ] R.3 Mark follow-up **F1**'s S-04 DB-guard portion DONE in `context/foundation/follow-ups.md` with this slice's commit (the `22023` seat_count guard in the resize RPC)
+- [x] R.2 Mark follow-up **F5** DONE in `context/foundation/follow-ups.md` with this slice's commit — 74174bb
+- [x] R.3 Mark follow-up **F1**'s S-04 DB-guard portion DONE in `context/foundation/follow-ups.md` with this slice's commit (the `22023` seat_count guard in the resize RPC) — 673c5d4

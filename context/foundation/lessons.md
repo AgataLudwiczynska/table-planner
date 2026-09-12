@@ -57,3 +57,17 @@
 - **Problem**: Large files that mix unrelated functions with type definitions and cross-cutting concerns hurt readability, testability, and reuse; over-exporting every symbol widens the module's public API surface and hides which functions are actually dead code.
 - **Rule**: Build small, single-responsibility files with one clear role — don't mix unrelated functions and types in one file. Export only the symbols actually consumed by other files; keep everything else module-private.
 - **Applies to**: plan, implement, impl-review
+
+## Prefer a minimal purpose-built wrapper over the full shadcn kit for few-use UI primitives
+
+- **Context**: Adding a shadcn/ui primitive for a small, well-defined need (e.g. a confirm dialog) in `src/components/ui/` — S-04 added `confirm-dialog.tsx` over `@radix-ui/react-alert-dialog` instead of the full `alert-dialog` kit.
+- **Problem**: `npx shadcn add <x>` drops a flat multi-export kit (Trigger/Portal/Overlay/Content/Header/Footer/Title/Description/Action/Cancel) even when only a couple are used, widening the module surface with dead exports and boilerplate for a primitive used in one or two places.
+- **Rule**: For a few-use UI primitive, hand-write one minimal wrapper over the underlying Radix dependency that exposes only the props the call sites need, rather than installing shadcn's full kit. Discuss the wrapper's shape first; hoist shared constants (labels, class bases) inside it.
+- **Applies to**: plan, implement, impl-review
+
+## Share validation limits via one constants module (client + server + DB)
+
+- **Context**: A value bound (seat count 1–30, name ≤ 50) enforced in more than one layer — S-04 added `src/lib/table-constraints.ts` consumed by the API zod schema (`api/tables.ts`) and the form (`TablesTab.tsx`), mirrored by the DB RPC.
+- **Problem**: Duplicating a numeric/length limit as literals across the zod schema, the form validation, and the DB guard lets the three drift apart silently — a bound changed in one place but not the others still type-checks and ships an inconsistent contract.
+- **Rule**: Keep shared validation bounds in a single small constants module (e.g. `src/lib/*-constraints.ts`) and import them into every TS layer; keep the DB-side guard in sync deliberately (it can't import the TS module) and say so in the module's comment.
+- **Applies to**: plan, implement, impl-review
