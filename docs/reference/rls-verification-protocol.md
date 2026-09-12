@@ -57,3 +57,21 @@ Reuses `uuid_W_A` (user A's wedding), `uuid_T` (user A's table from step 2), and
 
 **As anon** (no auth — wrap in a transaction: `begin; set local role anon;` … `rollback;`):
 22. `select * from assignments;` → MUST raise `permission denied` (grants revoked from anon), not just 0 rows
+
+## S-04: update_table RPC (rename + resize)
+
+Reuses `uuid_W_A` (user A's wedding) and `uuid_T` (user A's table from step 2).
+No new RLS table ships here — only a SECURITY DEFINER RPC — so this covers the RPC's
+ownership guard + anon revoke, not table policies.
+
+**As user A** (impersonate A):
+23. `select update_table(uuid_T, 'A table', 12);` → returns `{}` (grow frees nobody); `select count(*) from seats where table_id = uuid_T` → 12
+
+**As user B** (switch impersonation to B):
+24. `select update_table(uuid_T, 'B hack', 5);` → MUST raise `not_owner` / `42501` (RPC ownership check); table unchanged
+
+**Out-of-range (as user A):**
+25. `select update_table(uuid_T, 'A table', 0);` and `select update_table(uuid_T, 'A table', 31);` → MUST raise `seat_count_out_of_range` / `22023`
+
+**As anon** (no auth — wrap in a transaction: `begin; set local role anon;` … `rollback;`):
+26. `select update_table(uuid_T, 'x', 5);` → MUST raise `permission denied for function update_table` (execute revoked from anon)

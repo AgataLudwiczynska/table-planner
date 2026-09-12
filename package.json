@@ -26,6 +26,7 @@
     "@astrojs/sitemap": "^3.7.2",
     "@atlaskit/pragmatic-drag-and-drop": "3.0.0",
     "@eslint/config-helpers": "^0.6.0",
+    "@radix-ui/react-alert-dialog": "^1.1.23",
     "@radix-ui/react-slot": "^1.1.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.99.1",

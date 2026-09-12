@@ -83,6 +83,18 @@ export interface CreateTableInput {
   seatCount: number;
 }
 
+/** Body of `PATCH /api/tables` (rename + resize; ownership enforced server-side). */
+export interface UpdateTableInput {
+  tableId: string;
+  name: string;
+  seatCount: number;
+}
+
+/** Body of `DELETE /api/tables` (ownership enforced server-side via RLS). */
+export interface DeleteTableInput {
+  tableId: string;
+}
+
 /** Body of `POST /api/guests` (wedding is resolved server-side). Empty side/group is `null`, never omitted. */
 export interface CreateGuestInput {
   firstName: string;

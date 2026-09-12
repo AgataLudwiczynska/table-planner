@@ -255,6 +255,10 @@ export type Database = {
         Args: { p_name: string; p_seat_count: number; p_wedding_id: string }
         Returns: string
       }
+      update_table: {
+        Args: { p_name: string; p_seat_count: number; p_table_id: string }
+        Returns: string[]
+      }
     }
     Enums: {
       [_ in never]: never
