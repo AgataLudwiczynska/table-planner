@@ -5,7 +5,7 @@
 ## What & Why
 
 Give the operator a fixed "N / M gości przypisanych" progress counter (N =
-assigned guests, M = total seats) that updates on every assignment, and confirm
+guests with a seat, M = total guests entered) that updates on every assignment, and confirm
 that the whole plan — assignments, conflicts, tables — comes back unchanged
 after logout/login. It closes the north-star loop: the operator can see how
 close they are to done and trust that their work is never lost between sessions
@@ -14,7 +14,7 @@ close they are to done and trust that their work is never lost between sessions
 ## Starting Point
 
 Everything the counter needs already lives in `WeddingWorkspace.tsx` central
-state (`tables`, `assignments`), and every mutation already updates it. State is
+state (`guests`, `assignments`), and every mutation already updates it. State is
 loaded server-side in `wedding.astro` on every post-login render, so persistence
 is already provided by the F-01/S-03 Postgres schema + RLS. There is no counter
 today, and no pure module for it.
@@ -50,11 +50,11 @@ counters, percentages, or "seats remaining"; coupling the counter to conflicts.
 
 ## Architecture / Approach
 
-Extract `computeProgress(tables, assignments) → { assigned, total, isComplete }`
+Extract `computeProgress(guests, assignments) → { assigned, total, isComplete }`
 into `src/lib/assignment-progress.ts`, unit-test it against hand-derived literals
 (node-only lane, `adjacency.test.ts` pattern), then render "N / M gości
 przypisanych" in the `WeddingWorkspace` header row above the tabs, wired to the
-existing `tables`/`assignments` state so it is reactive for free. Persistence is
+existing `guests`/`assignments` state so it is reactive for free. Persistence is
 pre-existing; a manual smoke confirms it.
 
 ## Phases at a Glance
