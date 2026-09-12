@@ -302,18 +302,18 @@ Negligible — single-wedding scale (≤150 guests). The RPC is one transaction 
 
 #### Automated
 
-- [x] 3.1 Type checking passes (`npx astro check`)
-- [x] 3.2 Linting passes incl. React Compiler rule (`npm run lint`)
-- [x] 3.3 Existing unit suite green (`npm run test:run`)
+- [x] 3.1 Type checking passes (`npx astro check`) — 74174bb
+- [x] 3.2 Linting passes incl. React Compiler rule (`npm run lint`) — 74174bb
+- [x] 3.3 Existing unit suite green (`npm run test:run`) — 74174bb
 
 #### Manual
 
-- [x] 3.4 Roadmap acceptance test (10→5 at 7 assigned) passes end-to-end incl. DB state
-- [x] 3.5 "Anuluj" leaves the table unchanged
-- [x] 3.6 Grow and rename-only paths skip the dialog; every shrink shows the warning dialog
-- [x] 3.7 Rename-only edit touches only the name
-- [x] 3.8 Delete-with-guests returns them to the unassigned panel; no reload needed
-- [x] 3.9 "Stoły" tab extracted to `TablesTab.tsx` with no behaviour change (F5 closed)
+- [x] 3.4 Roadmap acceptance test (10→5 at 7 assigned) passes end-to-end incl. DB state — 74174bb
+- [x] 3.5 "Anuluj" leaves the table unchanged — 74174bb
+- [x] 3.6 Grow and rename-only paths skip the dialog; every shrink shows the warning dialog — 74174bb
+- [x] 3.7 Rename-only edit touches only the name — 74174bb
+- [x] 3.8 Delete-with-guests returns them to the unassigned panel; no reload needed — 74174bb
+- [x] 3.9 "Stoły" tab extracted to `TablesTab.tsx` with no behaviour change (F5 closed) — 74174bb
 
 ### Release
 
