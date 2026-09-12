@@ -1,10 +1,10 @@
 ---
 change_id: assignment-progress-and-persistence
 title: Assignment progress counter and full-state persistence across logout
-status: impl_reviewed
+status: archived
 created: 2026-09-12
 updated: 2026-09-12
-archived_at: null
+archived_at: 2026-09-12T19:22:19Z
 ---
 
 ## Notes
