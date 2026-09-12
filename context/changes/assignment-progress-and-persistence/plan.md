@@ -2,8 +2,8 @@
 
 ## Overview
 
-Add an assignment-progress counter "N / M gości przypisanych" (N = assigned
-guests, M = total seats across all tables) to a fixed spot in the wedding
+Add an assignment-progress counter "N / M gości przypisanych" (N = guests with a
+seat, M = total guests entered into the system) to a fixed spot in the wedding
 workspace header, visible on every tab, and explicitly verify that the full
 plan state (assignments, conflicts, tables) survives a logout → login round
 trip. The counter is a pure derivation over state that already lives in
@@ -25,8 +25,8 @@ and one unit test, and closes the requirement with a manual persistence smoke.
 - The header region is the wedding-name `<div>` at
   `WeddingWorkspace.tsx:123-148`, sitting **above** the tab bar
   (`:150-170`) — the natural, always-visible home for the counter.
-- `src/types.ts`: `Table` (`:28-33`) carries both `seatCount` and `seats: Seat[]`
-  (M source); `Assignment` (`:36-40`) is one row per seated guest (N source).
+- `src/types.ts`: `Guest` (`:49-55`) is one row per guest entered (M source);
+  `Assignment` (`:36-40`) is one row per seated guest (N source).
 - No HTTP GET-state endpoint exists — the API routes under `src/pages/api/` are
   mutation-only; full state is only ever loaded in `wedding.astro`.
 - Test harness: `vitest.config.ts` unit lane is `environment: "node"` with **no
@@ -39,8 +39,8 @@ and one unit test, and closes the requirement with a manual persistence smoke.
 ## Desired End State
 
 The operator sees "N / M gości przypisanych" in a fixed header slot on all four
-tabs. It updates after every assignment, table edit, and guest delete. With no
-tables it reads "0 / 0". When every seat is filled (N === M and M > 0) it is
+tabs. It updates after every assignment, guest add/delete, and table edit. With no
+guests it reads "0 / 0". When every entered guest has a seat (N === M and M > 0) it is
 visually emphasised (the "150 / 150" completion moment from US-03). The count is
 **independent of conflict validation** — two conflicting guests seated adjacent
 still count toward N; the violations list grows separately. After logout and
@@ -55,8 +55,8 @@ N/M, conflicts, and tables.
 ### Key Discoveries:
 
 - Counter needs **no new data source, API, or fetch** — it is
-  `assignments.length` over `tables`-summed `seats.length`, both already in
-  `WeddingWorkspace` state (`WeddingWorkspace.tsx:47,50`).
+  `assignments.length` over `guests.length`, both already in
+  `WeddingWorkspace` state (`WeddingWorkspace.tsx:48,50`).
 - Persistence is **already implemented** by F-01/S-03 (all state in Postgres
   with owner-scoped RLS; re-loaded server-side in `wedding.astro:27-32`). This
   slice does not touch persistence code — it verifies it.
@@ -86,11 +86,11 @@ N/M, conflicts, and tables.
 
 ## Implementation Approach
 
-Extract a tiny pure helper `computeProgress(tables, assignments)` →
+Extract a tiny pure helper `computeProgress(guests, assignments)` →
 `{ assigned, total, isComplete }` into `src/lib/assignment-progress.ts`, unit
 test it against hand-derived literals (the node-only lane needs a pure
 function), then render a small counter in the `WeddingWorkspace` header row
-above the tabs, wired to the existing central `tables`/`assignments` state so it
+above the tabs, wired to the existing central `guests`/`assignments` state so it
 is reactive to every mutation for free. Finally, verify persistence manually
 with an explicit logout/login smoke against the US-03 acceptance criteria.
 
@@ -112,9 +112,9 @@ and the unit test share a single source of truth, and so the "progress is
 independent of conflict validation" guarantee is expressed in testable logic
 rather than buried in JSX.
 
-**Contract**: `computeProgress(tables: Table[], assignments: Assignment[]):
+**Contract**: `computeProgress(guests: Guest[], assignments: Assignment[]):
 { assigned: number; total: number; isComplete: boolean }`. `assigned =
-assignments.length`; `total = sum of table.seats.length`; `isComplete = total > 0
+assignments.length`; `total = guests.length`; `isComplete = total > 0
 && assigned === total`. Pure, no dependency on `Conflict`/`Violation` — that
 independence is the load-bearing invariant. Keep the file single-purpose and
 export only `computeProgress` (lessons: small single-purpose files).
@@ -128,13 +128,14 @@ pattern (§6.1): node env, explicit `import { describe, it, expect }`, camelCase
 fixtures from `src/types.ts`, hand-derived literal expectations (oracle
 discipline — never snapshot the function's own output).
 
-**Contract**: Cases — no tables → `{0, 0, false}`; partial occupancy → assigned
-< total, `isComplete false`; full (assigned === total, total > 0) →
-`isComplete true`; **progress independent of conflicts**: assignments that
-include a conflicting pair still count toward `assigned` (build assignments that
-would violate a conflict and assert `assigned` is unchanged / `isComplete` can
-be true); multiple tables sum their `seatCount`. Use realistic names in
-fixtures (lessons: realistic test data).
+**Contract**: Cases — no guests → `{0, 0, false}`; guests entered but none
+seated → `assigned 0`, `total = guests.length`, `isComplete false`; partial
+seating → assigned < total, `isComplete false`; full (assigned === total,
+total > 0) → `isComplete true`; **progress independent of conflicts**:
+assignments that include a conflicting pair still count toward `assigned` (build
+assignments that would violate a conflict and assert `assigned` is unchanged /
+`isComplete` can be true). Use realistic names in fixtures (lessons: realistic
+test data).
 
 #### 3. Header counter UI
 
@@ -142,15 +143,15 @@ fixtures (lessons: realistic test data).
 
 **Intent**: Show "N / M gości przypisanych" in the header row (with the wedding
 name, above the tab bar at `:123-170`) so it is visible on all four tabs,
-computed from the existing `tables`/`assignments` state via `computeProgress`.
+computed from the existing `guests`/`assignments` state via `computeProgress`.
 Emphasise the completion state when `isComplete`.
 
-**Contract**: Call `computeProgress(tables, assignments)` in the component body;
+**Contract**: Call `computeProgress(guests, assignments)` in the component body;
 render the label as `{assigned} / {total} gości przypisanych` in a fixed header
 slot (e.g. wrap the name block + counter in a `flex items-baseline
 justify-between` row). Apply an emphasis class only when `isComplete` (e.g. a
-green/bold token via `cn()`), plain otherwise. Empty wedding shows "0 / 0"
-(no conditional hiding). No new props — derive from existing state. UI copy in
+green/bold token via `cn()`), plain otherwise. Empty wedding (no guests) shows
+"0 / 0" (no conditional hiding). No new props — derive from existing state. UI copy in
 Polish. Keep it inline in the header or as a tiny local presentational piece;
 do not thread new state.
 
@@ -167,10 +168,11 @@ do not thread new state.
 
 - Counter is visible in the header on all four tabs (Stoły / Goście /
       Konflikty / Rozsadzanie)
-- Counter increments on each assignment and decrements on unassign / guest
-      delete / table shrink+delete
-- With no tables the counter reads "0 / 0"
-- When every seat is filled (N === M, M > 0) the counter is visually
+- N increments on assignment and decrements on unassign / table shrink+delete;
+      M increments when a guest is added and decreases when a guest is deleted
+      (deleting a seated guest drops both N and M)
+- With no guests the counter reads "0 / 0"
+- When every entered guest has a seat (N === M, M > 0) the counter is visually
       emphasised; it is not emphasised at "0 / 0"
 - Seating a conflicting pair on adjacent seats still counts toward N (e.g.
       reaches "M / M") while the violations list grows separately — progress is
@@ -256,8 +258,9 @@ this phase deliberately does not duplicate it.
 
 ## Performance Considerations
 
-`computeProgress` is an O(tables + assignments) reduction over at most a few
-hundred rows, recomputed on render — negligible at wedding scale. No
+`computeProgress` only reads the length of two lists (`guests` and
+`assignments`) — a constant-cost operation that does not depend on how many
+guests there are, recomputed on each render. Negligible at wedding scale; no
 memoization needed.
 
 ## Migration Notes
@@ -286,18 +289,18 @@ provided by F-01/S-03.
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass: `npm run test:run`
-- [ ] 1.2 Type checking passes: `npx astro check`
-- [ ] 1.3 Linting passes: `npm run lint`
-- [ ] 1.4 Production build succeeds: `npm run build`
+- [x] 1.1 Unit tests pass: `npm run test:run`
+- [x] 1.2 Type checking passes: `npx astro check`
+- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.4 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 1.5 Counter visible in the header on all four tabs
-- [ ] 1.6 Counter increments on assign and decrements on unassign / guest delete / table shrink+delete
-- [ ] 1.7 With no tables the counter reads "0 / 0"
-- [ ] 1.8 Counter emphasised when N === M and M > 0; not emphasised at "0 / 0"
-- [ ] 1.9 Seating a conflicting pair still counts toward N while violations list grows separately
+- [x] 1.5 Counter visible in the header on all four tabs
+- [x] 1.6 N tracks assign / unassign / table shrink+delete; M tracks guest add / delete
+- [x] 1.7 With no guests the counter reads "0 / 0"
+- [x] 1.8 Counter emphasised when N === M and M > 0; not emphasised at "0 / 0"
+- [x] 1.9 Seating a conflicting pair still counts toward N while violations list grows separately
 
 ### Phase 2: Persistence Verification
 

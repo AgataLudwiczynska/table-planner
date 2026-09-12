@@ -36,7 +36,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | S-02  | `guest-and-conflict-management`                 | dodać, edytować, usunąć gościa; zdefiniować i usunąć binarny konflikt między parą gości      | F-01, S-01    | FR-010, FR-011, FR-012, FR-014, FR-015, FR-016                 | done |
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | done |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | done |
-| S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | planning |
+| S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | in-progress |
 
 ## Streams
 
@@ -131,7 +131,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 
 ### S-05: Operator śledzi postęp i wraca do stanu po wylogowaniu
 
-- **Outcome:** Operator widzi w stałym miejscu interfejsu (nagłówek lub sidebar panelu nieprzypisanych) licznik „N / M gości przypisanych" aktualizowany po każdym przypisaniu, gdzie M to suma miejsc we wszystkich stołach a N to liczba przypisanych gości. Postęp jest niezależny od poprawności walidacji — 150/150 pokazuje się nawet gdy są naruszenia konfliktów (lista naruszeń rośnie osobno). Po wylogowaniu i ponownym zalogowaniu operator widzi dokładnie ten sam stan: wszyscy przypisani goście na tych samych miejscach, wszystkie zdefiniowane konflikty, wszystkie stoły bez zmian.
+- **Outcome:** Operator widzi w stałym miejscu interfejsu (nagłówek lub sidebar panelu nieprzypisanych) licznik „N / M gości przypisanych" aktualizowany po każdym przypisaniu, gdzie M to liczba wszystkich gości wpisanych do systemu a N to liczba gości, którzy mają miejsce. Postęp jest niezależny od poprawności walidacji — 150/150 pokazuje się nawet gdy są naruszenia konfliktów (lista naruszeń rośnie osobno). Po wylogowaniu i ponownym zalogowaniu operator widzi dokładnie ten sam stan: wszyscy przypisani goście na tych samych miejscach, wszystkie zdefiniowane konflikty, wszystkie stoły bez zmian.
 - **Change ID:** `assignment-progress-and-persistence`
 - **PRD refs:** US-03, FR-024
 - **Prerequisites:** S-03
@@ -139,7 +139,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Persystencja jest własnością F-01 (wszystko w Postgresie z RLS) więc słabe ryzyko techniczne — slice głównie weryfikacyjny + drobne UI (licznik). Ryzyko produktowe: brak explicit testu logout/login w acceptance criteria = możliwość pominięcia sprawdzenia że pełny stan wesela (nie tylko przypisania, ale też stoły i konflikty) się utrzymuje. Mitygacja: acceptance criterion explicit „logout, login, weryfikuj: N przypisanych = N przed logout, K konfliktów = K, wszystkie stoły identyczne".
-- **Status:** planning
+- **Status:** in-progress
 
 ## Backlog Handoff
 
