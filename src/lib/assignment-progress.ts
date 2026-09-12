@@ -1,7 +1,7 @@
 import type { Assignment, Guest } from "@/types";
 
 /** Wedding-wide seating progress: guests with a seat over all guests entered. */
-export interface Progress {
+interface Progress {
   assigned: number;
   total: number;
   isComplete: boolean;
