@@ -157,7 +157,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Najniższego ryzyka pozycja — pure visual, zero logiki i zero migracji. Jedyne ryzyko: pominięcie któregoś ekranu lub słaby kontrast tekstu/CTA na jasnym tle — mitygacja: przejść wszystkie trzy powierzchnie (signin, signup, landing) i zweryfikować kontrast.
-- **Status:** planning
+- **Status:** in-progress
 
 ## Backlog Handoff
 

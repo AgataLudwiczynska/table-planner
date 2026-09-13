@@ -7,19 +7,19 @@ const today = formatDate();
 ---
 
 <div
-  class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
+  class="mb-4 flex items-center justify-between rounded-xl border border-rose-100 bg-white px-4 py-2 text-sm text-slate-600 shadow-sm"
 >
   {
     user ? (
       <>
-        <span class="text-blue-100/70">{user.email}</span>
-        <span class="text-blue-100/70">{today}</span>
+        <span class="text-slate-500">{user.email}</span>
+        <span class="text-slate-500">{today}</span>
         <div class="flex items-center gap-3">
-          <a href={ROUTES.wedding} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          <a href={ROUTES.wedding} class="text-rose-600 transition-colors hover:text-rose-700 hover:underline">
             Wesele
           </a>
           <form method="POST" action={ROUTES.signOut}>
-            <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            <button type="submit" class="text-rose-600 transition-colors hover:text-rose-700 hover:underline">
               Wyloguj się
             </button>
           </form>
@@ -27,13 +27,13 @@ const today = formatDate();
       </>
     ) : (
       <>
-        <span class="text-blue-100/70">Niezalogowany</span>
-        <span class="text-blue-100/70">{today}</span>
+        <span class="text-slate-500">Niezalogowany</span>
+        <span class="text-slate-500">{today}</span>
         <div class="flex gap-3">
-          <a href={ROUTES.signIn} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          <a href={ROUTES.signIn} class="text-rose-600 transition-colors hover:text-rose-700 hover:underline">
             Zaloguj się
           </a>
-          <a href={ROUTES.signUp} class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          <a href={ROUTES.signUp} class="text-rose-600 transition-colors hover:text-rose-700 hover:underline">
             Zarejestruj się
           </a>
         </div>

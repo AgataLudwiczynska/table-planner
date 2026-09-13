@@ -293,33 +293,33 @@ None — no data, schema, or config migration. `bg-cosmic` removal is safe once 
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
-- [x] 1.2 Type-check passes: `npx astro check`
-- [x] 1.3 Production build succeeds: `npm run build`
-- [x] 1.4 No dark tokens remain in auth files (grep)
+- [x] 1.1 Lint passes: `npm run lint` — b072fb6
+- [x] 1.2 Type-check passes: `npx astro check` — b072fb6
+- [x] 1.3 Production build succeeds: `npm run build` — b072fb6
+- [x] 1.4 No dark tokens remain in auth files (grep) — b072fb6
 
 #### Manual
 
-- [x] 1.5 Three auth screens render on light wedding background with legible contrast
-- [x] 1.6 All three auth screens read in Polish
-- [x] 1.7 Sign-in and sign-up still validate with Polish messages and submit
-- [x] 1.8 Password show/hide toggle still works
+- [x] 1.5 Three auth screens render on light wedding background with legible contrast — b072fb6
+- [x] 1.6 All three auth screens read in Polish — b072fb6
+- [x] 1.7 Sign-in and sign-up still validate with Polish messages and submit — b072fb6
+- [x] 1.8 Password show/hide toggle still works — b072fb6
 
 ### Phase 2: Landing → wedding theme, Polish product copy, rose decoration
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Type-check passes: `npx astro check`
-- [ ] 2.3 Production build succeeds: `npm run build`
-- [ ] 2.4 No dark tokens remain in landing files (grep)
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Type-check passes: `npx astro check`
+- [x] 2.3 Production build succeeds: `npm run build`
+- [x] 2.4 No dark tokens remain in landing files (grep)
 
 #### Manual
 
-- [ ] 2.5 Landing renders on light wedding background with rose orbs, no star field
-- [ ] 2.6 Hero + feature cards show Polish wedding product copy (no Astro Starter text)
-- [ ] 2.7 Hero CTAs and Topbar links navigate correctly with comfortable contrast
-- [ ] 2.8 Topbar renders correctly logged-out and logged-in
+- [x] 2.5 Landing renders on light wedding background with rose orbs, no star field
+- [x] 2.6 Hero + feature cards show Polish wedding product copy (no Astro Starter text)
+- [x] 2.7 Hero CTAs and Topbar links navigate correctly with comfortable contrast
+- [x] 2.8 Topbar renders correctly logged-out and logged-in
 
 ### Phase 3: Cleanup + full verification
 
