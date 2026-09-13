@@ -1,12 +1,12 @@
 import type { FormFieldTheme } from "@/components/ui/FormField";
 
-// Dark glassmorphism palette for the auth screens (bg-cosmic background).
+// Light wedding palette for the auth screens (bg-wedding background).
 export const authFieldTheme: FormFieldTheme = {
-  labelClassName: "text-blue-100/80",
-  iconClassName: "text-white/40",
-  inputClassName: "border-white/20 bg-white/10 text-white placeholder-white/40 focus:ring-purple-400",
-  inputErrorClassName: "border-red-400/60 focus:ring-red-400",
-  errorClassName: "text-red-300",
+  labelClassName: "text-slate-700",
+  iconClassName: "text-slate-400",
+  inputClassName: "border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:ring-rose-400",
+  inputErrorClassName: "border-red-400 focus:ring-red-400",
+  errorClassName: "text-red-600",
 };
 
-export const authServerErrorClass = "border-red-500/30 bg-red-900/30 text-red-300";
+export const authServerErrorClass = "border-red-300 bg-red-50 text-red-700";
