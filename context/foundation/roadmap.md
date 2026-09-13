@@ -37,7 +37,7 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | done |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | done |
 | S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | done |
-| S-06  | `auth-and-landing-wedding-theme`                | (polish) zobaczyć spójny jasny motyw weselny na ekranach logowania/rejestracji i stronie startowej | S-01          | — (follow-up F3; brak FR — polish wizualny)                   | planning |
+| S-06  | `auth-and-landing-wedding-theme`                | (polish) zobaczyć spójny jasny motyw weselny na ekranach logowania/rejestracji i stronie startowej | S-01          | — (follow-up F3; brak FR — polish wizualny)                   | in-progress |
 
 > **Milestone:** F-01 + S-01…S-05 zamykają milestone MVP (wszystkie `done`). S-06 otwiera post-MVP „spójność wizualna i polish" — nie jest slice'em dowodzącym hipotezy, tylko domknięciem wyglądu.
 

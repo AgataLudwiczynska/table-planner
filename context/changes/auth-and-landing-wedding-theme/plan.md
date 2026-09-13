@@ -293,17 +293,17 @@ None — no data, schema, or config migration. `bg-cosmic` removal is safe once 
 
 #### Automated
 
-- [ ] 1.1 Lint passes: `npm run lint`
-- [ ] 1.2 Type-check passes: `npx astro check`
-- [ ] 1.3 Production build succeeds: `npm run build`
-- [ ] 1.4 No dark tokens remain in auth files (grep)
+- [x] 1.1 Lint passes: `npm run lint`
+- [x] 1.2 Type-check passes: `npx astro check`
+- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.4 No dark tokens remain in auth files (grep)
 
 #### Manual
 
-- [ ] 1.5 Three auth screens render on light wedding background with legible contrast
-- [ ] 1.6 All three auth screens read in Polish
-- [ ] 1.7 Sign-in and sign-up still validate with Polish messages and submit
-- [ ] 1.8 Password show/hide toggle still works
+- [x] 1.5 Three auth screens render on light wedding background with legible contrast
+- [x] 1.6 All three auth screens read in Polish
+- [x] 1.7 Sign-in and sign-up still validate with Polish messages and submit
+- [x] 1.8 Password show/hide toggle still works
 
 ### Phase 2: Landing → wedding theme, Polish product copy, rose decoration
 
