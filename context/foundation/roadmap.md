@@ -37,6 +37,9 @@ TablePlanner to walidator sąsiedztw miejsc przy okrągłych stołach weselnych 
 | S-03  | `assignment-with-realtime-conflict-validation`  | przypisać gościa (drag/click), zobaczyć graficzny okrąg i natychmiast czerwone flagowanie    | S-01, S-02    | US-01, FR-013, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023 | done |
 | S-04  | `table-edit-with-guest-auto-unassign`           | zmienić liczbę miejsc lub usunąć stół z dialogiem potwierdzenia i atomowym auto-unassign     | S-03          | US-02, FR-008, FR-009                                          | done |
 | S-05  | `assignment-progress-and-persistence`           | widzieć licznik „N/M gości przypisanych" i wrócić do dokładnie tego samego stanu po logout   | S-03          | US-03, FR-024                                                  | done |
+| S-06  | `auth-and-landing-wedding-theme`                | (polish) zobaczyć spójny jasny motyw weselny na ekranach logowania/rejestracji i stronie startowej | S-01          | — (follow-up F3; brak FR — polish wizualny)                   | backlog  |
+
+> **Milestone:** F-01 + S-01…S-05 zamykają milestone MVP (wszystkie `done`). S-06 otwiera post-MVP „spójność wizualna i polish" — nie jest slice'em dowodzącym hipotezy, tylko domknięciem wyglądu.
 
 ## Streams
 
@@ -45,6 +48,7 @@ Pomocnicza nawigacja — grupuje pozycje po łańcuchach Prerequisites. Kanonicz
 | Stream | Motyw                           | Chain                                                | Notka                                                                         |
 | ------ | ------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------- |
 | A      | Setup + gwiazda + rozwój danych | `F-01` → `S-01` → `S-02` → `S-03` → `S-04` / `S-05` | Jedyna oś, sekwencyjna. S-02 realnie startuje dopiero po S-01 (nadbudowuje nad weselem + stroną wesela), więc mimo niezależnego schematu leży w tej samej osi, nie jako osobny tor. S-04 i S-05 rozdzielają się w parze po S-03 (agent-fan-out). |
+| B      | Post-MVP polish                 | `S-06`                                               | Domknięcie wyglądu po zamknięciu MVP. `S-06` (motyw auth+landing) zależy tylko od `bg-wedding` z S-01. Pure visual, brak zależności od danych. |
 
 ## Baseline
 
@@ -141,6 +145,20 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 - **Risk:** Persystencja jest własnością F-01 (wszystko w Postgresie z RLS) więc słabe ryzyko techniczne — slice głównie weryfikacyjny + drobne UI (licznik). Ryzyko produktowe: brak explicit testu logout/login w acceptance criteria = możliwość pominięcia sprawdzenia że pełny stan wesela (nie tylko przypisania, ale też stoły i konflikty) się utrzymuje. Mitygacja: acceptance criterion explicit „logout, login, weryfikuj: N przypisanych = N przed logout, K konfliktów = K, wszystkie stoły identyczne".
 - **Status:** done
 
+### S-06: Ujednolicenie wyglądu — auth + landing na motyw weselny
+
+**← Post-MVP polish (stream B).**
+
+- **Outcome:** Ekrany logowania/rejestracji (`src/pages/auth/{signin,signup}.astro`) oraz anonimowa strona startowa przechodzą z ciemnej „kosmicznej" palety na jasny motyw weselny (`bg-wedding` wprowadzony w S-01), tak aby cała aplikacja czytała się jako jeden spójny, weselny wygląd. Bez zmiany zachowania — wyłącznie warstwa wizualna.
+- **Change ID:** `auth-and-landing-wedding-theme`
+- **PRD refs:** — (follow-up F3 z impl-review S-01; brak własnego FR)
+- **Prerequisites:** S-01 (wprowadza `bg-wedding` i motyw weselny)
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Najniższego ryzyka pozycja — pure visual, zero logiki i zero migracji. Jedyne ryzyko: pominięcie któregoś ekranu lub słaby kontrast tekstu/CTA na jasnym tle — mitygacja: przejść wszystkie trzy powierzchnie (signin, signup, landing) i zweryfikować kontrast.
+- **Status:** backlog
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                                        | Suggested issue title                                                            | Ready for `/10x-plan` | Notes                                            |
@@ -151,6 +169,7 @@ Foundations poniżej zakładają, że te warstwy działają, i NIE ich nie re-sc
 | S-03       | `assignment-with-realtime-conflict-validation`   | GWIAZDA: Przypisanie + real-time walidacja konfliktów sąsiedztwa                   | no                    | czeka na S-01 i S-02 done                         |
 | S-04       | `table-edit-with-guest-auto-unassign`            | Edycja stołu — zmniejszanie z auto-unassign i usunięcie                            | no                    | czeka na S-03 done; równolegle z S-05             |
 | S-05       | `assignment-progress-and-persistence`            | Licznik postępu + weryfikacja persystencji stanu po logout                        | no                    | czeka na S-03 done; równolegle z S-04             |
+| S-06       | `auth-and-landing-wedding-theme`                 | Ujednolicenie wyglądu: auth + landing na motyw weselny                            | yes                   | Post-MVP polish; wywodzi się z follow-up F3       |
 
 ## Open Roadmap Questions
 
