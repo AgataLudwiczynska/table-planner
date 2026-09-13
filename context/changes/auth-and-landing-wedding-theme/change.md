@@ -1,7 +1,7 @@
 ---
 change_id: auth-and-landing-wedding-theme
 title: Auth and landing wedding theme
-status: implementing
+status: implemented
 created: 2026-09-13
 updated: 2026-09-13
 archived_at: null

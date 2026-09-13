@@ -325,14 +325,14 @@ None — no data, schema, or config migration. `bg-cosmic` removal is safe once 
 
 #### Automated
 
-- [x] 3.1 No cosmic references anywhere: `grep -rn "bg-cosmic" src/` returns nothing
-- [x] 3.2 Lint passes: `npm run lint`
-- [x] 3.3 Type-check passes: `npx astro check`
-- [x] 3.4 Production build succeeds: `npm run build`
-- [x] 3.5 Test suite still green: `npm run test:run`
+- [x] 3.1 No cosmic references anywhere: `grep -rn "bg-cosmic" src/` returns nothing — f893f22
+- [x] 3.2 Lint passes: `npm run lint` — f893f22
+- [x] 3.3 Type-check passes: `npx astro check` — f893f22
+- [x] 3.4 Production build succeeds: `npm run build` — f893f22
+- [x] 3.5 Test suite still green: `npm run test:run` — f893f22
 
 #### Manual
 
-- [x] 3.6 All four surfaces + workspace show one consistent wedding look
-- [x] 3.7 Text/CTA contrast comfortable on every surface
-- [x] 3.8 Full auth round-trip works end to end
+- [x] 3.6 All four surfaces + workspace show one consistent wedding look — f893f22
+- [x] 3.7 Text/CTA contrast comfortable on every surface — f893f22
+- [x] 3.8 Full auth round-trip works end to end — f893f22
