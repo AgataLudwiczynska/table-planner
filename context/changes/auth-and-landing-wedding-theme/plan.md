@@ -309,30 +309,30 @@ None — no data, schema, or config migration. `bg-cosmic` removal is safe once 
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Type-check passes: `npx astro check`
-- [x] 2.3 Production build succeeds: `npm run build`
-- [x] 2.4 No dark tokens remain in landing files (grep)
+- [x] 2.1 Lint passes: `npm run lint` — fb02c16
+- [x] 2.2 Type-check passes: `npx astro check` — fb02c16
+- [x] 2.3 Production build succeeds: `npm run build` — fb02c16
+- [x] 2.4 No dark tokens remain in landing files (grep) — fb02c16
 
 #### Manual
 
-- [x] 2.5 Landing renders on light wedding background with rose orbs, no star field
-- [x] 2.6 Hero + feature cards show Polish wedding product copy (no Astro Starter text)
-- [x] 2.7 Hero CTAs and Topbar links navigate correctly with comfortable contrast
-- [x] 2.8 Topbar renders correctly logged-out and logged-in
+- [x] 2.5 Landing renders on light wedding background with rose orbs, no star field — fb02c16
+- [x] 2.6 Hero + feature cards show Polish wedding product copy (no Astro Starter text) — fb02c16
+- [x] 2.7 Hero CTAs and Topbar links navigate correctly with comfortable contrast — fb02c16
+- [x] 2.8 Topbar renders correctly logged-out and logged-in — fb02c16
 
 ### Phase 3: Cleanup + full verification
 
 #### Automated
 
-- [ ] 3.1 No cosmic references anywhere: `grep -rn "bg-cosmic" src/` returns nothing
-- [ ] 3.2 Lint passes: `npm run lint`
-- [ ] 3.3 Type-check passes: `npx astro check`
-- [ ] 3.4 Production build succeeds: `npm run build`
-- [ ] 3.5 Test suite still green: `npm run test:run`
+- [x] 3.1 No cosmic references anywhere: `grep -rn "bg-cosmic" src/` returns nothing
+- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.3 Type-check passes: `npx astro check`
+- [x] 3.4 Production build succeeds: `npm run build`
+- [x] 3.5 Test suite still green: `npm run test:run`
 
 #### Manual
 
-- [ ] 3.6 All four surfaces + workspace show one consistent wedding look
-- [ ] 3.7 Text/CTA contrast comfortable on every surface
-- [ ] 3.8 Full auth round-trip works end to end
+- [x] 3.6 All four surfaces + workspace show one consistent wedding look
+- [x] 3.7 Text/CTA contrast comfortable on every surface
+- [x] 3.8 Full auth round-trip works end to end
